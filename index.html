@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EBH Team - Payment 💸💲</title>
+    <title>EBH Team - ইউজার প্যানেল</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
         
@@ -169,6 +169,7 @@
             color: #fff;
             box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
             letter-spacing: 0.5px;
+            opacity: 0.8;
         }
 
         .type-option.cookies {
@@ -182,9 +183,11 @@
         .type-option:hover {
             transform: translateY(-2px);
             filter: brightness(1.1);
+            opacity: 1;
         }
 
         .type-option.active {
+            opacity: 1;
             transform: scale(1.01);
             box-shadow: 
                 0 0 0 2px #ffd700,
@@ -610,10 +613,11 @@
         const db = getDatabase(app);
 
         let selectedPayment = '';
-        let selectedType = 'cookies';
+        let selectedType = ''; // কোন ডিফল্ট টাইপ নেই
         let systemEnabled = true;
         let maintenanceMessage = '';
 
+        // টাইপ সিলেক্ট ফাংশন
         window.selectType = function(type) {
             selectedType = type;
             document.getElementById('typeCookies').classList.remove('active');
@@ -626,8 +630,7 @@
             }
         };
 
-        selectType('cookies');
-
+        // সিস্টেম স্ট্যাটাস চেক
         const systemRef = ref(db, 'settings/system');
         onValue(systemRef, (snapshot) => {
             const data = snapshot.val() || {};
@@ -647,12 +650,14 @@
             }
         });
 
+        // থিম টগল
         window.toggleTheme = function() {
             document.body.classList.toggle('light-mode');
             const btn = document.querySelector('.theme-btn');
             btn.textContent = document.body.classList.contains('light-mode') ? '🌓' : '☀️';
         };
 
+        // পেমেন্ট মেথড লোড
         const paymentMethodsRef = ref(db, 'settings/paymentMethods');
         
         get(paymentMethodsRef).then((snapshot) => {
@@ -718,6 +723,7 @@
             document.getElementById('accountCount').textContent = count + ' টি একাউন্ট';
         };
 
+        // সুপারফাস্ট ডুপ্লিকেট চেক
         async function checkBulkDuplicates(usernames) {
             const startTime = performance.now();
             
@@ -773,6 +779,7 @@
             };
         }
 
+        // ব্যাচ সাবমিট
         async function batchSubmit(usernames, telegram, paymentMethod, number) {
             const BATCH_SIZE = 500;
             const timestamp = Date.now();
@@ -804,11 +811,19 @@
             }
         }
 
+        // সাবমিট ডাটা
         window.submitData = async function() {
             const totalStartTime = performance.now();
 
+            // সিস্টেম চেক
             if (!systemEnabled) {
                 showToast('সিস্টেম বন্ধ আছে: ' + maintenanceMessage, 'warning');
+                return;
+            }
+
+            // টাইপ চেক - কোন টাইপ সিলেক্ট করা না থাকলে
+            if (!selectedType) {
+                showToast('অনুগ্রহ করে কুকিজ বা 2FA সিলেক্ট করুন', 'warning');
                 return;
             }
 
@@ -816,10 +831,12 @@
             let telegram = document.getElementById('telegram').value.trim();
             const number = document.getElementById('number').value.trim();
 
+            // টেলিগ্রাম ফরম্যাট ঠিক করা
             if (telegram && !telegram.startsWith('@')) {
                 telegram = '@' + telegram;
             }
 
+            // ভ্যালিডেশন
             if (!selectedPayment) {
                 showToast('পেমেন্ট মেথড সিলেক্ট করুন', 'warning');
                 return;
@@ -844,6 +861,7 @@
                 return;
             }
 
+            // UI আপডেট
             const submitBtn = document.querySelector('.btn-submit');
             const progressBar = document.getElementById('progressBar');
             const progressFill = document.getElementById('progressFill');
@@ -854,14 +872,17 @@
             progressFill.style.width = '0%';
 
             try {
+                // ডুপ্লিকেট চেক
                 const { duplicates, uniqueUsernames, checkTime } = await checkBulkDuplicates(usernames);
                 
                 progressFill.style.width = '30%';
 
+                // ব্যাচ সাবমিট
                 if (uniqueUsernames.length > 0) {
                     await batchSubmit(uniqueUsernames, telegram, selectedPayment, number);
                 }
 
+                // রেজাল্ট দেখান
                 const totalTime = ((performance.now() - totalStartTime) / 1000).toFixed(2);
                 
                 const resultBox = document.getElementById('resultBox');
@@ -882,14 +903,19 @@
                 timeTaken.innerHTML = `⚡ সময়: ${totalTime} সেকেন্ড`;
                 resultBox.classList.add('show');
 
+                // সাকসেস টোস্ট
                 if (uniqueUsernames.length > 0) {
                     showToast(`${uniqueUsernames.length} টি ${typeName} একাউন্ট সেভ হয়েছে`, 'success');
                     
+                    // ফর্ম ক্লিয়ার
                     document.getElementById('usernames').value = '';
                     document.getElementById('accountCount').textContent = '০ টি একাউন্ট';
                     document.getElementById('telegram').value = '@';
                     document.getElementById('number').value = '';
                     selectedPayment = '';
+                    selectedType = ''; // টাইপ রিসেট
+                    document.getElementById('typeCookies').classList.remove('active');
+                    document.getElementById('type2fa').classList.remove('active');
                     document.getElementById('selectedPaymentText').textContent = 'সিলেক্ট করুন';
                 } else {
                     showToast('কোন নতুন একাউন্ট সেভ হয়নি', 'warning');
@@ -905,6 +931,7 @@
             }
         };
 
+        // টোস্ট মেসেজ
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
             toast.className = `toast ${type} show`;
@@ -915,6 +942,7 @@
             }, 4000);
         }
 
+        // প্রাথমিক কাউন্ট
         countAccounts();
     </script>
 </body>
