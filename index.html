@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EBH Team - ইউজার প্যানেল</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #1a1e2b 0%, #2d3349 100%);
+            padding: 20px;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+        }
+
+        body.light-mode {
+            background: linear-gradient(145deg, #f0f2f5 0%, #e6e9f0 100%);
+        }
+
+        body.light-mode .container {
+            background: white;
+            color: #333;
+        }
+
+        body.light-mode .form-group input,
+        body.light-mode .form-group textarea,
+        body.light-mode .type-selector {
+            background: white;
+            color: #333;
+            border-color: #e0e0e0;
+        }
+
+        body.light-mode .rule-box {
+            background: linear-gradient(145deg, #fff3e0, #ffe4bc);
+        }
+
+        body.light-mode .rule-box li {
+            color: #333;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .theme-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #2d3349;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: #ffd700;
+        }
+
+        body.light-mode .theme-btn {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1) rotate(15deg);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #2d3349;
+            border-radius: 50px;
+            padding: 35px 40px;
+            box-shadow: 
+                30px 30px 60px rgba(0,0,0,0.5),
+                inset 2px 2px 5px rgba(255,255,255,0.1),
+                inset -5px -5px 10px rgba(0,0,0,0.5);
+            color: #fff;
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+
+        body.light-mode .container {
+            background: white;
+            box-shadow: 
+                30px 30px 60px rgba(0,0,0,0.1),
+                inset 2px 2px 5px rgba(255,255,255,0.5),
+                inset -5px -5px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .logo h1 {
+            font-size: 40px;
+            font-weight: 2000;
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(145deg, #ffd700, #ffa500, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 
+                0 15px 30px rgba(255,215,0,0.5),
+                3px 3px 0 #00000040,
+                -2px -2px 0 rgba(255,255,255,0.2);
+            letter-spacing: 3px;
+            transform: perspective(800px) rotateX(3deg);
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes logoGlow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(255,215,0,0.3)); }
+            50% { filter: drop-shadow(0 0 40px rgba(255,215,0,0.6)); }
+        }
+
+        .maintenance-notice {
+            background: linear-gradient(145deg, #f44336, #d32f2f);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 5px 15px rgba(244,67,54,0.3);
+            display: none;
+        }
+
+        .maintenance-notice.show {
+            display: block;
+        }
+
+        .type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding: 6px;
+            background: #3a4055;
+            border-radius: 40px;
+            box-shadow: 
+                inset 5px 5px 10px rgba(0,0,0,0.5),
+                inset -3px -3px 8px rgba(255,255,255,0.1);
+        }
+
+        .type-option {
+            flex: 1;
+            padding: 12px 15px;
+            border-radius: 35px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            color: #fff;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
+            letter-spacing: 0.5px;
+        }
+
+        .type-option.cookies {
+            background: linear-gradient(145deg, #ff6b6b, #ff4757);
+        }
+
+        .type-option.twofa {
+            background: linear-gradient(145deg, #4834d4, #686de0);
+        }
+
+        .type-option:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .type-option.active {
+            transform: scale(1.01);
+            box-shadow: 
+                0 0 0 2px #ffd700,
+                inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ffd700;
+            font-size: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        body.light-mode .form-group label {
+            color: #667eea;
+        }
+
+        .form-group textarea,
+        .form-group input {
+            width: 100%;
+            padding: 16px 22px;
+            border: none;
+            border-radius: 30px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #3a4055;
+            color: #fff;
+            box-shadow: 
+                inset 5px 5px 10px rgba(0,0,0,0.5),
+                inset -3px -3px 8px rgba(255,255,255,0.1),
+                5px 5px 15px rgba(0,0,0,0.3);
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        body.light-mode .form-group textarea,
+        body.light-mode .form-group input {
+            background: white;
+            color: #333;
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.05);
+            border: 2px solid #e0e0e0;
+        }
+
+        .form-group textarea {
+            min-height: 160px;
+            resize: vertical;
+        }
+
+        .form-group textarea:focus,
+        .form-group input:focus {
+            outline: none;
+            box-shadow: 
+                inset 3px 3px 8px rgba(0,0,0,0.6),
+                inset -2px -2px 5px rgba(255,255,255,0.1),
+                0 0 0 3px rgba(255,215,0,0.3);
+        }
+
+        .account-count {
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            color: #1a1e2b;
+            padding: 16px 22px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 
+                8px 8px 16px rgba(0,0,0,0.4),
+                inset -3px -3px 7px rgba(0,0,0,0.3),
+                inset 3px 3px 7px rgba(255,255,255,0.5);
+            cursor: pointer;
+        }
+
+        .payment-selector {
+            position: relative;
+            width: 100%;
+        }
+
+        .payment-selected {
+            width: 100%;
+            padding: 16px 22px;
+            background: #3a4055;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 15px;
+            color: #fff;
+            box-shadow: 
+                inset 5px 5px 10px rgba(0,0,0,0.5),
+                inset -3px -3px 8px rgba(255,255,255,0.1),
+                5px 5px 15px rgba(0,0,0,0.3);
+        }
+
+        body.light-mode .payment-selected {
+            background: white;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            box-shadow: none;
+        }
+
+        .payment-selected:hover {
+            box-shadow: 
+                inset 3px 3px 8px rgba(0,0,0,0.6),
+                0 0 0 2px rgba(255,215,0,0.3);
+        }
+
+        .payment-selected .arrow {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+            color: #ffd700;
+        }
+
+        .payment-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #3a4055;
+            border-radius: 30px;
+            margin-top: 8px;
+            overflow: hidden;
+            z-index: 100;
+            display: none;
+            box-shadow: 
+                10px 10px 30px rgba(0,0,0,0.5),
+                inset 2px 2px 5px rgba(255,255,255,0.1);
+        }
+
+        body.light-mode .payment-dropdown {
+            background: white;
+            border: 2px solid #e0e0e0;
+        }
+
+        .payment-dropdown.show {
+            display: block;
+        }
+
+        .payment-option {
+            padding: 14px 22px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #4a5070;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        body.light-mode .payment-option {
+            color: #333;
+            border-bottom-color: #f0f0f0;
+        }
+
+        .payment-option:hover {
+            background: #ffd700;
+            color: #1a1e2b;
+        }
+
+        .payment-option:last-child {
+            border-bottom: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            color: #1a1e2b;
+            border: none;
+            border-radius: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                10px 10px 20px rgba(0,0,0,0.4),
+                inset -3px -3px 8px rgba(0,0,0,0.3),
+                inset 3px 3px 8px rgba(255,255,255,0.5);
+            margin-top: 22px;
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-box {
+            background: rgba(255,215,0,0.1);
+            border-radius: 30px;
+            padding: 18px;
+            margin-top: 22px;
+            border-left: 8px solid #ffd700;
+            box-shadow: 
+                inset 3px 3px 8px rgba(0,0,0,0.3),
+                5px 5px 15px rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .success-text {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .duplicate-text {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .time-text {
+            color: #fff;
+            font-size: 13px;
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        .rule-box {
+            background: linear-gradient(145deg, rgba(255,215,0,0.1), rgba(255,165,0,0.05));
+            border-radius: 30px;
+            padding: 22px;
+            margin-top: 30px;
+            border-left: 8px solid #ffd700;
+            box-shadow: 
+                inset 3px 3px 8px rgba(0,0,0,0.3),
+                8px 8px 20px rgba(0,0,0,0.4);
+        }
+
+        body.light-mode .rule-box {
+            background: linear-gradient(145deg, #fff3e0, #ffe4bc);
+        }
+
+        .rule-box h3 {
+            color: #ffd700;
+            margin-bottom: 12px;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        body.light-mode .rule-box h3 {
+            color: #ff9800;
+        }
+
+        .rule-box li {
+            padding: 6px 0;
+            color: #fff;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            list-style: none;
+        }
+
+        body.light-mode .rule-box li {
+            color: #333;
+        }
+
+        .rule-box li:before {
+            content: "⚡";
+            color: #ffd700;
+            font-size: 16px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 16px 28px;
+            background: #2d3349;
+            color: #fff;
+            border-radius: 30px;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.4);
+            transform: translateX(450px);
+            transition: transform 0.3s ease;
+            z-index: 9999;
+            border-left: 8px solid;
+            font-size: 15px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success { border-left-color: #4CAF50; }
+        .toast.error { border-left-color: #f44336; }
+        .toast.warning { border-left-color: #ffd700; }
+
+        .loader {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border: 3px solid #1a1e2b;
+            border-top: 3px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #3a4055;
+            border-radius: 8px;
+            margin-top: 12px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffa500);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle">
+        <button class="theme-btn" onclick="toggleTheme()">☀️</button>
+    </div>
+
+    <div class="container">
+        <div class="logo">
+            <h1>EBH TEAM</h1>
+        </div>
+
+        <div id="maintenanceNotice" class="maintenance-notice"></div>
+
+        <div class="type-selector">
+            <div class="type-option cookies" onclick="selectType('cookies')" id="typeCookies">
+                🍪 কুকিজ আইডি 
+            </div>
+            <div class="type-option twofa" onclick="selectType('2fa')" id="type2fa">
+                🔐 টু-ফ্যাক্টর (2FA)
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>📝 ইউজারনেম সমূহ (প্রতি লাইনে একটি)</label>
+            <textarea id="usernames" placeholder="username1&#10;username2&#10;username3" oninput="countAccounts()"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>🔢 মোট একাউন্ট সংখ্যা</label>
+            <div class="account-count" id="accountCount">০ টি একাউন্ট</div>
+        </div>
+
+        <div class="form-group">
+            <label>📱 টেলিগ্রাম ইউজারনেম</label>
+            <input type="text" id="telegram" placeholder="@username" value="@">
+        </div>
+
+        <div class="form-group">
+            <label>💰 পেমেন্ট মেথড</label>
+            <div class="payment-selector">
+                <div class="payment-selected" onclick="togglePaymentDropdown()">
+                    <span id="selectedPaymentText">সিলেক্ট করুন</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="payment-dropdown" id="paymentDropdown"></div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>📞 পেমেন্ট নম্বর</label>
+            <input type="text" id="number" placeholder="017xxxxxxxx">
+        </div>
+
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <button class="btn-submit" onclick="submitData()">✅ সাবমিট করুন</button>
+
+        <div class="result-box" id="resultBox">
+            <div id="resultMessage"></div>
+            <div class="time-text" id="timeTaken"></div>
+        </div>
+
+        <div class="rule-box">
+            <h3>⚠️ নিয়মাবলী</h3>
+            <ul>
+                <li>১০০ টাকার নিচে পেমেন্ট = মোবাইল রিচার্জ নাম্বার অথবা বাইনান্স UID দিন</li>
+                <li>১০০ টাকার উপরে পেমেন্ট = বিকাশ/নগদ/রকেট</li>
+                <li>ডুপ্লিকেট অটো বাদ যাবে</li>
+                <li>কুকিজ বা 2FA সিলেক্ট করা বাধ্যতামূলক</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue, push, query, orderByChild, equalTo, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
+            authDomain: "saprahik-kaj.firebaseapp.com",
+            databaseURL: "https://saprahik-kaj-default-rtdb.firebaseio.com",
+            projectId: "saprahik-kaj",
+            storageBucket: "saprahik-kaj.firebasestorage.app",
+            messagingSenderId: "336661054558",
+            appId: "1:336661054558:web:1beb394b660c9d6cf520cf",
+            measurementId: "G-VDSE7LQRH9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let selectedPayment = '';
+        let selectedType = 'cookies';
+        let systemEnabled = true;
+        let maintenanceMessage = '';
+
+        window.selectType = function(type) {
+            selectedType = type;
+            document.getElementById('typeCookies').classList.remove('active');
+            document.getElementById('type2fa').classList.remove('active');
+            
+            if (type === 'cookies') {
+                document.getElementById('typeCookies').classList.add('active');
+            } else {
+                document.getElementById('type2fa').classList.add('active');
+            }
+        };
+
+        selectType('cookies');
+
+        const systemRef = ref(db, 'settings/system');
+        onValue(systemRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            systemEnabled = data.enabled !== false;
+            maintenanceMessage = data.message || 'সিস্টেম মেইনটেন্যান্স মোডে আছে';
+            
+            const notice = document.getElementById('maintenanceNotice');
+            const submitBtn = document.querySelector('.btn-submit');
+            
+            if (!systemEnabled) {
+                notice.textContent = '⚠️ ' + maintenanceMessage;
+                notice.classList.add('show');
+                submitBtn.disabled = true;
+            } else {
+                notice.classList.remove('show');
+                submitBtn.disabled = false;
+            }
+        });
+
+        window.toggleTheme = function() {
+            document.body.classList.toggle('light-mode');
+            const btn = document.querySelector('.theme-btn');
+            btn.textContent = document.body.classList.contains('light-mode') ? '🌓' : '☀️';
+        };
+
+        const paymentMethodsRef = ref(db, 'settings/paymentMethods');
+        
+        get(paymentMethodsRef).then((snapshot) => {
+            if (!snapshot.exists()) {
+                set(paymentMethodsRef, {
+                    bkash: true,
+                    nagad: true,
+                    rocket: true,
+                    mobileRecharge: true,
+                    binance: true
+                });
+            }
+        });
+
+        onValue(paymentMethodsRef, (snapshot) => {
+            const methods = snapshot.val() || {};
+            renderPaymentDropdown(methods);
+        });
+
+        function renderPaymentDropdown(methods) {
+            const dropdown = document.getElementById('paymentDropdown');
+            dropdown.innerHTML = '';
+
+            const methodList = [
+                { id: 'bkash', name: '💳 বিকাশ' },
+                { id: 'nagad', name: '💵 নগদ' },
+                { id: 'rocket', name: '🚀 রকেট' },
+                { id: 'mobileRecharge', name: '📱 মোবাইল রিচার্জ' },
+                { id: 'binance', name: '₿ বাইন্যান্স' }
+            ];
+
+            methodList.forEach(method => {
+                const div = document.createElement('div');
+                div.className = 'payment-option';
+                if (methods[method.id] === false) {
+                    div.style.opacity = '0.4';
+                    div.style.cursor = 'not-allowed';
+                } else {
+                    div.onclick = () => {
+                        selectedPayment = method.name;
+                        document.getElementById('selectedPaymentText').textContent = method.name;
+                        document.getElementById('paymentDropdown').classList.remove('show');
+                    };
+                }
+                div.textContent = method.name;
+                dropdown.appendChild(div);
+            });
+        }
+
+        window.togglePaymentDropdown = function() {
+            document.getElementById('paymentDropdown').classList.toggle('show');
+        };
+
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.payment-selector')) {
+                document.getElementById('paymentDropdown').classList.remove('show');
+            }
+        });
+
+        window.countAccounts = function() {
+            const text = document.getElementById('usernames').value;
+            const count = text.split('\n').filter(line => line.trim() !== '').length;
+            document.getElementById('accountCount').textContent = count + ' টি একাউন্ট';
+        };
+
+        async function checkBulkDuplicates(usernames) {
+            const startTime = performance.now();
+            
+            const uniqueSet = new Set();
+            const duplicates = new Set();
+            
+            usernames.forEach(u => {
+                if (uniqueSet.has(u)) {
+                    duplicates.add(u);
+                } else {
+                    uniqueSet.add(u);
+                }
+            });
+
+            const uniqueUsernames = Array.from(uniqueSet);
+            
+            if (uniqueUsernames.length === 0) {
+                return { 
+                    duplicates: Array.from(duplicates), 
+                    uniqueUsernames: [],
+                    checkTime: performance.now() - startTime 
+                };
+            }
+
+            const BATCH_SIZE = 500;
+            const batches = [];
+            for (let i = 0; i < uniqueUsernames.length; i += BATCH_SIZE) {
+                batches.push(uniqueUsernames.slice(i, i + BATCH_SIZE));
+            }
+
+            const dbDuplicates = new Set();
+            
+            const batchPromises = batches.map(async (batch) => {
+                const batchChecks = batch.map(username => 
+                    get(query(ref(db, 'submits'), orderByChild('username'), equalTo(username)))
+                        .then(snapshot => snapshot.exists() ? username : null)
+                );
+                
+                const results = await Promise.all(batchChecks);
+                results.forEach(username => {
+                    if (username) dbDuplicates.add(username);
+                });
+            });
+
+            await Promise.all(batchPromises);
+
+            const finalUnique = uniqueUsernames.filter(u => !dbDuplicates.has(u));
+            
+            return {
+                duplicates: Array.from(new Set([...duplicates, ...dbDuplicates])),
+                uniqueUsernames: finalUnique,
+                checkTime: performance.now() - startTime
+            };
+        }
+
+        async function batchSubmit(usernames, telegram, paymentMethod, number) {
+            const BATCH_SIZE = 500;
+            const timestamp = Date.now();
+            const batches = [];
+            
+            for (let i = 0; i < usernames.length; i += BATCH_SIZE) {
+                batches.push(usernames.slice(i, i + BATCH_SIZE));
+            }
+
+            for (let i = 0; i < batches.length; i++) {
+                const batch = batches[i];
+                const promises = batch.map(username => 
+                    push(ref(db, 'submits'), {
+                        username: username,
+                        telegram: telegram.replace('@', ''),
+                        paymentMethod: paymentMethod,
+                        number: number,
+                        timestamp: timestamp,
+                        status: 'pending',
+                        accountCount: usernames.length,
+                        type: selectedType
+                    })
+                );
+                
+                await Promise.all(promises);
+                
+                const progress = ((i + 1) / batches.length) * 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+            }
+        }
+
+        window.submitData = async function() {
+            const totalStartTime = performance.now();
+
+            if (!systemEnabled) {
+                showToast('সিস্টেম বন্ধ আছে: ' + maintenanceMessage, 'warning');
+                return;
+            }
+
+            const usernamesText = document.getElementById('usernames').value;
+            let telegram = document.getElementById('telegram').value.trim();
+            const number = document.getElementById('number').value.trim();
+
+            if (telegram && !telegram.startsWith('@')) {
+                telegram = '@' + telegram;
+            }
+
+            if (!selectedPayment) {
+                showToast('পেমেন্ট মেথড সিলেক্ট করুন', 'warning');
+                return;
+            }
+
+            if (!usernamesText || !telegram || !number) {
+                showToast('সব ফিল্ড পূরণ করুন', 'warning');
+                return;
+            }
+
+            if (telegram === '@' || telegram.length < 2) {
+                showToast('সঠিক টেলিগ্রাম ইউজারনেম দিন', 'warning');
+                return;
+            }
+
+            const usernames = usernamesText.split('\n')
+                .map(u => u.trim())
+                .filter(u => u !== '');
+
+            if (usernames.length === 0) {
+                showToast('কমপক্ষে একটি ইউজারনেম দিন', 'warning');
+                return;
+            }
+
+            const submitBtn = document.querySelector('.btn-submit');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loader"></span> প্রসেসিং...';
+            progressBar.style.display = 'block';
+            progressFill.style.width = '0%';
+
+            try {
+                const { duplicates, uniqueUsernames, checkTime } = await checkBulkDuplicates(usernames);
+                
+                progressFill.style.width = '30%';
+
+                if (uniqueUsernames.length > 0) {
+                    await batchSubmit(uniqueUsernames, telegram, selectedPayment, number);
+                }
+
+                const totalTime = ((performance.now() - totalStartTime) / 1000).toFixed(2);
+                
+                const resultBox = document.getElementById('resultBox');
+                const resultMessage = document.getElementById('resultMessage');
+                const timeTaken = document.getElementById('timeTaken');
+
+                const typeName = selectedType === 'cookies' ? 'কুকিজ' : '2FA';
+
+                if (uniqueUsernames.length === 0) {
+                    resultMessage.innerHTML = '<span class="duplicate-text">⚠️ সব ইউজারনেম ডুপ্লিকেট!</span>';
+                } else {
+                    resultMessage.innerHTML = `
+                        <span class="success-text">✅ ${uniqueUsernames.length} টি ${typeName} একাউন্ট সেভ হয়েছে</span><br>
+                        ${duplicates.length > 0 ? `<span class="duplicate-text">⚠️ ${duplicates.length} টি ডুপ্লিকেট বাদ</span>` : ''}
+                    `;
+                }
+                
+                timeTaken.innerHTML = `⚡ সময়: ${totalTime} সেকেন্ড`;
+                resultBox.classList.add('show');
+
+                if (uniqueUsernames.length > 0) {
+                    showToast(`${uniqueUsernames.length} টি ${typeName} একাউন্ট সেভ হয়েছে`, 'success');
+                    
+                    document.getElementById('usernames').value = '';
+                    document.getElementById('accountCount').textContent = '০ টি একাউন্ট';
+                    document.getElementById('telegram').value = '@';
+                    document.getElementById('number').value = '';
+                    selectedPayment = '';
+                    document.getElementById('selectedPaymentText').textContent = 'সিলেক্ট করুন';
+                } else {
+                    showToast('কোন নতুন একাউন্ট সেভ হয়নি', 'warning');
+                }
+
+            } catch (error) {
+                console.error('Submit Error:', error);
+                showToast('সাবমিট করতে সমস্যা: ' + error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '✅ সাবমিট করুন';
+                progressBar.style.display = 'none';
+            }
+        };
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.className = `toast ${type} show`;
+            toast.innerHTML = message;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        countAccounts();
+    </script>
+</body>
+</html>
