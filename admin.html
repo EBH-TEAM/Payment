@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EBH Team - অ্যাডমিন প্যানেল</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #1a1e2b 0%, #2d3349 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: #2d3349;
+            padding: 20px 25px;
+            border-radius: 50px;
+            box-shadow: 
+                15px 15px 30px rgba(0,0,0,0.5),
+                inset 2px 2px 5px rgba(255,255,255,0.1),
+                inset -3px -3px 8px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+
+        .logo h1 {
+            font-size: 36px;
+            font-weight: 900;
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(145deg, #ffd700, #ffa500, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 
+                0 5px 15px rgba(255,215,0,0.3),
+                2px 2px 0 #00000030;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .stat-box {
+            background: rgba(255,215,0,0.1);
+            padding: 8px 20px;
+            border-radius: 40px;
+            border: 1px solid #ffd700;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-box span {
+            color: #ffd700;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .stat-box label {
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            color: #1a1e2b;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 
+                5px 5px 10px rgba(0,0,0,0.4),
+                inset -2px -2px 5px rgba(0,0,0,0.2),
+                inset 2px 2px 5px rgba(255,255,255,0.3);
+        }
+
+        .type-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .type-tab {
+            flex: 1;
+            padding: 15px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
+        }
+
+        .type-tab.cookies {
+            background: linear-gradient(145deg, #ff6b6b, #ff4757);
+            color: white;
+        }
+
+        .type-tab.twofa {
+            background: linear-gradient(145deg, #4834d4, #686de0);
+            color: white;
+        }
+
+        .type-tab:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.1);
+        }
+
+        .type-tab.active {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px #ffd700;
+        }
+
+        .type-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .type-stat-box {
+            flex: 1;
+            background: #2d3349;
+            border-radius: 30px;
+            padding: 15px;
+            border: 1px solid rgba(255,215,0,0.2);
+            text-align: center;
+        }
+
+        .type-stat-box.cookies .stat-value {
+            color: #ff6b6b;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .type-stat-box.twofa .stat-value {
+            color: #686de0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .type-stat-box .stat-label {
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .copy-all-btn {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+            min-width: 200px;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
+        }
+
+        .search-box {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 25px;
+            background: #3a4055;
+            border: none;
+            border-radius: 40px;
+            color: #fff;
+            font-size: 16px;
+            box-shadow: inset 5px 5px 10px rgba(0,0,0,0.5);
+        }
+
+        .settings-section {
+            background: #2d3349;
+            border-radius: 40px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .settings-header h3 {
+            color: #ffd700;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-header .arrow {
+            color: #ffd700;
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .settings-header.active .arrow {
+            transform: rotate(180deg);
+        }
+
+        .settings-content {
+            display: none;
+            padding-top: 20px;
+        }
+
+        .settings-content.show {
+            display: block;
+        }
+
+        .payment-toggles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .toggle-item {
+            background: #3a4055;
+            padding: 12px 15px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .toggle-item label {
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .toggle-item input[type="checkbox"] {
+            width: 44px;
+            height: 22px;
+            appearance: none;
+            background: rgba(255,255,255,0.2);
+            border-radius: 22px;
+            position: relative;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-item input[type="checkbox"]:checked {
+            background: #ffd700;
+        }
+
+        .toggle-item input[type="checkbox"]::before {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s;
+        }
+
+        .toggle-item input[type="checkbox"]:checked::before {
+            left: 24px;
+        }
+
+        .save-settings-btn {
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            color: #1a1e2b;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .system-control {
+            background: rgba(255,215,0,0.05);
+            border-radius: 30px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .system-toggle {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .system-toggle button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
+        }
+
+        .btn-enable {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-disable {
+            background: linear-gradient(145deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        .system-message {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .system-message input {
+            width: 100%;
+            padding: 12px 20px;
+            background: #3a4055;
+            border: none;
+            border-radius: 30px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .current-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-on {
+            background: rgba(76,175,80,0.2);
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+
+        .status-off {
+            background: rgba(244,67,54,0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        .danger-zone {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(244,67,54,0.1);
+            border-radius: 30px;
+            border: 1px solid #f44336;
+        }
+
+        .danger-btn {
+            background: linear-gradient(145deg, #f44336, #d32f2f);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .user-card {
+            background: #2d3349;
+            border-radius: 40px;
+            padding: 20px;
+            border: 1px solid rgba(255,215,0,0.2);
+            box-shadow: 
+                10px 10px 20px rgba(0,0,0,0.4),
+                inset 2px 2px 5px rgba(255,255,255,0.1),
+                inset -3px -3px 8px rgba(0,0,0,0.5);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .phone-number {
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            color: #1a1e2b;
+            padding: 8px 15px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .type-badge {
+            padding: 6px 15px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .type-badge.cookies {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .type-badge.twofa {
+            background: #686de0;
+            color: white;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 20px;
+            color: #fff;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .payment-badge {
+            background: rgba(255,215,0,0.1);
+            color: #ffd700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            border: 1px solid #ffd700;
+        }
+
+        .timestamp {
+            color: rgba(255,255,255,0.6);
+            font-size: 11px;
+            margin-left: 45px;
+            margin-top: 5px;
+        }
+
+        .usernames-list {
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .username-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 8px;
+            border-bottom: 1px solid rgba(255,215,0,0.1);
+            color: #fff;
+            font-size: 12px;
+        }
+
+        .username-item:last-child {
+            border-bottom: none;
+        }
+
+        .copy-small {
+            background: #3a4055;
+            border: none;
+            color: #ffd700;
+            width: 25px;
+            height: 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 12px;
+        }
+
+        .copy-small:hover {
+            background: #ffd700;
+            color: #1a1e2b;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            border: none;
+            background: #3a4055;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 16px;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
+        }
+
+        .action-btn:hover {
+            background: #ffd700;
+            color: #1a1e2b;
+            transform: scale(1.1);
+        }
+
+        .copy-usernames-btn {
+            flex: 2;
+            padding: 8px;
+            border-radius: 12px;
+            border: none;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .status-select {
+            flex: 1;
+            padding: 8px;
+            border-radius: 12px;
+            border: none;
+            background: #3a4055;
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .status-select option {
+            background: #2d3349;
+            color: #fff;
+        }
+
+        .delete-btn {
+            background: rgba(244,67,54,0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        .delete-btn:hover {
+            background: #f44336;
+            color: white;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 18px 30px;
+            background: #2d3349;
+            border-radius: 30px;
+            color: white;
+            transform: translateX(450px);
+            transition: 0.3s;
+            z-index: 9999;
+            border-left: 8px solid;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success { border-left-color: #4CAF50; }
+        .toast.error { border-left-color: #f44336; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: rgba(255,255,255,0.6);
+            font-size: 18px;
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .stats-row {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .action-bar {
+                flex-direction: column;
+            }
+            
+            .system-toggle {
+                flex-direction: column;
+            }
+            
+            .system-message {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <h1>EBH TEAM</h1>
+            </div>
+            <div class="stats-row">
+                <div class="stat-box">
+                    <span id="totalUsers">0</span>
+                    <label>ইউজার</label>
+                </div>
+                <div class="stat-box">
+                    <span id="totalAccounts">0</span>
+                    <label>একাউন্ট</label>
+                </div>
+                <button class="refresh-btn" onclick="loadData()">🔄</button>
+            </div>
+        </div>
+
+        <div class="type-tabs">
+            <button class="type-tab cookies active" onclick="switchType('cookies')" id="tabCookies">
+                🍪 কুকিজ একাউন্ট
+            </button>
+            <button class="type-tab twofa" onclick="switchType('2fa')" id="tab2fa">
+                🔐 2FA একাউন্ট
+            </button>
+        </div>
+
+        <div class="type-stats">
+            <div class="type-stat-box cookies">
+                <div class="stat-value" id="cookiesCount">0</div>
+                <div class="stat-label">কুকিজ একাউন্ট</div>
+            </div>
+            <div class="type-stat-box twofa">
+                <div class="stat-value" id="twofaCount">0</div>
+                <div class="stat-label">2FA একাউন্ট</div>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <button class="copy-all-btn" onclick="copyAllUsernames()">
+                📋 সব একাউন্ট কপি
+            </button>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 ফোন বা টেলিগ্রাম সার্চ..." onkeyup="filterData()">
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-header" onclick="toggleSettings('payment')">
+                <h3>⚙️ পেমেন্ট মেথড সেটিংস</h3>
+                <span class="arrow" id="paymentArrow">▼</span>
+            </div>
+            <div class="settings-content" id="paymentSettings">
+                <div class="payment-toggles">
+                    <div class="toggle-item">
+                        <label>💳 বিকাশ</label>
+                        <input type="checkbox" id="toggleBkash" checked>
+                    </div>
+                    <div class="toggle-item">
+                        <label>💵 নগদ</label>
+                        <input type="checkbox" id="toggleNagad" checked>
+                    </div>
+                    <div class="toggle-item">
+                        <label>🚀 রকেট</label>
+                        <input type="checkbox" id="toggleRocket" checked>
+                    </div>
+                    <div class="toggle-item">
+                        <label>📱 মোবাইল রিচার্জ</label>
+                        <input type="checkbox" id="toggleMobileRecharge" checked>
+                    </div>
+                    <div class="toggle-item">
+                        <label>₿ বাইন্যান্স</label>
+                        <input type="checkbox" id="toggleBinance" checked>
+                    </div>
+                </div>
+                <button class="save-settings-btn" onclick="savePaymentSettings()">
+                    💾 সেটিংস সেভ করুন
+                </button>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-header" onclick="toggleSettings('system')">
+                <h3>🔧 সিস্টেম কন্ট্রোল</h3>
+                <span class="arrow" id="systemArrow">▼</span>
+            </div>
+            <div class="settings-content" id="systemSettings">
+                <div class="system-control">
+                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <span style="color: #ffd700;">বর্তমান স্ট্যাটাস:</span>
+                        <span id="systemStatus" class="current-status status-on">চালু</span>
+                    </div>
+                    <div class="system-toggle">
+                        <button class="btn-enable" onclick="toggleSystem(true)">✅ সিস্টেম চালু</button>
+                        <button class="btn-disable" onclick="toggleSystem(false)">⛔ সিস্টেম বন্ধ</button>
+                        <div class="system-message">
+                            <input type="text" id="maintenanceMessage" placeholder="মেইনটেন্যান্স মেসেজ..." value="সিস্টেম আপডেট চলছে, পরে আবার চেষ্টা করুন">
+                        </div>
+                    </div>
+                    <button class="save-settings-btn" onclick="updateSystemStatus()" style="margin-top: 10px;">
+                        📢 সিস্টেম স্ট্যাটাস আপডেট
+                    </button>
+                </div>
+
+                <div class="danger-zone">
+                    <button class="danger-btn" onclick="clearAllDatabase()">
+                        🗑️ সম্পূর্ণ ডাটাবেজ ডিলিট
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="usersGrid" class="users-grid">
+            <div class="empty-state">ডাটা লোড হচ্ছে...</div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue, remove, update, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
+            authDomain: "saprahik-kaj.firebaseapp.com",
+            databaseURL: "https://saprahik-kaj-default-rtdb.firebaseio.com",
+            projectId: "saprahik-kaj",
+            storageBucket: "saprahik-kaj.firebasestorage.app",
+            messagingSenderId: "336661054558",
+            appId: "1:336661054558:web:1beb394b660c9d6cf520cf",
+            measurementId: "G-VDSE7LQRH9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let allGroups = [];
+        let currentType = 'cookies';
+        let searchTerm = '';
+
+        // টগল ফাংশন
+        window.toggleSettings = function(type) {
+            const content = document.getElementById(type + 'Settings');
+            const arrow = document.getElementById(type + 'Arrow');
+            
+            content.classList.toggle('show');
+            arrow.style.transform = content.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0)';
+        };
+
+        // টাইপ সুইচ
+        window.switchType = function(type) {
+            currentType = type;
+            document.getElementById('tabCookies').classList.remove('active');
+            document.getElementById('tab2fa').classList.remove('active');
+            document.getElementById('tab' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+            filterData();
+        };
+
+        // সিস্টেম স্ট্যাটাস লোড
+        const systemRef = ref(db, 'settings/system');
+        onValue(systemRef, (snapshot) => {
+            const data = snapshot.val() || { enabled: true, message: '' };
+            const statusEl = document.getElementById('systemStatus');
+            const messageInput = document.getElementById('maintenanceMessage');
+            
+            if (data.enabled) {
+                statusEl.textContent = 'চালু';
+                statusEl.className = 'current-status status-on';
+            } else {
+                statusEl.textContent = 'বন্ধ';
+                statusEl.className = 'current-status status-off';
+            }
+            
+            if (data.message) {
+                messageInput.value = data.message;
+            }
+        });
+
+        // পেমেন্ট সেটিংস লোড
+        const settingsRef = ref(db, 'settings/paymentMethods');
+        onValue(settingsRef, (snapshot) => {
+            const settings = snapshot.val() || {};
+            document.getElementById('toggleBkash').checked = settings.bkash !== false;
+            document.getElementById('toggleNagad').checked = settings.nagad !== false;
+            document.getElementById('toggleRocket').checked = settings.rocket !== false;
+            document.getElementById('toggleMobileRecharge').checked = settings.mobileRecharge !== false;
+            document.getElementById('toggleBinance').checked = settings.binance !== false;
+        });
+
+        // পেমেন্ট সেটিংস সেভ
+        window.savePaymentSettings = function() {
+            const settings = {
+                bkash: document.getElementById('toggleBkash').checked,
+                nagad: document.getElementById('toggleNagad').checked,
+                rocket: document.getElementById('toggleRocket').checked,
+                mobileRecharge: document.getElementById('toggleMobileRecharge').checked,
+                binance: document.getElementById('toggleBinance').checked
+            };
+            
+            set(settingsRef, settings)
+                .then(() => showToast('পেমেন্ট সেটিংস সেভ হয়েছে', 'success'))
+                .catch(() => showToast('সেভ করতে সমস্যা', 'error'));
+        };
+
+        // সিস্টেম স্ট্যাটাস আপডেট
+        window.toggleSystem = function(enabled) {
+            const message = document.getElementById('maintenanceMessage').value;
+            set(systemRef, { enabled, message })
+                .then(() => showToast(`সিস্টেম ${enabled ? 'চালু' : 'বন্ধ'} করা হয়েছে`, 'success'));
+        };
+
+        window.updateSystemStatus = function() {
+            const message = document.getElementById('maintenanceMessage').value;
+            set(systemRef, { enabled: true, message })
+                .then(() => showToast('সিস্টেম স্ট্যাটাস আপডেট হয়েছে', 'success'));
+        };
+
+        // ডাটা লোড
+        window.loadData = function() {
+            const submitsRef = ref(db, 'submits');
+            
+            onValue(submitsRef, (snapshot) => {
+                const data = snapshot.val();
+                
+                if (data) {
+                    const grouped = {};
+                    let totalAccounts = 0;
+                    let cookiesCount = 0;
+                    let twofaCount = 0;
+                    
+                    Object.keys(data).forEach(key => {
+                        const item = { id: key, ...data[key] };
+                        const number = item.number || 'unknown';
+                        const type = item.type || 'cookies';
+                        
+                        if (type === 'cookies') cookiesCount++;
+                        else twofaCount++;
+                        
+                        const groupKey = number + '_' + type;
+                        
+                        if (!grouped[groupKey]) {
+                            grouped[groupKey] = {
+                                number: number,
+                                telegram: item.telegram,
+                                paymentMethod: item.paymentMethod,
+                                timestamp: item.timestamp,
+                                status: item.status || 'pending',
+                                type: type,
+                                accounts: [],
+                                ids: []
+                            };
+                        }
+                        
+                        grouped[groupKey].accounts.push(item.username);
+                        grouped[groupKey].ids.push(key);
+                        totalAccounts++;
+                    });
+                    
+                    allGroups = Object.values(grouped);
+                    document.getElementById('totalUsers').textContent = allGroups.length;
+                    document.getElementById('totalAccounts').textContent = totalAccounts;
+                    document.getElementById('cookiesCount').textContent = cookiesCount;
+                    document.getElementById('twofaCount').textContent = twofaCount;
+                } else {
+                    allGroups = [];
+                    document.getElementById('totalUsers').textContent = '0';
+                    document.getElementById('totalAccounts').textContent = '0';
+                    document.getElementById('cookiesCount').textContent = '0';
+                    document.getElementById('twofaCount').textContent = '0';
+                }
+                
+                filterData();
+            });
+        };
+
+        window.filterData = function() {
+            searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filtered = allGroups.filter(group => group.type === currentType);
+            
+            if (searchTerm) {
+                filtered = filtered.filter(group => 
+                    group.number?.toLowerCase().includes(searchTerm) ||
+                    group.telegram?.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            displayGroups(filtered);
+        };
+
+        function displayGroups(groups) {
+            const container = document.getElementById('usersGrid');
+            
+            if (groups.length === 0) {
+                container.innerHTML = '<div class="empty-state">📭 কোন ' + (currentType === 'cookies' ? 'কুকিজ' : '2FA') + ' একাউন্ট নেই</div>';
+                return;
+            }
+
+            groups.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+            container.innerHTML = groups.map(group => {
+                const date = new Date(group.timestamp || Date.now());
+                const timeString = date.toLocaleString('bn-BD');
+                const telegramLink = `https://t.me/${group.telegram || ''}`;
+                const allUsernames = group.accounts.join('\n');
+
+                return `
+                    <div class="user-card">
+                        <div class="card-header">
+                            <span class="phone-number">📞 ${group.number}</span>
+                            <span class="type-badge ${group.type === 'cookies' ? 'cookies' : 'twofa'}">
+                                ${group.type === 'cookies' ? '🍪 কুকিজ' : '🔐 2FA'} (${group.accounts.length})
+                            </span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span>📱</span>
+                            <span>@${group.telegram || 'N/A'}</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span>💰</span>
+                            <span class="payment-badge">${group.paymentMethod || 'N/A'}</span>
+                        </div>
+                        
+                        <div class="timestamp">⏰ ${timeString}</div>
+                        
+                        <div class="usernames-list">
+                            ${group.accounts.slice(0, 3).map((username, idx) => `
+                                <div class="username-item">
+                                    <span>${idx + 1}. ${username}</span>
+                                    <button class="copy-small" onclick="copyText('${username}')">📋</button>
+                                </div>
+                            `).join('')}
+                            ${group.accounts.length > 3 ? `<div style="color:#ffd700; text-align:center; padding:5px; font-size:11px;">+ আরও ${group.accounts.length - 3} টি</div>` : ''}
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="copy-usernames-btn" onclick="copyText('${allUsernames}')">
+                                📋 সব কপি
+                            </button>
+                            <button class="action-btn" onclick="copyText('${group.number}')" title="কপি নাম্বার">📞</button>
+                            <a href="${telegramLink}" target="_blank" class="action-btn" title="টেলিগ্রাম">✈️</a>
+                            <select class="status-select" onchange="updateGroupStatus('${group.ids.join(',')}', this.value)">
+                                <option value="pending" ${group.status === 'pending' ? 'selected' : ''}>⏳ পেন্ডিং</option>
+                                <option value="completed" ${group.status === 'completed' ? 'selected' : ''}>✅ সম্পন্ন</option>
+                            </select>
+                            <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.updateGroupStatus = function(idsStr, newStatus) {
+            const ids = idsStr.split(',');
+            
+            const promises = ids.map(id => 
+                update(ref(db, 'submits/' + id), { status: newStatus })
+            );
+            
+            Promise.all(promises)
+                .then(() => showToast('স্ট্যাটাস আপডেট হয়েছে', 'success'))
+                .catch(() => showToast('স্ট্যাটাস আপডেট করতে সমস্যা', 'error'));
+        };
+
+        window.deleteGroup = function(idsStr) {
+            if (confirm('আপনি কি এই গ্রুপের সব একাউন্ট ডিলিট করতে চান?')) {
+                const ids = idsStr.split(',');
+                
+                const promises = ids.map(id => 
+                    remove(ref(db, 'submits/' + id))
+                );
+                
+                Promise.all(promises)
+                    .then(() => showToast('গ্রুপ ডিলিট করা হয়েছে', 'success'))
+                    .catch(() => showToast('ডিলিট করতে সমস্যা', 'error'));
+            }
+        };
+
+        window.clearAllDatabase = function() {
+            if (confirm('⚠️ আপনি কি সম্পূর্ণ ডাটাবেজ ডিলিট করতে চান?')) {
+                if (confirm('আপনি কি নিশ্চিত? এই কাজ অপরিবর্তনীয়!')) {
+                    remove(ref(db, 'submits'))
+                        .then(() => {
+                            showToast('সমস্ত ডাটা ডিলিট করা হয়েছে', 'success');
+                            loadData();
+                        })
+                        .catch(() => showToast('ডিলিট করতে সমস্যা', 'error'));
+                }
+            }
+        };
+
+        window.copyText = function(text) {
+            if (text) {
+                navigator.clipboard.writeText(text)
+                    .then(() => showToast('কপি হয়েছে!', 'success'))
+                    .catch(() => showToast('কপি করতে সমস্যা', 'error'));
+            }
+        };
+
+        window.copyAllUsernames = function() {
+            const filtered = allGroups.filter(g => g.type === currentType);
+            const allUsernames = filtered.flatMap(g => g.accounts).join('\n');
+            if (allUsernames) {
+                copyText(allUsernames);
+            }
+        };
+
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.className = `toast ${type} show`;
+            toast.textContent = message;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
