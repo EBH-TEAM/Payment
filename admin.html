@@ -148,6 +148,13 @@
             padding: 15px;
             border: 1px solid rgba(255,215,0,0.2);
             text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .type-stat-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,215,0,0.2);
         }
 
         .type-stat-box.cookies .stat-value {
@@ -158,6 +165,12 @@
 
         .type-stat-box.twofa .stat-value {
             color: #686de0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .type-stat-box.duplicate .stat-value {
+            color: #4CAF50;
             font-size: 28px;
             font-weight: bold;
         }
@@ -476,51 +489,57 @@
             border: 1px solid #ffd700;
         }
 
-        .timestamp {
-            color: rgba(255,255,255,0.6);
-            font-size: 11px;
-            margin-left: 45px;
-            margin-top: 5px;
-        }
-
-        .usernames-list {
-            margin-top: 10px;
-            padding: 8px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 20px;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-        .username-item {
+        .stats-row-compact {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 3px 8px;
-            border-bottom: 1px solid rgba(255,215,0,0.1);
-            color: #fff;
-            font-size: 12px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 20px;
+            margin: 5px 0 8px 0;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);
         }
 
-        .username-item:last-child {
-            border-bottom: none;
-        }
-
-        .copy-small {
-            background: #3a4055;
-            border: none;
+        .total-accounts {
             color: #ffd700;
-            width: 25px;
-            height: 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 12px;
+            font-size: 14px;
+            font-weight: 600;
         }
 
-        .copy-small:hover {
-            background: #ffd700;
-            color: #1a1e2b;
+        .total-accounts strong {
+            font-size: 18px;
+            color: #fff;
+            background: rgba(255,215,0,0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 5px;
+        }
+
+        .duplicate-badge {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .duplicate-badge strong {
+            font-size: 18px;
+            background: rgba(76, 175, 80, 0.3);
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 5px;
+            color: #fff;
+        }
+
+        .timestamp {
+            color: rgba(255,255,255,0.6);
+            font-size: 11px;
+            margin-top: 5px;
+            text-align: right;
         }
 
         .action-buttons {
@@ -563,6 +582,13 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 12px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .copy-usernames-btn:hover {
+            background: #5a67d8;
+            transform: scale(1.02);
         }
 
         .status-select {
@@ -678,13 +704,17 @@
         </div>
 
         <div class="type-stats">
-            <div class="type-stat-box cookies">
+            <div class="type-stat-box cookies" onclick="switchType('cookies')">
                 <div class="stat-value" id="cookiesCount">0</div>
-                <div class="stat-label">কুকিজ একাউন্ট</div>
+                <div class="stat-label">🍪 মোট কুকিজ</div>
             </div>
-            <div class="type-stat-box twofa">
+            <div class="type-stat-box twofa" onclick="switchType('2fa')">
                 <div class="stat-value" id="twofaCount">0</div>
-                <div class="stat-label">2FA একাউন্ট</div>
+                <div class="stat-label">🔐 মোট 2FA</div>
+            </div>
+            <div class="type-stat-box duplicate">
+                <div class="stat-value" id="totalDuplicates">0</div>
+                <div class="stat-label">✅ মোট ওকে আইডি</div>
             </div>
         </div>
 
@@ -771,8 +801,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, onValue, remove, update, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getDatabase, ref, onValue, remove, update, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+        // প্রথম ডাটাবেস কনফিগারেশন
         const firebaseConfig = {
             apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
             authDomain: "saprahik-kaj.firebaseapp.com",
@@ -784,8 +815,97 @@
             measurementId: "G-VDSE7LQRH9"
         };
 
+        // দ্বিতীয় ডাটাবেস কনফিগারেশন
+        const secondDatabaseConfig = {
+            apiKey: "AIzaSyAmpKkaw_zpNGbgawtQrUPadBEh55e4mLM",
+            authDomain: "free-lancher-24.firebaseapp.com",
+            databaseURL: "https://free-lancher-24-default-rtdb.firebaseio.com",
+            projectId: "free-lancher-24",
+            storageBucket: "free-lancher-24.firebasestorage.app",
+            messagingSenderId: "667574198748",
+            appId: "1:667574198748:web:cdd8041e5cb3ec7da8af19"
+        };
+
+        // প্রথম ডাটাবেস initialize
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+
+        // দ্বিতীয় ডাটাবেস initialize
+        const secondApp = initializeApp(secondDatabaseConfig, 'secondary');
+        const secondDB = getDatabase(secondApp);
+
+        // দ্বিতীয় ডাটাবেস থেকে সব ইউজারনেম মেমোরিতে লোড করার জন্য
+        let allSecondDBUsernames = new Set();
+        let secondDBLoaded = false;
+        
+        // টাইপ অনুযায়ী ডুপ্লিকেট সংখ্যা আলাদা রাখার জন্য
+        let duplicateStats = {
+            cookies: 0,
+            twofa: 0
+        };
+
+        // দ্বিতীয় ডাটাবেস থেকে সব ডাটা লোড করা
+        async function loadSecondDatabase() {
+            try {
+                console.log('দ্বিতীয় ডাটাবেস লোড হচ্ছে...');
+                const reportsRef = ref(secondDB, 'reports');
+                const snapshot = await get(reportsRef);
+                
+                if (snapshot.exists()) {
+                    const reports = snapshot.val();
+                    allSecondDBUsernames.clear();
+                    
+                    Object.keys(reports).forEach(date => {
+                        const dateData = reports[date];
+                        if (dateData.users) {
+                            Object.keys(dateData.users).forEach(type => {
+                                const typeUsers = dateData.users[type];
+                                Object.keys(typeUsers).forEach(encodedUsername => {
+                                    allSecondDBUsernames.add(encodedUsername);
+                                });
+                            });
+                        }
+                    });
+                    
+                    secondDBLoaded = true;
+                    console.log(`✅ দ্বিতীয় ডাটাবেস থেকে ${allSecondDBUsernames.size} টি ইউজারনেম লোড হয়েছে`);
+                }
+            } catch (error) {
+                console.error('দ্বিতীয় ডাটাবেস লোড করতে সমস্যা:', error);
+            }
+        }
+
+        // এনকোডিং ফাংশন
+        function encodeUsername(username) {
+            if (!username) return '';
+            let encoded = '';
+            for (let i = 0; i < username.length; i++) {
+                const char = username[i];
+                if (char === '.') encoded += '_x2E_';
+                else if (char === '#') encoded += '_x23_';
+                else if (char === '$') encoded += '_x24_';
+                else if (char === '[') encoded += '_x5B_';
+                else if (char === ']') encoded += '_x5D_';
+                else if (char === '/') encoded += '_x2F_';
+                else if (char === '\\') encoded += '_x5C_';
+                else encoded += char;
+            }
+            return encoded;
+        }
+
+        // ডুপ্লিকেট চেক করার ফাংশন
+        function checkDuplicates(usernames) {
+            if (!secondDBLoaded || !usernames || usernames.length === 0) return 0;
+            
+            let duplicateCount = 0;
+            usernames.forEach(username => {
+                const encoded = encodeUsername(username);
+                if (allSecondDBUsernames.has(encoded)) {
+                    duplicateCount++;
+                }
+            });
+            return duplicateCount;
+        }
 
         let allGroups = [];
         let currentType = 'cookies';
@@ -795,19 +915,31 @@
         window.toggleSettings = function(type) {
             const content = document.getElementById(type + 'Settings');
             const arrow = document.getElementById(type + 'Arrow');
-            
             content.classList.toggle('show');
             arrow.style.transform = content.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0)';
         };
 
-        // টাইপ সুইচ
+        // টাইপ সুইচ - আপডেটেড
         window.switchType = function(type) {
             currentType = type;
             document.getElementById('tabCookies').classList.remove('active');
             document.getElementById('tab2fa').classList.remove('active');
             document.getElementById('tab' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+            
+            // টাইপ পরিবর্তনের সাথে সাথে ডুপ্লিকেট সংখ্যা আপডেট
+            updateDuplicateDisplay();
+            
             filterData();
         };
+
+        // ডুপ্লিকেট ডিসপ্লে আপডেট করার ফাংশন
+        function updateDuplicateDisplay() {
+            if (currentType === 'cookies') {
+                document.getElementById('totalDuplicates').textContent = duplicateStats.cookies;
+            } else {
+                document.getElementById('totalDuplicates').textContent = duplicateStats.twofa;
+            }
+        }
 
         // সিস্টেম স্ট্যাটাস লোড
         const systemRef = ref(db, 'settings/system');
@@ -823,10 +955,7 @@
                 statusEl.textContent = 'বন্ধ';
                 statusEl.className = 'current-status status-off';
             }
-            
-            if (data.message) {
-                messageInput.value = data.message;
-            }
+            if (data.message) messageInput.value = data.message;
         });
 
         // পেমেন্ট সেটিংস লোড
@@ -840,7 +969,6 @@
             document.getElementById('toggleBinance').checked = settings.binance !== false;
         });
 
-        // পেমেন্ট সেটিংস সেভ
         window.savePaymentSettings = function() {
             const settings = {
                 bkash: document.getElementById('toggleBkash').checked,
@@ -849,13 +977,11 @@
                 mobileRecharge: document.getElementById('toggleMobileRecharge').checked,
                 binance: document.getElementById('toggleBinance').checked
             };
-            
             set(settingsRef, settings)
                 .then(() => showToast('পেমেন্ট সেটিংস সেভ হয়েছে', 'success'))
                 .catch(() => showToast('সেভ করতে সমস্যা', 'error'));
         };
 
-        // সিস্টেম স্ট্যাটাস আপডেট
         window.toggleSystem = function(enabled) {
             const message = document.getElementById('maintenanceMessage').value;
             set(systemRef, { enabled, message })
@@ -868,12 +994,15 @@
                 .then(() => showToast('সিস্টেম স্ট্যাটাস আপডেট হয়েছে', 'success'));
         };
 
-        // ডাটা লোড
+        // ডাটা লোড - আপডেটেড
         window.loadData = function() {
             const submitsRef = ref(db, 'submits');
             
             onValue(submitsRef, (snapshot) => {
                 const data = snapshot.val();
+                
+                // ডুপ্লিকেট স্ট্যাট রিসেট
+                duplicateStats = { cookies: 0, twofa: 0 };
                 
                 if (data) {
                     const grouped = {};
@@ -904,22 +1033,40 @@
                             };
                         }
                         
-                        grouped[groupKey].accounts.push(item.username);
+                        if (item.username) {
+                            grouped[groupKey].accounts.push(item.username);
+                        }
                         grouped[groupKey].ids.push(key);
                         totalAccounts++;
                     });
                     
                     allGroups = Object.values(grouped);
+                    
+                    // ডুপ্লিকেট কাউন্ট যোগ করা (টাইপ অনুযায়ী আলাদা)
+                    allGroups.forEach(group => {
+                        group.duplicateCount = checkDuplicates(group.accounts);
+                        if (group.type === 'cookies') {
+                            duplicateStats.cookies += group.duplicateCount;
+                        } else {
+                            duplicateStats.twofa += group.duplicateCount;
+                        }
+                    });
+                    
                     document.getElementById('totalUsers').textContent = allGroups.length;
                     document.getElementById('totalAccounts').textContent = totalAccounts;
                     document.getElementById('cookiesCount').textContent = cookiesCount;
                     document.getElementById('twofaCount').textContent = twofaCount;
+                    
+                    // বর্তমান টাইপ অনুযায়ী ডুপ্লিকেট দেখানো
+                    updateDuplicateDisplay();
+                    
                 } else {
                     allGroups = [];
                     document.getElementById('totalUsers').textContent = '0';
                     document.getElementById('totalAccounts').textContent = '0';
                     document.getElementById('cookiesCount').textContent = '0';
                     document.getElementById('twofaCount').textContent = '0';
+                    document.getElementById('totalDuplicates').textContent = '0';
                 }
                 
                 filterData();
@@ -955,14 +1102,13 @@
                 const date = new Date(group.timestamp || Date.now());
                 const timeString = date.toLocaleString('bn-BD');
                 const telegramLink = `https://t.me/${group.telegram || ''}`;
-                const allUsernames = group.accounts.join('\n');
 
                 return `
                     <div class="user-card">
                         <div class="card-header">
                             <span class="phone-number">📞 ${group.number}</span>
                             <span class="type-badge ${group.type === 'cookies' ? 'cookies' : 'twofa'}">
-                                ${group.type === 'cookies' ? '🍪 কুকিজ' : '🔐 2FA'} (${group.accounts.length})
+                                ${group.type === 'cookies' ? '🍪 কুকিজ' : '🔐 2FA'}
                             </span>
                         </div>
                         
@@ -976,21 +1122,22 @@
                             <span class="payment-badge">${group.paymentMethod || 'N/A'}</span>
                         </div>
                         
-                        <div class="timestamp">⏰ ${timeString}</div>
-                        
-                        <div class="usernames-list">
-                            ${group.accounts.slice(0, 3).map((username, idx) => `
-                                <div class="username-item">
-                                    <span>${idx + 1}. ${username}</span>
-                                    <button class="copy-small" onclick="copyText('${username}')">📋</button>
+                        <div class="stats-row-compact">
+                            <div class="total-accounts">
+                                📊 মোট একাউন্ট: <strong>${group.accounts.length}</strong>
+                            </div>
+                            ${group.duplicateCount > 0 ? `
+                                <div class="duplicate-badge">
+                                    ✅ Okay ID: <strong>${group.duplicateCount}</strong>
                                 </div>
-                            `).join('')}
-                            ${group.accounts.length > 3 ? `<div style="color:#ffd700; text-align:center; padding:5px; font-size:11px;">+ আরও ${group.accounts.length - 3} টি</div>` : ''}
+                            ` : ''}
                         </div>
                         
+                        <div class="timestamp">⏰ ${timeString}</div>
+                        
                         <div class="action-buttons">
-                            <button class="copy-usernames-btn" onclick="copyText('${allUsernames}')">
-                                📋 সব কপি
+                            <button class="copy-usernames-btn" onclick='copyUsernames(${JSON.stringify(group.accounts)})'>
+                                📋 সব কপি (${group.accounts.length})
                             </button>
                             <button class="action-btn" onclick="copyText('${group.number}')" title="কপি নাম্বার">📞</button>
                             <a href="${telegramLink}" target="_blank" class="action-btn" title="টেলিগ্রাম">✈️</a>
@@ -1005,13 +1152,79 @@
             }).join('');
         }
 
+        // ইউজারের সব একাউন্ট কপি করার জন্য আলাদা ফাংশন
+        window.copyUsernames = function(usernames) {
+            if (!usernames || usernames.length === 0) {
+                showToast('❌ কপি করার মতো একাউন্ট নেই', 'error');
+                return;
+            }
+            
+            const text = usernames.join('\n');
+            
+            // Clipboard API
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`✅ ${usernames.length} টি একাউন্ট কপি হয়েছে`, 'success');
+            }).catch((err) => {
+                console.error('Copy failed:', err);
+                // Fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast(`✅ ${usernames.length} টি একাউন্ট কপি হয়েছে`, 'success');
+            });
+        };
+
+        window.copyText = function(text) {
+            if (!text) {
+                showToast('❌ কপি করার মতো টেক্সট নেই', 'error');
+                return;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('✅ কপি হয়েছে!', 'success');
+            }).catch((err) => {
+                console.error('Copy failed:', err);
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('✅ কপি হয়েছে!', 'success');
+            });
+        };
+
+        window.copyAllUsernames = function() {
+            const filtered = allGroups.filter(g => g.type === currentType);
+            const allUsernames = filtered.flatMap(g => g.accounts);
+            
+            if (allUsernames.length === 0) {
+                showToast('❌ কপি করার মতো একাউন্ট নেই', 'error');
+                return;
+            }
+            
+            const text = allUsernames.join('\n');
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`✅ সব ${allUsernames.length} টি একাউন্ট কপি হয়েছে`, 'success');
+            }).catch((err) => {
+                console.error('Copy failed:', err);
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast(`✅ সব ${allUsernames.length} টি একাউন্ট কপি হয়েছে`, 'success');
+            });
+        };
+
         window.updateGroupStatus = function(idsStr, newStatus) {
             const ids = idsStr.split(',');
-            
-            const promises = ids.map(id => 
-                update(ref(db, 'submits/' + id), { status: newStatus })
-            );
-            
+            const promises = ids.map(id => update(ref(db, 'submits/' + id), { status: newStatus }));
             Promise.all(promises)
                 .then(() => showToast('স্ট্যাটাস আপডেট হয়েছে', 'success'))
                 .catch(() => showToast('স্ট্যাটাস আপডেট করতে সমস্যা', 'error'));
@@ -1020,11 +1233,7 @@
         window.deleteGroup = function(idsStr) {
             if (confirm('আপনি কি এই গ্রুপের সব একাউন্ট ডিলিট করতে চান?')) {
                 const ids = idsStr.split(',');
-                
-                const promises = ids.map(id => 
-                    remove(ref(db, 'submits/' + id))
-                );
-                
+                const promises = ids.map(id => remove(ref(db, 'submits/' + id)));
                 Promise.all(promises)
                     .then(() => showToast('গ্রুপ ডিলিট করা হয়েছে', 'success'))
                     .catch(() => showToast('ডিলিট করতে সমস্যা', 'error'));
@@ -1044,22 +1253,6 @@
             }
         };
 
-        window.copyText = function(text) {
-            if (text) {
-                navigator.clipboard.writeText(text)
-                    .then(() => showToast('কপি হয়েছে!', 'success'))
-                    .catch(() => showToast('কপি করতে সমস্যা', 'error'));
-            }
-        };
-
-        window.copyAllUsernames = function() {
-            const filtered = allGroups.filter(g => g.type === currentType);
-            const allUsernames = filtered.flatMap(g => g.accounts).join('\n');
-            if (allUsernames) {
-                copyText(allUsernames);
-            }
-        };
-
         function showToast(message, type) {
             const toast = document.getElementById('toast');
             toast.className = `toast ${type} show`;
@@ -1067,7 +1260,10 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        loadData();
+        // দ্বিতীয় ডাটাবেস লোড করে তারপর প্রথম ডাটাবেস লোড করা
+        loadSecondDatabase().then(() => {
+            loadData();
+        });
     </script>
 </body>
 </html>
