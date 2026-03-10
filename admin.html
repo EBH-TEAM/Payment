@@ -786,15 +786,15 @@
         <div class="type-stats">
             <div class="type-stat-box cookies" onclick="switchType('cookies')">
                 <div class="stat-value" id="cookiesCount">0</div>
-                <div class="stat-label">🍪 মোট কুকিজ</div>
+                <div class="stat-label">🍪 কুকিজ একাউন্ট</div>
             </div>
             <div class="type-stat-box twofa" onclick="switchType('2fa')">
                 <div class="stat-value" id="twofaCount">0</div>
-                <div class="stat-label">🔐 মোট 2FA</div>
+                <div class="stat-label">🔐 2FA একাউন্ট</div>
             </div>
             <div class="type-stat-box duplicate">
                 <div class="stat-value" id="totalDuplicates">0</div>
-                <div class="stat-label" id="duplicateLabel">✅ মোট ওকে আইডি</div>
+                <div class="stat-label" id="duplicateLabel">✅ পেন্ডিং ওকে আইডি</div>
             </div>
         </div>
 
@@ -823,7 +823,7 @@
                         <input type="checkbox" id="toggleNagad" checked>
                     </div>
                     <div class="toggle-item">
-                        <label>🚀 রকেট</label>
+"                        <label>🚀 রকেট</label>
                         <input type="checkbox" id="toggleRocket" checked>
                     </div>
                     <div class="toggle-item">
@@ -1112,27 +1112,30 @@
             onValue(submitsRef, (snapshot) => {
                 const data = snapshot.val();
                 
+                // কাউন্টার রিসেট
+                let totalPendingCookies = 0;
+                let totalPending2fa = 0;
+                let totalApprovedCookies = 0;
+                let totalApproved2fa = 0;
+                
                 if (data) {
                     const grouped = {};
-                    let totalAccounts = 0;
-                    let cookiesCount = 0;
-                    let twofaCount = 0;
-                    let pendingCount = 0;
-                    let approvedCount = 0;
                     
-                    // প্রথমে সব ডাটা গ্রুপ করা
+                    // প্রথমে সব ডাটা গ্রুপ করা এবং কাউন্টিং
                     Object.keys(data).forEach(key => {
                         const item = { id: key, ...data[key] };
                         const number = item.number || 'unknown';
                         const type = item.type || 'cookies';
                         const status = item.status || 'pending';
                         
-                        // কাউন্টিং
-                        if (type === 'cookies') cookiesCount++;
-                        else twofaCount++;
-                        
-                        if (status === 'pending') pendingCount++;
-                        else if (status === 'approved') approvedCount++;
+                        // টাইপ এবং স্ট্যাটাস অনুযায়ী কাউন্টিং
+                        if (type === 'cookies') {
+                            if (status === 'pending') totalPendingCookies++;
+                            else if (status === 'approved') totalApprovedCookies++;
+                        } else if (type === '2fa') {
+                            if (status === 'pending') totalPending2fa++;
+                            else if (status === 'approved') totalApproved2fa++;
+                        }
                         
                         const groupKey = number + '_' + type + '_' + status;
                         
@@ -1154,7 +1157,6 @@
                             grouped[groupKey].accounts.push(item.username);
                         }
                         grouped[groupKey].ids.push(key);
-                        totalAccounts++;
                     });
                     
                     allGroups = Object.values(grouped);
@@ -1164,27 +1166,31 @@
                         group.duplicateCount = checkDuplicates(group.accounts);
                     });
                     
-                    // আপডেট কাউন্টার
-                    document.getElementById('totalUsers').textContent = allGroups.length;
-                    document.getElementById('totalAccounts').textContent = totalAccounts;
-                    document.getElementById('cookiesCount').textContent = cookiesCount;
-                    document.getElementById('twofaCount').textContent = twofaCount;
-                    document.getElementById('pendingCount').textContent = pendingCount;
-                    document.getElementById('approvedCount').textContent = approvedCount;
-                    
                 } else {
                     allGroups = [];
-                    document.getElementById('totalUsers').textContent = '0';
-                    document.getElementById('totalAccounts').textContent = '0';
-                    document.getElementById('cookiesCount').textContent = '0';
-                    document.getElementById('twofaCount').textContent = '0';
-                    document.getElementById('pendingCount').textContent = '0';
-                    document.getElementById('approvedCount').textContent = '0';
                 }
+                
+                // পেন্ডিং এবং অ্যাপ্রুভড কাউন্ট আপডেট
+                document.getElementById('pendingCount').textContent = totalPendingCookies + totalPending2fa;
+                document.getElementById('approvedCount').textContent = totalApprovedCookies + totalApproved2fa;
+                
+                // বর্তমান ট্যাব এবং টাইপ অনুযায়ী কাউন্টার আপডেট
+                updateCountersByCurrentView(totalPendingCookies, totalPending2fa, totalApprovedCookies, totalApproved2fa);
                 
                 filterData();
             });
         };
+
+        // বর্তমান ভিউ অনুযায়ী কাউন্টার আপডেট করার ফাংশন
+        function updateCountersByCurrentView(pendingCookies, pending2fa, approvedCookies, approved2fa) {
+            if (currentMainTab === 'pending') {
+                document.getElementById('cookiesCount').textContent = pendingCookies;
+                document.getElementById('twofaCount').textContent = pending2fa;
+            } else {
+                document.getElementById('cookiesCount').textContent = approvedCookies;
+                document.getElementById('twofaCount').textContent = approved2fa;
+            }
+        }
 
         window.filterData = function() {
             searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -1206,6 +1212,10 @@
             // ডুপ্লিকেট কাউন্ট আপডেট করা (শুধু বর্তমান ভিউ অনুযায়ী)
             const totalDuplicatesInView = filtered.reduce((sum, group) => sum + (group.duplicateCount || 0), 0);
             document.getElementById('totalDuplicates').textContent = totalDuplicatesInView;
+            
+            // ইউজার এবং একাউন্ট কাউন্ট আপডেট
+            document.getElementById('totalUsers').textContent = filtered.length;
+            document.getElementById('totalAccounts').textContent = filtered.reduce((sum, group) => sum + group.accounts.length, 0);
             
             displayGroups(filtered);
         };
