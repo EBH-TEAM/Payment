@@ -95,6 +95,53 @@
                 inset 2px 2px 5px rgba(255,255,255,0.3);
         }
 
+        .main-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .main-tab {
+            flex: 1;
+            padding: 15px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
+        }
+
+        .main-tab.pending {
+            background: linear-gradient(145deg, #ffa502, #ff7f50);
+            color: white;
+        }
+
+        .main-tab.approved {
+            background: linear-gradient(145deg, #26de81, #20bf6b);
+            color: white;
+        }
+
+        .main-tab:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.1);
+        }
+
+        .main-tab.active {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px #ffd700;
+        }
+
+        .main-tab .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 10px;
+            border-radius: 20px;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
         .type-tabs {
             display: flex;
             gap: 10px;
@@ -468,6 +515,23 @@
             color: white;
         }
 
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-badge.pending {
+            background: #ffa502;
+            color: white;
+        }
+
+        .status-badge.approved {
+            background: #26de81;
+            color: white;
+        }
+
         .info-row {
             display: flex;
             align-items: center;
@@ -542,6 +606,13 @@
             text-align: right;
         }
 
+        .expiry-info {
+            color: #ffa502;
+            font-size: 11px;
+            margin-top: 2px;
+            text-align: right;
+        }
+
         .action-buttons {
             display: flex;
             gap: 6px;
@@ -591,22 +662,20 @@
             transform: scale(1.02);
         }
 
-        .status-select {
+        .approve-btn {
+            background: linear-gradient(145deg, #26de81, #20bf6b);
+            color: white;
             flex: 1;
             padding: 8px;
             border-radius: 12px;
             border: none;
-            background: #3a4055;
-            color: #ffd700;
+            cursor: pointer;
             font-weight: bold;
             font-size: 12px;
-            cursor: pointer;
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);
         }
 
-        .status-select option {
-            background: #2d3349;
-            color: #fff;
+        .approve-btn:hover {
+            filter: brightness(1.1);
         }
 
         .delete-btn {
@@ -694,6 +763,17 @@
             </div>
         </div>
 
+        <div class="main-tabs">
+            <button class="main-tab pending active" onclick="switchMainTab('pending')" id="tabPending">
+                ⏳ পেন্ডিং
+                <span class="badge" id="pendingCount">0</span>
+            </button>
+            <button class="main-tab approved" onclick="switchMainTab('approved')" id="tabApproved">
+                ✅ অ্যাপ্রুভড
+                <span class="badge" id="approvedCount">0</span>
+            </button>
+        </div>
+
         <div class="type-tabs">
             <button class="type-tab cookies active" onclick="switchType('cookies')" id="tabCookies">
                 🍪 কুকিজ একাউন্ট
@@ -714,7 +794,7 @@
             </div>
             <div class="type-stat-box duplicate">
                 <div class="stat-value" id="totalDuplicates">0</div>
-                <div class="stat-label">✅ মোট ওকে আইডি</div>
+                <div class="stat-label" id="duplicateLabel">✅ মোট ওকে আইডি</div>
             </div>
         </div>
 
@@ -838,11 +918,10 @@
         let allSecondDBUsernames = new Set();
         let secondDBLoaded = false;
         
-        // টাইপ অনুযায়ী ডুপ্লিকেট সংখ্যা আলাদা রাখার জন্য
-        let duplicateStats = {
-            cookies: 0,
-            twofa: 0
-        };
+        let allGroups = [];
+        let currentType = 'cookies';
+        let currentMainTab = 'pending';
+        let searchTerm = '';
 
         // দ্বিতীয় ডাটাবেস থেকে সব ডাটা লোড করা
         async function loadSecondDatabase() {
@@ -907,9 +986,35 @@
             return duplicateCount;
         }
 
-        let allGroups = [];
-        let currentType = 'cookies';
-        let searchTerm = '';
+        // পুরনো ডাটা ডিলিট করার ফাংশন (১৫ দিন পর)
+        async function deleteOldData() {
+            try {
+                const submitsRef = ref(db, 'submits');
+                const snapshot = await get(submitsRef);
+                
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const fifteenDaysAgo = Date.now() - (15 * 24 * 60 * 60 * 1000);
+                    const promises = [];
+                    
+                    Object.keys(data).forEach(key => {
+                        const item = data[key];
+                        // শুধুমাত্র অ্যাপ্রুভড ডাটা চেক করা হবে
+                        if (item.status === 'approved' && item.approvedAt && item.approvedAt < fifteenDaysAgo) {
+                            promises.push(remove(ref(db, 'submits/' + key)));
+                        }
+                    });
+                    
+                    if (promises.length > 0) {
+                        await Promise.all(promises);
+                        console.log(`${promises.length} টি পুরনো অ্যাপ্রুভড ডাটা ডিলিট হয়েছে`);
+                        loadData(); // রিলোড ডাটা
+                    }
+                }
+            } catch (error) {
+                console.error('পুরনো ডাটা ডিলিট করতে সমস্যা:', error);
+            }
+        }
 
         // টগল ফাংশন
         window.toggleSettings = function(type) {
@@ -919,27 +1024,33 @@
             arrow.style.transform = content.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0)';
         };
 
-        // টাইপ সুইচ - আপডেটেড
+        // মেইন ট্যাব সুইচ
+        window.switchMainTab = function(tab) {
+            currentMainTab = tab;
+            document.getElementById('tabPending').classList.remove('active');
+            document.getElementById('tabApproved').classList.remove('active');
+            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+            
+            // ডুপ্লিকেট লেবেল আপডেট
+            const duplicateLabel = document.getElementById('duplicateLabel');
+            if (tab === 'pending') {
+                duplicateLabel.textContent = '✅ পেন্ডিং ওকে আইডি';
+            } else {
+                duplicateLabel.textContent = '✅ অ্যাপ্রুভড ওকে আইডি';
+            }
+            
+            filterData();
+        };
+
+        // টাইপ সুইচ
         window.switchType = function(type) {
             currentType = type;
             document.getElementById('tabCookies').classList.remove('active');
             document.getElementById('tab2fa').classList.remove('active');
             document.getElementById('tab' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
             
-            // টাইপ পরিবর্তনের সাথে সাথে ডুপ্লিকেট সংখ্যা আপডেট
-            updateDuplicateDisplay();
-            
             filterData();
         };
-
-        // ডুপ্লিকেট ডিসপ্লে আপডেট করার ফাংশন
-        function updateDuplicateDisplay() {
-            if (currentType === 'cookies') {
-                document.getElementById('totalDuplicates').textContent = duplicateStats.cookies;
-            } else {
-                document.getElementById('totalDuplicates').textContent = duplicateStats.twofa;
-            }
-        }
 
         // সিস্টেম স্ট্যাটাস লোড
         const systemRef = ref(db, 'settings/system');
@@ -994,31 +1105,36 @@
                 .then(() => showToast('সিস্টেম স্ট্যাটাস আপডেট হয়েছে', 'success'));
         };
 
-        // ডাটা লোড - আপডেটেড
+        // ডাটা লোড
         window.loadData = function() {
             const submitsRef = ref(db, 'submits');
             
             onValue(submitsRef, (snapshot) => {
                 const data = snapshot.val();
                 
-                // ডুপ্লিকেট স্ট্যাট রিসেট
-                duplicateStats = { cookies: 0, twofa: 0 };
-                
                 if (data) {
                     const grouped = {};
                     let totalAccounts = 0;
                     let cookiesCount = 0;
                     let twofaCount = 0;
+                    let pendingCount = 0;
+                    let approvedCount = 0;
                     
+                    // প্রথমে সব ডাটা গ্রুপ করা
                     Object.keys(data).forEach(key => {
                         const item = { id: key, ...data[key] };
                         const number = item.number || 'unknown';
                         const type = item.type || 'cookies';
+                        const status = item.status || 'pending';
                         
+                        // কাউন্টিং
                         if (type === 'cookies') cookiesCount++;
                         else twofaCount++;
                         
-                        const groupKey = number + '_' + type;
+                        if (status === 'pending') pendingCount++;
+                        else if (status === 'approved') approvedCount++;
+                        
+                        const groupKey = number + '_' + type + '_' + status;
                         
                         if (!grouped[groupKey]) {
                             grouped[groupKey] = {
@@ -1026,7 +1142,8 @@
                                 telegram: item.telegram,
                                 paymentMethod: item.paymentMethod,
                                 timestamp: item.timestamp,
-                                status: item.status || 'pending',
+                                status: status,
+                                approvedAt: item.approvedAt || item.timestamp,
                                 type: type,
                                 accounts: [],
                                 ids: []
@@ -1042,23 +1159,18 @@
                     
                     allGroups = Object.values(grouped);
                     
-                    // ডুপ্লিকেট কাউন্ট যোগ করা (টাইপ অনুযায়ী আলাদা)
+                    // ডুপ্লিকেট কাউন্ট যোগ করা
                     allGroups.forEach(group => {
                         group.duplicateCount = checkDuplicates(group.accounts);
-                        if (group.type === 'cookies') {
-                            duplicateStats.cookies += group.duplicateCount;
-                        } else {
-                            duplicateStats.twofa += group.duplicateCount;
-                        }
                     });
                     
+                    // আপডেট কাউন্টার
                     document.getElementById('totalUsers').textContent = allGroups.length;
                     document.getElementById('totalAccounts').textContent = totalAccounts;
                     document.getElementById('cookiesCount').textContent = cookiesCount;
                     document.getElementById('twofaCount').textContent = twofaCount;
-                    
-                    // বর্তমান টাইপ অনুযায়ী ডুপ্লিকেট দেখানো
-                    updateDuplicateDisplay();
+                    document.getElementById('pendingCount').textContent = pendingCount;
+                    document.getElementById('approvedCount').textContent = approvedCount;
                     
                 } else {
                     allGroups = [];
@@ -1066,7 +1178,8 @@
                     document.getElementById('totalAccounts').textContent = '0';
                     document.getElementById('cookiesCount').textContent = '0';
                     document.getElementById('twofaCount').textContent = '0';
-                    document.getElementById('totalDuplicates').textContent = '0';
+                    document.getElementById('pendingCount').textContent = '0';
+                    document.getElementById('approvedCount').textContent = '0';
                 }
                 
                 filterData();
@@ -1076,8 +1189,13 @@
         window.filterData = function() {
             searchTerm = document.getElementById('searchInput').value.toLowerCase();
             
-            let filtered = allGroups.filter(group => group.type === currentType);
+            // প্রথমে টাইপ এবং স্ট্যাটাস অনুযায়ী ফিল্টার
+            let filtered = allGroups.filter(group => 
+                group.type === currentType && 
+                group.status === currentMainTab
+            );
             
+            // তারপর সার্চ টার্ম অনুযায়ী ফিল্টার
             if (searchTerm) {
                 filtered = filtered.filter(group => 
                     group.number?.toLowerCase().includes(searchTerm) ||
@@ -1085,31 +1203,76 @@
                 );
             }
             
+            // ডুপ্লিকেট কাউন্ট আপডেট করা (শুধু বর্তমান ভিউ অনুযায়ী)
+            const totalDuplicatesInView = filtered.reduce((sum, group) => sum + (group.duplicateCount || 0), 0);
+            document.getElementById('totalDuplicates').textContent = totalDuplicatesInView;
+            
             displayGroups(filtered);
+        };
+
+        // ইউজার অ্যাপ্রুভ করার ফাংশন
+        window.approveUser = function(idsStr) {
+            const ids = idsStr.split(',');
+            const approvedAt = Date.now();
+            
+            const promises = ids.map(id => 
+                update(ref(db, 'submits/' + id), { 
+                    status: 'approved',
+                    approvedAt: approvedAt
+                })
+            );
+            
+            Promise.all(promises)
+                .then(() => {
+                    showToast('✅ ইউজার অ্যাপ্রুভ করা হয়েছে', 'success');
+                    // পুরনো ডাটা চেক করুন
+                    deleteOldData();
+                })
+                .catch(() => showToast('অ্যাপ্রুভ করতে সমস্যা', 'error'));
         };
 
         function displayGroups(groups) {
             const container = document.getElementById('usersGrid');
             
             if (groups.length === 0) {
-                container.innerHTML = '<div class="empty-state">📭 কোন ' + (currentType === 'cookies' ? 'কুকিজ' : '2FA') + ' একাউন্ট নেই</div>';
+                container.innerHTML = `<div class="empty-state">📭 কোন ${currentMainTab === 'pending' ? 'পেন্ডিং' : 'অ্যাপ্রুভড'} ${currentType === 'cookies' ? 'কুকিজ' : '2FA'} একাউন্ট নেই</div>`;
                 return;
             }
 
-            groups.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            groups.sort((a, b) => {
+                if (currentMainTab === 'approved') {
+                    return (b.approvedAt || 0) - (a.approvedAt || 0);
+                }
+                return (b.timestamp || 0) - (a.timestamp || 0);
+            });
 
             container.innerHTML = groups.map(group => {
                 const date = new Date(group.timestamp || Date.now());
                 const timeString = date.toLocaleString('bn-BD');
                 const telegramLink = `https://t.me/${group.telegram || ''}`;
+                
+                // অ্যাপ্রুভড হলে কত দিন হলো তা দেখান
+                let expiryInfo = '';
+                if (group.status === 'approved' && group.approvedAt) {
+                    const daysPassed = Math.floor((Date.now() - group.approvedAt) / (24 * 60 * 60 * 1000));
+                    const daysLeft = 15 - daysPassed;
+                    if (daysLeft > 0) {
+                        expiryInfo = `<div class="expiry-info">⏳ আরো ${daysLeft} দিন বাকি</div>`;
+                    }
+                }
 
                 return `
                     <div class="user-card">
                         <div class="card-header">
                             <span class="phone-number">📞 ${group.number}</span>
-                            <span class="type-badge ${group.type === 'cookies' ? 'cookies' : 'twofa'}">
-                                ${group.type === 'cookies' ? '🍪 কুকিজ' : '🔐 2FA'}
-                            </span>
+                            <div style="display: flex; gap: 5px;">
+                                <span class="type-badge ${group.type === 'cookies' ? 'cookies' : 'twofa'}">
+                                    ${group.type === 'cookies' ? '🍪 কুকিজ' : '🔐 2FA'}
+                                </span>
+                                <span class="status-badge ${group.status}">
+                                    ${group.status === 'pending' ? '⏳ পেন্ডিং' : '✅ অ্যাপ্রুভড'}
+                                </span>
+                            </div>
                         </div>
                         
                         <div class="info-row">
@@ -1134,6 +1297,7 @@
                         </div>
                         
                         <div class="timestamp">⏰ ${timeString}</div>
+                        ${expiryInfo}
                         
                         <div class="action-buttons">
                             <button class="copy-usernames-btn" onclick='copyUsernames(${JSON.stringify(group.accounts)})'>
@@ -1141,10 +1305,11 @@
                             </button>
                             <button class="action-btn" onclick="copyText('${group.number}')" title="কপি নাম্বার">📞</button>
                             <a href="${telegramLink}" target="_blank" class="action-btn" title="টেলিগ্রাম">✈️</a>
-                            <select class="status-select" onchange="updateGroupStatus('${group.ids.join(',')}', this.value)">
-                                <option value="pending" ${group.status === 'pending' ? 'selected' : ''}>⏳ পেন্ডিং</option>
-                                <option value="completed" ${group.status === 'completed' ? 'selected' : ''}>✅ সম্পন্ন</option>
-                            </select>
+                            ${group.status === 'pending' ? `
+                                <button class="approve-btn" onclick="approveUser('${group.ids.join(',')}')">
+                                    ✅ অ্যাপ্রুভ
+                                </button>
+                            ` : ''}
                             <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}')">🗑️</button>
                         </div>
                     </div>
@@ -1152,7 +1317,7 @@
             }).join('');
         }
 
-        // ইউজারের সব একাউন্ট কপি করার জন্য আলাদা ফাংশন
+        // ইউজারের সব একাউন্ট কপি করার ফাংশন
         window.copyUsernames = function(usernames) {
             if (!usernames || usernames.length === 0) {
                 showToast('❌ কপি করার মতো একাউন্ট নেই', 'error');
@@ -1161,12 +1326,10 @@
             
             const text = usernames.join('\n');
             
-            // Clipboard API
             navigator.clipboard.writeText(text).then(() => {
                 showToast(`✅ ${usernames.length} টি একাউন্ট কপি হয়েছে`, 'success');
             }).catch((err) => {
                 console.error('Copy failed:', err);
-                // Fallback
                 const textarea = document.createElement('textarea');
                 textarea.value = text;
                 document.body.appendChild(textarea);
@@ -1198,7 +1361,7 @@
         };
 
         window.copyAllUsernames = function() {
-            const filtered = allGroups.filter(g => g.type === currentType);
+            const filtered = allGroups.filter(g => g.type === currentType && g.status === currentMainTab);
             const allUsernames = filtered.flatMap(g => g.accounts);
             
             if (allUsernames.length === 0) {
@@ -1220,14 +1383,6 @@
                 document.body.removeChild(textarea);
                 showToast(`✅ সব ${allUsernames.length} টি একাউন্ট কপি হয়েছে`, 'success');
             });
-        };
-
-        window.updateGroupStatus = function(idsStr, newStatus) {
-            const ids = idsStr.split(',');
-            const promises = ids.map(id => update(ref(db, 'submits/' + id), { status: newStatus }));
-            Promise.all(promises)
-                .then(() => showToast('স্ট্যাটাস আপডেট হয়েছে', 'success'))
-                .catch(() => showToast('স্ট্যাটাস আপডেট করতে সমস্যা', 'error'));
         };
 
         window.deleteGroup = function(idsStr) {
@@ -1260,9 +1415,14 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
+        // প্রতি ঘন্টায় পুরনো ডাটা চেক করা (১৫ দিন পর ডিলিট)
+        setInterval(deleteOldData, 60 * 60 * 1000); // প্রতি ঘন্টা
+
         // দ্বিতীয় ডাটাবেস লোড করে তারপর প্রথম ডাটাবেস লোড করা
         loadSecondDatabase().then(() => {
             loadData();
+            // প্রথম লোডেই পুরনো ডাটা চেক করুন
+            deleteOldData();
         });
     </script>
 </body>
