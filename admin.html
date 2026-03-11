@@ -308,7 +308,7 @@
 
         .payment-toggles {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             margin-bottom: 15px;
         }
@@ -478,6 +478,13 @@
                 10px 10px 20px rgba(0,0,0,0.4),
                 inset 2px 2px 5px rgba(255,255,255,0.1),
                 inset -3px -3px 8px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .user-card.deleting {
+            opacity: 0.5;
+            transform: scale(0.95);
+            pointer-events: none;
         }
 
         .card-header {
@@ -756,6 +763,7 @@
 
         .toast.success { border-left-color: #4CAF50; }
         .toast.error { border-left-color: #f44336; }
+        .toast.warning { border-left-color: #ffd700; }
 
         .empty-state {
             text-align: center;
@@ -799,7 +807,7 @@
             <div class="stats-row">
                 <div class="stat-box">
                     <span id="totalUsers">0</span>
-                    <label>ইউজার</label>
+                    <label>গ্রুপ</label>
                 </div>
                 <div class="stat-box">
                     <span id="totalAccounts">0</span>
@@ -869,6 +877,10 @@
                         <input type="checkbox" id="toggleNagad" checked>
                     </div>
                     <div class="toggle-item">
+                        <label>💳+💵 বিকাশ+নগদ</label>
+                        <input type="checkbox" id="toggleBkashNagad" checked>
+                    </div>
+                    <div class="toggle-item">
                         <label>🚀 রকেট</label>
                         <input type="checkbox" id="toggleRocket" checked>
                     </div>
@@ -879,6 +891,10 @@
                     <div class="toggle-item">
                         <label>₿ বাইন্যান্স</label>
                         <input type="checkbox" id="toggleBinance" checked>
+                    </div>
+                    <div class="toggle-item">
+                        <label>📨 ইনবক্স (টাকা পরে)</label>
+                        <input type="checkbox" id="toggleInbox" checked>
                     </div>
                 </div>
                 <button class="save-settings-btn" onclick="savePaymentSettings()">
@@ -927,9 +943,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, onValue, remove, update, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getDatabase, ref, onValue, remove, update, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // প্রথম ডাটাবেস কনফিগারেশন
         const firebaseConfig = {
             apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
             authDomain: "saprahik-kaj.firebaseapp.com",
@@ -941,38 +956,18 @@
             measurementId: "G-VDSE7LQRH9"
         };
 
-        // দ্বিতীয় ডাটাবেস কনফিগারেশন
-        const secondDatabaseConfig = {
-            apiKey: "AIzaSyAmpKkaw_zpNGbgawtQrUPadBEh55e4mLM",
-            authDomain: "free-lancher-24.firebaseapp.com",
-            databaseURL: "https://free-lancher-24-default-rtdb.firebaseio.com",
-            projectId: "free-lancher-24",
-            storageBucket: "free-lancher-24.firebasestorage.app",
-            messagingSenderId: "667574198748",
-            appId: "1:667574198748:web:cdd8041e5cb3ec7da8af19"
-        };
-
-        // প্রথম ডাটাবেস initialize
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
-        // দ্বিতীয় ডাটাবেস initialize
-        const secondApp = initializeApp(secondDatabaseConfig, 'secondary');
-        const secondDB = getDatabase(secondApp);
-
-        // দ্বিতীয় ডাটাবেস থেকে সব ইউজারনেম মেমোরিতে লোড করার জন্য
-        let allSecondDBUsernames = new Set();
-        let secondDBLoaded = false;
         
         let allGroups = [];
         let currentType = 'cookies';
         let currentMainTab = 'pending';
         let searchTerm = '';
 
-        // টেলিগ্রাম ইউজারনেম ভিত্তিক রেট সংরক্ষণের জন্য Firebase রেফারেন্স
-        const userRatesRef = ref(db, 'userRates'); // { "telegram_username": rate }
+        // ইউজার রেট রেফারেন্স
+        const userRatesRef = ref(db, 'userRates');
 
-        // রেট অপশন জেনারেট করা (৩.৫০ থেকে ৪.৫০ পর্যন্ত প্রতি ১০ পয়সা)
+        // রেট অপশন জেনারেট করা
         function generateRateOptions() {
             const options = [];
             for (let rate = 3.50; rate <= 4.50; rate += 0.10) {
@@ -984,11 +979,10 @@
         // টেলিগ্রাম ইউজারনেম ফরম্যাট করা
         function formatTelegramUsername(username) {
             if (!username) return 'unknown';
-            // @ চিহ্ন ছাড়া ইউজারনেম
             return username.replace('@', '').toLowerCase().trim();
         }
 
-        // রেট সেভ করার ফাংশন (টেলিগ্রাম ইউজারনেম ভিত্তিক)
+        // রেট সেভ করার ফাংশন
         window.saveUserRate = function(telegram, value) {
             const formattedTelegram = formatTelegramUsername(telegram);
             if (formattedTelegram === 'unknown' || formattedTelegram === 'N/A') {
@@ -1005,128 +999,6 @@
                 })
                 .catch(() => showToast('রেট সেভ করতে সমস্যা', 'error'));
         };
-
-        // টেলিগ্রাম ইউজারনেম থেকে রেট পাওয়া
-        async function getUserRate(telegram) {
-            const formattedTelegram = formatTelegramUsername(telegram);
-            if (formattedTelegram === 'unknown' || formattedTelegram === 'N/A') {
-                return '3.50'; // ডিফল্ট রেট
-            }
-            
-            try {
-                const snapshot = await get(child(userRatesRef, formattedTelegram));
-                if (snapshot.exists()) {
-                    return snapshot.val();
-                }
-            } catch (error) {
-                console.error('রেট লোড করতে সমস্যা:', error);
-            }
-            return '3.50'; // ডিফল্ট রেট
-        }
-
-        // টাকার পরিমাণ আপডেট
-        function updateAmountDisplay(groupId, telegram, rate) {
-            const group = allGroups.find(g => g.id === groupId);
-            if (group) {
-                const amountSpan = document.getElementById(`amount-${groupId}`);
-                if (amountSpan) {
-                    const totalAmount = (group.duplicateCount || 0) * parseFloat(rate);
-                    amountSpan.textContent = totalAmount.toFixed(2) + ' টাকা';
-                }
-            }
-        }
-
-        // দ্বিতীয় ডাটাবেস থেকে সব ডাটা লোড করা
-        async function loadSecondDatabase() {
-            try {
-                console.log('দ্বিতীয় ডাটাবেস লোড হচ্ছে...');
-                const reportsRef = ref(secondDB, 'reports');
-                const snapshot = await get(reportsRef);
-                
-                if (snapshot.exists()) {
-                    const reports = snapshot.val();
-                    allSecondDBUsernames.clear();
-                    
-                    Object.keys(reports).forEach(date => {
-                        const dateData = reports[date];
-                        if (dateData.users) {
-                            Object.keys(dateData.users).forEach(type => {
-                                const typeUsers = dateData.users[type];
-                                Object.keys(typeUsers).forEach(encodedUsername => {
-                                    allSecondDBUsernames.add(encodedUsername);
-                                });
-                            });
-                        }
-                    });
-                    
-                    secondDBLoaded = true;
-                    console.log(`✅ দ্বিতীয় ডাটাবেস থেকে ${allSecondDBUsernames.size} টি ইউজারনেম লোড হয়েছে`);
-                }
-            } catch (error) {
-                console.error('দ্বিতীয় ডাটাবেস লোড করতে সমস্যা:', error);
-            }
-        }
-
-        // এনকোডিং ফাংশন
-        function encodeUsername(username) {
-            if (!username) return '';
-            let encoded = '';
-            for (let i = 0; i < username.length; i++) {
-                const char = username[i];
-                if (char === '.') encoded += '_x2E_';
-                else if (char === '#') encoded += '_x23_';
-                else if (char === '$') encoded += '_x24_';
-                else if (char === '[') encoded += '_x5B_';
-                else if (char === ']') encoded += '_x5D_';
-                else if (char === '/') encoded += '_x2F_';
-                else if (char === '\\') encoded += '_x5C_';
-                else encoded += char;
-            }
-            return encoded;
-        }
-
-        // ডুপ্লিকেট চেক করার ফাংশন
-        function checkDuplicates(usernames) {
-            if (!secondDBLoaded || !usernames || usernames.length === 0) return 0;
-            
-            let duplicateCount = 0;
-            usernames.forEach(username => {
-                const encoded = encodeUsername(username);
-                if (allSecondDBUsernames.has(encoded)) {
-                    duplicateCount++;
-                }
-            });
-            return duplicateCount;
-        }
-
-        // পুরনো ডাটা ডিলিট করার ফাংশন (১৫ দিন পর)
-        async function deleteOldData() {
-            try {
-                const submitsRef = ref(db, 'submits');
-                const snapshot = await get(submitsRef);
-                
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    const fifteenDaysAgo = Date.now() - (15 * 24 * 60 * 60 * 1000);
-                    const promises = [];
-                    
-                    Object.keys(data).forEach(key => {
-                        const item = data[key];
-                        if (item.status === 'approved' && item.approvedAt && item.approvedAt < fifteenDaysAgo) {
-                            promises.push(remove(ref(db, 'submits/' + key)));
-                        }
-                    });
-                    
-                    if (promises.length > 0) {
-                        await Promise.all(promises);
-                        console.log(`${promises.length} টি পুরনো অ্যাপ্রুভড ডাটা ডিলিট হয়েছে`);
-                        loadData();
-                    }
-                }
-            } catch (error) {
-                console.error('পুরনো ডাটা ডিলিট করতে সমস্যা:', error);
-            }
-        }
 
         // টগল ফাংশন
         window.toggleSettings = function(type) {
@@ -1186,18 +1058,22 @@
             const settings = snapshot.val() || {};
             document.getElementById('toggleBkash').checked = settings.bkash !== false;
             document.getElementById('toggleNagad').checked = settings.nagad !== false;
+            document.getElementById('toggleBkashNagad').checked = settings.bkashNagad !== false;
             document.getElementById('toggleRocket').checked = settings.rocket !== false;
             document.getElementById('toggleMobileRecharge').checked = settings.mobileRecharge !== false;
             document.getElementById('toggleBinance').checked = settings.binance !== false;
+            document.getElementById('toggleInbox').checked = settings.inbox !== false;
         });
 
         window.savePaymentSettings = function() {
             const settings = {
                 bkash: document.getElementById('toggleBkash').checked,
                 nagad: document.getElementById('toggleNagad').checked,
+                bkashNagad: document.getElementById('toggleBkashNagad').checked,
                 rocket: document.getElementById('toggleRocket').checked,
                 mobileRecharge: document.getElementById('toggleMobileRecharge').checked,
-                binance: document.getElementById('toggleBinance').checked
+                binance: document.getElementById('toggleBinance').checked,
+                inbox: document.getElementById('toggleInbox').checked
             };
             set(settingsRef, settings)
                 .then(() => showToast('পেমেন্ট সেটিংস সেভ হয়েছে', 'success'))
@@ -1249,7 +1125,7 @@
                         
                         if (!grouped[groupKey]) {
                             grouped[groupKey] = {
-                                id: groupKey.replace(/[^a-zA-Z0-9]/g, '_'),
+                                id: groupKey.replace(/[^a-zA-Z0-9]/g, '_') + '_' + key,
                                 number: number,
                                 telegram: item.telegram || 'N/A',
                                 paymentMethod: item.paymentMethod,
@@ -1269,10 +1145,6 @@
                     });
                     
                     allGroups = Object.values(grouped);
-                    
-                    allGroups.forEach(group => {
-                        group.duplicateCount = checkDuplicates(group.accounts);
-                    });
                     
                 } else {
                     allGroups = [];
@@ -1335,7 +1207,6 @@
             Promise.all(promises)
                 .then(() => {
                     showToast('✅ ইউজার অ্যাপ্রুভ করা হয়েছে', 'success');
-                    deleteOldData();
                 })
                 .catch(() => showToast('অ্যাপ্রুভ করতে সমস্যা', 'error'));
         };
@@ -1364,7 +1235,6 @@
                     const timeString = date.toLocaleString('bn-BD');
                     const telegramLink = `https://t.me/${group.telegram}`;
                     
-                    // টেলিগ্রাম ইউজারনেম ভিত্তিক রেট পাওয়া
                     const formattedTelegram = formatTelegramUsername(group.telegram);
                     const savedRate = userRates[formattedTelegram] || '3.50';
                     const totalAmount = (group.duplicateCount || 0) * parseFloat(savedRate);
@@ -1379,7 +1249,7 @@
                     }
 
                     return `
-                        <div class="user-card">
+                        <div class="user-card" id="card-${group.id}">
                             <div class="card-header">
                                 <span class="phone-number">📞 ${group.number}</span>
                                 <div style="display: flex; gap: 5px;">
@@ -1440,7 +1310,7 @@
                                         ✅ অ্যাপ্রুভ
                                     </button>
                                 ` : ''}
-                                <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}')">🗑️</button>
+                                <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}', '${group.id}')">🗑️</button>
                             </div>
                         </div>
                     `;
@@ -1517,13 +1387,28 @@
             });
         };
 
-        window.deleteGroup = function(idsStr) {
+        window.deleteGroup = function(idsStr, groupId) {
             if (confirm('আপনি কি এই গ্রুপের সব একাউন্ট ডিলিট করতে চান?')) {
+                const card = document.getElementById(`card-${groupId}`);
+                if (card) {
+                    card.classList.add('deleting');
+                }
+                
                 const ids = idsStr.split(',');
                 const promises = ids.map(id => remove(ref(db, 'submits/' + id)));
+                
                 Promise.all(promises)
-                    .then(() => showToast('গ্রুপ ডিলিট করা হয়েছে', 'success'))
-                    .catch(() => showToast('ডিলিট করতে সমস্যা', 'error'));
+                    .then(() => {
+                        showToast('গ্রুপ ডিলিট করা হয়েছে', 'success');
+                        // Firebase onValue automatically updates the UI
+                    })
+                    .catch((error) => {
+                        console.error('Delete error:', error);
+                        showToast('ডিলিট করতে সমস্যা', 'error');
+                        if (card) {
+                            card.classList.remove('deleting');
+                        }
+                    });
             }
         };
 
@@ -1533,7 +1418,6 @@
                     remove(ref(db, 'submits'))
                         .then(() => {
                             showToast('সমস্ত ডাটা ডিলিট করা হয়েছে', 'success');
-                            loadData();
                         })
                         .catch(() => showToast('ডিলিট করতে সমস্যা', 'error'));
                 }
@@ -1547,12 +1431,37 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        setInterval(deleteOldData, 60 * 60 * 1000);
+        // পুরনো ডাটা ডিলিট (১৫ দিন পর)
+        async function deleteOldData() {
+            try {
+                const submitsRef = ref(db, 'submits');
+                const snapshot = await get(submitsRef);
+                
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const fifteenDaysAgo = Date.now() - (15 * 24 * 60 * 60 * 1000);
+                    const promises = [];
+                    
+                    Object.keys(data).forEach(key => {
+                        const item = data[key];
+                        if (item.status === 'approved' && item.approvedAt && item.approvedAt < fifteenDaysAgo) {
+                            promises.push(remove(ref(db, 'submits/' + key)));
+                        }
+                    });
+                    
+                    if (promises.length > 0) {
+                        await Promise.all(promises);
+                        console.log(`${promises.length} টি পুরনো অ্যাপ্রুভড ডাটা ডিলিট হয়েছে`);
+                    }
+                }
+            } catch (error) {
+                console.error('পুরনো ডাটা ডিলিট করতে সমস্যা:', error);
+            }
+        }
 
-        loadSecondDatabase().then(() => {
-            loadData();
-            deleteOldData();
-        });
+        // ইনিশিয়াল লোড
+        loadData();
+        setInterval(deleteOldData, 60 * 60 * 1000); // প্রতি ঘন্টায় চেক
     </script>
 </body>
 </html>
