@@ -17,6 +17,7 @@
             background: #0a0f1e;
             min-height: 100vh;
             padding: 12px;
+            transition: background 0.3s;
         }
 
         /* লাইট মোড */
@@ -35,6 +36,11 @@
         body.light-mode .rule-item {
             background: #f8f9ff;
             color: #333;
+        }
+        body.light-mode .maintenance-notice {
+            background: #ffebee;
+            color: #c62828;
+            border-color: #ef5350;
         }
 
         /* থিম টগল */
@@ -76,7 +82,30 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
-        /* ===== স্টাইলিশ লোগো - এক কালার + বর্ডার + গ্লো ===== */
+        /* মেইনটেন্যান্স নোটিশ - এখন কাজ করবে */
+        .maintenance-notice {
+            background: rgba(244, 67, 54, 0.2);
+            border: 2px solid #f44336;
+            color: #ffcdd2;
+            padding: 16px 20px;
+            border-radius: 40px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(244,67,54,0.3);
+            display: none;
+        }
+        .maintenance-notice.show {
+            display: block;
+        }
+        .maintenance-notice i {
+            margin-right: 8px;
+            color: #f44336;
+        }
+
+        /* স্টাইলিশ গোল্ড লোগো */
         .logo-area {
             text-align: center;
             margin-bottom: 25px;
@@ -100,20 +129,8 @@
             animation: glowPulse 2s ease-in-out infinite;
         }
         @keyframes glowPulse {
-            0%, 100% { text-shadow: 
-                0 0 10px #ffd700,
-                0 0 20px #ffd700,
-                2px 2px 0 #000,
-                -2px -2px 0 #000,
-                2px -2px 0 #000,
-                -2px 2px 0 #000; }
-            50% { text-shadow: 
-                0 0 20px #ffd700,
-                0 0 40px #ffd700,
-                2px 2px 0 #000,
-                -2px -2px 0 #000,
-                2px -2px 0 #000,
-                -2px 2px 0 #000; }
+            0%, 100% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000; }
+            50% { text-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700, 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000; }
         }
         .logo-badge {
             display: inline-block;
@@ -158,8 +175,15 @@
         .type-btn.twofa.active {
             background: #4834d4;
         }
+        .type-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 8px 0 #1a1e2b;
+            pointer-events: none;
+        }
 
-        /* ইউজারনেম ইনপুট - কাউন্টার সহ */
+        /* ইউজারনেম ইনপুট */
         .username-container {
             position: relative;
             margin-bottom: 18px;
@@ -185,6 +209,10 @@
         .username-input:focus {
             outline: none;
             border-color: #ffd700;
+        }
+        .username-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         .username-counter {
             position: absolute;
@@ -228,6 +256,7 @@
         .input-field:disabled {
             opacity: 0.5;
             background: #2a2f40;
+            cursor: not-allowed;
         }
 
         /* পেমেন্ট ড্রপডাউন */
@@ -246,6 +275,11 @@
             align-items: center;
             color: white;
             cursor: pointer;
+        }
+        .payment-selected.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
         }
         .payment-dropdown {
             position: absolute;
@@ -283,6 +317,10 @@
             border-left: 6px solid #4CAF50;
             font-weight: bold;
         }
+        .payment-option.disabled-option {
+            opacity: 0.4;
+            pointer-events: none;
+        }
 
         /* সাবমিট বাটন */
         .submit-btn {
@@ -307,6 +345,8 @@
             opacity: 0.5;
             transform: none;
             box-shadow: 0 8px 0 #b27d00;
+            cursor: not-allowed;
+            pointer-events: none;
         }
 
         /* প্রোগ্রেস বার */
@@ -325,7 +365,7 @@
             transition: width 0.3s;
         }
 
-        /* রেজাল্ট বক্স - PDF ডাউনলোড সহ */
+        /* রেজাল্ট বক্স */
         .result-box {
             background: rgba(255,215,0,0.1);
             border-radius: 20px;
@@ -453,6 +493,7 @@
         }
         .toast.success { border-left-color: #4CAF50; }
         .toast.error { border-left-color: #f44336; }
+        .toast.warning { border-left-color: #ffd700; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
@@ -473,8 +514,11 @@
                 <div class="logo-badge">✦ Earning By Habib  ✦</div>
             </div>
 
-            <!-- মেইনটেন্যান্স - হিডেন -->
-            <div id="maintenanceNotice" style="display:none;"></div>
+            <!-- মেইনটেন্যান্স নোটিশ - এখন সঠিকভাবে কাজ করবে -->
+            <div id="maintenanceNotice" class="maintenance-notice">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="maintenanceMessageText">সিস্টেম বন্ধ আছে</span>
+            </div>
 
             <!-- টাইপ সিলেক্টর -->
             <div class="type-row">
@@ -499,7 +543,7 @@
             <div class="input-group">
                 <label class="input-label">💰 পেমেন্ট মেথড</label>
                 <div class="payment-selector">
-                    <div class="payment-selected" onclick="togglePaymentDropdown()">
+                    <div class="payment-selected" id="paymentSelected" onclick="togglePaymentDropdown()">
                         <span id="selectedPaymentText">সিলেক্ট করুন</span>
                         <span>▼</span>
                     </div>
@@ -552,6 +596,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, push, query, orderByChild, equalTo, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+        // ফায়ারবেস কনফিগার (আপনার দেওয়া)
         const firebaseConfig = {
             apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
             authDomain: "saprahik-kaj.firebaseapp.com",
@@ -568,187 +613,66 @@
         let selectedPayment = '';
         let selectedType = '';
         let lastSubmission = null;
+        let systemEnabled = true; // ডিফল্ট true
+        let maintenanceMessage = '';
 
-        // PDF ডাউনলোড - সম্পূর্ণ ইংরেজি (পেমেন্ট মেথড কনভার্ট সহ)
-        window.downloadPDF = function() {
-            if (!lastSubmission) {
-                showToast('কোন রিসিট নেই', 'warning');
-                return;
-            }
+        // ========== সিস্টেম স্ট্যাটাস চেক - এখন কাজ করবে ==========
+        const systemRef = ref(db, 'settings/system');
+        onValue(systemRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            systemEnabled = data.enabled !== false; // false ছাড়া সব true
+            maintenanceMessage = data.message || 'সিস্টেম মেইনটেন্যান্স মোডে আছে';
+            
+            console.log('System Status:', systemEnabled ? 'চালু' : 'বন্ধ', 'Message:', maintenanceMessage);
+            
+            updateUIBasedOnSystemStatus();
+        });
 
-            try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4'
-                });
+        // ========== UI আপডেট ফাংশন (সিস্টেম স্ট্যাটাস অনুযায়ী) ==========
+        function updateUIBasedOnSystemStatus() {
+            const notice = document.getElementById('maintenanceNotice');
+            const noticeText = document.getElementById('maintenanceMessageText');
+            const submitBtn = document.getElementById('submitBtn');
+            const typeBtns = document.querySelectorAll('.type-btn');
+            const paymentSelected = document.getElementById('paymentSelected');
+            const usernamesInput = document.getElementById('usernames');
+            const telegramInput = document.getElementById('telegram');
+            const numberInput = document.getElementById('number');
+            const paymentOptions = document.querySelectorAll('.payment-option');
+            
+            if (!systemEnabled) {
+                // সিস্টেম বন্ধ - সবকিছু নিষ্ক্রিয়
+                notice.classList.add('show');
+                noticeText.textContent = '⛔ ' + maintenanceMessage;
                 
-                // ডার্ক ব্যাকগ্রাউন্ড
-                doc.setFillColor(10, 15, 30);
-                doc.rect(0, 0, 210, 297, 'F');
+                submitBtn.disabled = true;
                 
-                // ===== হেডার - ইংলিশ =====
-                doc.setFont("helvetica", "bold");
+                typeBtns.forEach(btn => btn.disabled = true);
                 
-                doc.setFontSize(32);
-                doc.setTextColor(255, 215, 0);
-                doc.text("EARNING BY HABIB", 105, 30, { align: "center" });
+                if (paymentSelected) paymentSelected.classList.add('disabled');
                 
-                doc.setFontSize(24);
-                doc.setTextColor(255, 255, 255);
-                doc.text("EBH TEAM", 105, 45, { align: "center" });
+                usernamesInput.disabled = true;
+                telegramInput.disabled = true;
+                numberInput.disabled = true;
                 
-                // ডেকোরেটিভ লাইন
-                doc.setDrawColor(255, 215, 0);
-                doc.setLineWidth(0.5);
-                doc.line(30, 55, 180, 55);
+                // ড্রপডাউন বন্ধ করা
+                document.getElementById('paymentDropdown').classList.remove('show');
                 
-                // ===== পেমেন্ট মেথড ইংরেজিতে কনভার্ট =====
-                let paymentMethodEnglish = lastSubmission.paymentMethod;
+            } else {
+                // সিস্টেম চালু - সবকিছু সক্রিয়
+                notice.classList.remove('show');
                 
-                // বাংলা পেমেন্ট মেথড ইংরেজিতে রূপান্তর
-                if (paymentMethodEnglish.includes('ইনবক্স')) {
-                    paymentMethodEnglish = 'Inbox Payment';
-                } else if (paymentMethodEnglish.includes('বিকাশ')) {
-                    paymentMethodEnglish = 'bKash';
-                } else if (paymentMethodEnglish.includes('নগদ')) {
-                    paymentMethodEnglish = 'Nagad';
-                } else if (paymentMethodEnglish.includes('রকেট')) {
-                    paymentMethodEnglish = 'Rocket';
-                } else if (paymentMethodEnglish.includes('মোবাইল রিচার্জ')) {
-                    paymentMethodEnglish = 'Mobile Recharge';
-                } else if (paymentMethodEnglish.includes('বাইন্যান্স')) {
-                    paymentMethodEnglish = 'Binance';
-                } else if (paymentMethodEnglish.includes('বিকাশ+নগদ')) {
-                    paymentMethodEnglish = 'bKash + Nagad (Same Number)';
-                }
+                submitBtn.disabled = false;
                 
-                // ===== ডিটেইলস - ইংলিশ =====
-                doc.setFontSize(14);
+                typeBtns.forEach(btn => btn.disabled = false);
                 
-                let y = 70;
-                const lineHeight = 10;
+                if (paymentSelected) paymentSelected.classList.remove('disabled');
                 
-                // Telegram
-                doc.setTextColor(255, 215, 0);
-                doc.text("TELEGRAM:", 25, y);
-                doc.setTextColor(255, 255, 255);
-                doc.text(lastSubmission.telegram, 80, y);
-                y += lineHeight;
-                
-                // Account Type
-                doc.setTextColor(255, 215, 0);
-                doc.text("ACCOUNT TYPE:", 25, y);
-                doc.setTextColor(255, 255, 255);
-                doc.text(lastSubmission.typeName.toUpperCase(), 80, y);
-                y += lineHeight;
-                
-                // Successful
-                doc.setTextColor(255, 215, 0);
-                doc.text("SUCCESSFUL:", 25, y);
-                doc.setTextColor(76, 175, 80);
-                doc.text(lastSubmission.uniqueCount + " Accounts", 80, y);
-                y += lineHeight;
-                
-                // Duplicate
-                if (lastSubmission.duplicateCount > 0) {
-                    doc.setTextColor(255, 215, 0);
-                    doc.text("DUPLICATE:", 25, y);
-                    doc.setTextColor(255, 215, 0);
-                    doc.text(lastSubmission.duplicateCount + " Accounts", 80, y);
-                    y += lineHeight;
-                }
-                
-                // Payment Method (ইংরেজি)
-                doc.setTextColor(255, 215, 0);
-                doc.text("PAYMENT:", 25, y);
-                doc.setTextColor(255, 255, 255);
-                doc.text(paymentMethodEnglish, 80, y);
-                y += lineHeight;
-                
-                // Number
-                doc.setTextColor(255, 215, 0);
-                doc.text("NUMBER:", 25, y);
-                doc.setTextColor(255, 255, 255);
-                doc.text(lastSubmission.number, 80, y);
-                y += lineHeight;
-                
-                // Time
-                const timeStr = new Date(lastSubmission.timestamp).toLocaleString('en-US', { 
-                    timeZone: 'Asia/Dhaka',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: true
-                });
-                doc.setTextColor(255, 215, 0);
-                doc.text("TIME:", 25, y);
-                doc.setTextColor(255, 255, 255);
-                doc.text(timeStr + " (BDT)", 80, y);
-                y += lineHeight + 5;
-                
-                // Decorative Line
-                doc.setDrawColor(255, 215, 0);
-                doc.line(30, y-2, 180, y-2);
-                
-                // Username List
-                doc.setFontSize(14);
-                doc.setTextColor(255, 215, 0);
-                doc.text("USERNAMES:", 25, y+5);
-                y += 12;
-                
-                doc.setFontSize(10);
-                doc.setTextColor(200, 200, 200);
-                
-                let usernameList = lastSubmission.usernames;
-                let maxPerPage = 20;
-                
-                for (let i = 0; i < Math.min(usernameList.length, maxPerPage); i++) {
-                    doc.text("• " + usernameList[i], 30, y);
-                    y += 6;
-                }
-                
-                if (usernameList.length > maxPerPage) {
-                    doc.setTextColor(255, 215, 0);
-                    doc.text("... and " + (usernameList.length - maxPerPage) + " more", 30, y);
-                }
-                
-                // ===== ফুটার - ইংলিশ =====
-                y = 250;
-                
-                doc.setDrawColor(255, 215, 0);
-                doc.line(30, y, 180, y);
-                y += 8;
-                
-                doc.setFontSize(16);
-                doc.setTextColor(255, 215, 0);
-                doc.text("Thank You!", 105, y, { align: "center" });
-                y += 8;
-                
-                doc.setFontSize(12);
-                doc.setTextColor(255, 255, 255);
-                doc.text("For working with us", 105, y, { align: "center" });
-                y += 8;
-                
-                doc.setFontSize(10);
-                doc.setTextColor(150, 150, 150);
-                doc.text("EBH TEAM - EARNING BY HABIB", 105, y, { align: "center" });
-                
-                // PDF সেভ
-                const fileName = `EBH_Receipt_${lastSubmission.telegram.replace('@', '')}_${Date.now()}.pdf`;
-                doc.save(fileName);
-                
-                showToast('PDF ডাউনলোড শুরু হয়েছে', 'success');
-                
-            } catch (error) {
-                console.error('PDF error:', error);
-                showToast('PDF তৈরি করতে সমস্যা', 'error');
+                usernamesInput.disabled = false;
+                telegramInput.disabled = false;
+                numberInput.disabled = false; // ইনবক্স ছাড়া
             }
-        };
+        }
 
         // ========== থিম ==========
         window.toggleTheme = function() {
@@ -759,6 +683,10 @@
 
         // ========== টাইপ সিলেক্ট ==========
         window.selectType = function(type) {
+            if (!systemEnabled) {
+                showToast('সিস্টেম বন্ধ আছে', 'warning');
+                return;
+            }
             selectedType = type;
             document.getElementById('typeCookies').classList.remove('active');
             document.getElementById('type2fa').classList.remove('active');
@@ -801,8 +729,14 @@
                 const div = document.createElement('div');
                 div.className = 'payment-option' + (method.class ? ' ' + method.class : '');
                 
-                if (methods[method.id] !== false) {
+                if (methods[method.id] === false) {
+                    div.classList.add('disabled-option');
+                } else {
                     div.onclick = () => {
+                        if (!systemEnabled) {
+                            showToast('সিস্টেম বন্ধ আছে', 'warning');
+                            return;
+                        }
                         selectedPayment = method.name;
                         document.getElementById('selectedPaymentText').textContent = method.name;
                         document.getElementById('paymentDropdown').classList.remove('show');
@@ -818,9 +752,6 @@
                             numberField.placeholder = '017xxxxxxxx';
                         }
                     };
-                } else {
-                    div.style.opacity = '0.4';
-                    div.style.pointerEvents = 'none';
                 }
                 div.textContent = method.name;
                 dropdown.appendChild(div);
@@ -828,6 +759,10 @@
         }
 
         window.togglePaymentDropdown = function() {
+            if (!systemEnabled) {
+                showToast('সিস্টেম বন্ধ আছে', 'warning');
+                return;
+            }
             document.getElementById('paymentDropdown').classList.toggle('show');
         };
 
@@ -843,29 +778,104 @@
             document.getElementById('accountCount').textContent = count;
         };
 
+        // ========== PDF ডাউনলোড (ইংরেজি) ==========
+        window.downloadPDF = function() {
+            if (!lastSubmission) {
+                showToast('কোন রিসিট নেই', 'warning');
+                return;
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                doc.setFillColor(10, 15, 30);
+                doc.rect(0, 0, 210, 297, 'F');
+                
+                doc.setFont("helvetica", "bold");
+                
+                doc.setFontSize(32);
+                doc.setTextColor(255, 215, 0);
+                doc.text("EARNING BY HABIB", 105, 30, { align: "center" });
+                
+                doc.setFontSize(24);
+                doc.setTextColor(255, 255, 255);
+                doc.text("EBH TEAM", 105, 45, { align: "center" });
+                
+                doc.setDrawColor(255, 215, 0);
+                doc.setLineWidth(0.5);
+                doc.line(30, 55, 180, 55);
+                
+                let accountTypeEnglish = lastSubmission.typeName === 'কুকিজ' ? 'COOKIES' : '2FA';
+                let paymentMethodEnglish = lastSubmission.paymentMethod;
+                if (paymentMethodEnglish.includes('ইনবক্স')) paymentMethodEnglish = 'Inbox Payment';
+                else if (paymentMethodEnglish.includes('বিকাশ')) paymentMethodEnglish = 'bKash';
+                else if (paymentMethodEnglish.includes('নগদ')) paymentMethodEnglish = 'Nagad';
+                else if (paymentMethodEnglish.includes('রকেট')) paymentMethodEnglish = 'Rocket';
+                else if (paymentMethodEnglish.includes('মোবাইল রিচার্জ')) paymentMethodEnglish = 'Mobile Recharge';
+                else if (paymentMethodEnglish.includes('বাইন্যান্স')) paymentMethodEnglish = 'Binance';
+                else if (paymentMethodEnglish.includes('বিকাশ+নগদ')) paymentMethodEnglish = 'bKash + Nagad (Same Number)';
+                
+                let numberEnglish = lastSubmission.number.includes('ইনবক্সে') ? 'Inbox Payment' : lastSubmission.number;
+                
+                doc.setFontSize(14);
+                let y = 70;
+                const lineHeight = 10;
+                
+                doc.setTextColor(255, 215, 0); doc.text("TELEGRAM:", 25, y); doc.setTextColor(255,255,255); doc.text(lastSubmission.telegram, 80, y); y += lineHeight;
+                doc.setTextColor(255,215,0); doc.text("ACCOUNT TYPE:", 25, y); doc.setTextColor(255,255,255); doc.text(accountTypeEnglish, 80, y); y += lineHeight;
+                doc.setTextColor(255,215,0); doc.text("SUCCESSFUL:", 25, y); doc.setTextColor(76,175,80); doc.text(lastSubmission.uniqueCount + " Accounts", 80, y); y += lineHeight;
+                if (lastSubmission.duplicateCount > 0) {
+                    doc.setTextColor(255,215,0); doc.text("DUPLICATE:", 25, y); doc.setTextColor(255,215,0); doc.text(lastSubmission.duplicateCount + " Accounts", 80, y); y += lineHeight;
+                }
+                doc.setTextColor(255,215,0); doc.text("PAYMENT:", 25, y); doc.setTextColor(255,255,255); doc.text(paymentMethodEnglish, 80, y); y += lineHeight;
+                doc.setTextColor(255,215,0); doc.text("NUMBER:", 25, y); doc.setTextColor(255,255,255); doc.text(numberEnglish, 80, y); y += lineHeight;
+                
+                const timeStr = new Date(lastSubmission.timestamp).toLocaleString('en-US', { timeZone:'Asia/Dhaka', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true });
+                doc.setTextColor(255,215,0); doc.text("TIME:", 25, y); doc.setTextColor(255,255,255); doc.text(timeStr + " (BDT)", 80, y); y += lineHeight + 5;
+                
+                doc.setDrawColor(255,215,0); doc.line(30, y-2, 180, y-2);
+                
+                doc.setFontSize(14); doc.setTextColor(255,215,0); doc.text("USERNAMES:", 25, y+5); y += 12;
+                doc.setFontSize(10); doc.setTextColor(200,200,200);
+                let usernameList = lastSubmission.usernames;
+                for (let i = 0; i < Math.min(usernameList.length, 20); i++) { doc.text("• " + usernameList[i], 30, y); y += 6; }
+                if (usernameList.length > 20) { doc.setTextColor(255,215,0); doc.text("... and " + (usernameList.length - 20) + " more", 30, y); }
+                
+                y = 250;
+                doc.setDrawColor(255,215,0); doc.line(30, y, 180, y); y += 8;
+                doc.setFontSize(16); doc.setTextColor(255,215,0); doc.text("Thank You!", 105, y, { align: "center" }); y += 8;
+                doc.setFontSize(12); doc.setTextColor(255,255,255); doc.text("For working with us", 105, y, { align: "center" }); y += 8;
+                doc.setFontSize(10); doc.setTextColor(150,150,150); doc.text("EBH TEAM - EARNING BY HABIB", 105, y, { align: "center" });
+                
+                const fileName = `EBH_Receipt_${lastSubmission.telegram.replace('@', '')}_${Date.now()}.pdf`;
+                doc.save(fileName);
+                showToast('PDF ডাউনলোড শুরু হয়েছে', 'success');
+                
+            } catch (error) {
+                console.error('PDF error:', error);
+                showToast('PDF তৈরি করতে সমস্যা', 'error');
+            }
+        };
+
         // ========== ডুপ্লিকেট চেক ==========
         async function checkBulkDuplicates(usernames) {
             const uniqueSet = new Set();
             const duplicates = new Set();
-            
-            usernames.forEach(u => {
-                if (uniqueSet.has(u)) duplicates.add(u);
-                else uniqueSet.add(u);
-            });
-
+            usernames.forEach(u => { if (uniqueSet.has(u)) duplicates.add(u); else uniqueSet.add(u); });
             const uniqueUsernames = Array.from(uniqueSet);
-            
             const dbDuplicates = new Set();
             const batchChecks = uniqueUsernames.map(username => 
                 get(query(ref(db, 'submits'), orderByChild('username'), equalTo(username)))
                     .then(snapshot => snapshot.exists() ? username : null)
             );
-            
             const results = await Promise.all(batchChecks);
             results.forEach(u => { if (u) dbDuplicates.add(u); });
-
             const finalUnique = uniqueUsernames.filter(u => !dbDuplicates.has(u));
-            
             return {
                 duplicates: Array.from(new Set([...duplicates, ...dbDuplicates])),
                 uniqueUsernames: finalUnique
@@ -892,6 +902,12 @@
 
         // ========== মেইন সাবমিট ==========
         window.submitData = async function() {
+            // সিস্টেম চেক - প্রথমেই
+            if (!systemEnabled) {
+                showToast('সিস্টেম বন্ধ আছে: ' + maintenanceMessage, 'warning');
+                return;
+            }
+
             if (!selectedType) {
                 showToast('কুকিজ বা 2FA সিলেক্ট করুন', 'warning');
                 return;
@@ -901,9 +917,7 @@
             let telegram = document.getElementById('telegram').value.trim();
             let number = document.getElementById('number').value.trim();
 
-            if (telegram && !telegram.startsWith('@')) {
-                telegram = '@' + telegram;
-            }
+            if (telegram && !telegram.startsWith('@')) telegram = '@' + telegram;
 
             if (!selectedPayment || !usernamesText || !telegram) {
                 showToast('সব ফিল্ড পূরণ করুন', 'warning');
@@ -990,7 +1004,6 @@
                 if (uniqueUsernames.length > 0) {
                     showToast(`${uniqueUsernames.length} টি একাউন্ট সেভ হয়েছে`, 'success');
                     
-                    // ফর্ম ক্লিয়ার
                     document.getElementById('usernames').value = '';
                     document.getElementById('accountCount').textContent = '০';
                     document.getElementById('telegram').value = '@';
