@@ -615,21 +615,24 @@
             border-top: 1px solid rgba(255,215,0,0.2);
         }
 
-        .rate-input-small {
-            width: 70px;
+        .rate-select-small {
+            width: 80px;
             background: #3a4055;
             border: 1px solid #ffd700;
             border-radius: 20px;
-            padding: 4px 8px;
+            padding: 4px 4px;
             color: #ffd700;
             font-weight: bold;
             font-size: 12px;
             outline: none;
+            cursor: pointer;
             text-align: center;
         }
 
-        .rate-input-small:focus {
-            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        .rate-select-small option {
+            background: #2d3349;
+            color: #ffd700;
+            text-align: center;
         }
 
         .amount-display {
@@ -966,29 +969,37 @@
         let currentMainTab = 'pending';
         let searchTerm = '';
 
-        // রেট সংরক্ষণের জন্য অবজেক্ট (লোকাল স্টোরেজ)
-        let rateValues = {};
+        // রেট সংরক্ষণের জন্য Firebase রেফারেন্স
+        const ratesRef = ref(db, 'rates');
 
-        // লোকাল স্টোরেজ থেকে রেট লোড
-        function loadRatesFromStorage() {
-            const saved = localStorage.getItem('userRates');
-            if (saved) {
-                try {
-                    rateValues = JSON.parse(saved);
-                } catch (e) {
-                    rateValues = {};
-                }
+        // রেট অপশন জেনারেট করা (৩.৫০ থেকে ৪.৫০ পর্যন্ত প্রতি ১০ পয়সা)
+        function generateRateOptions() {
+            const options = [];
+            for (let rate = 3.50; rate <= 4.50; rate += 0.10) {
+                options.push(rate.toFixed(2));
             }
+            return options;
         }
 
-        // রেট সেভ করার ফাংশন
+        // রেট অপশন HTML জেনারেট করা
+        function getRateOptionsHTML(selectedRate = '3.50') {
+            const options = generateRateOptions();
+            return options.map(rate => 
+                `<option value="${rate}" ${rate === selectedRate ? 'selected' : ''}>${rate}</option>`
+            ).join('');
+        }
+
+        // রেট সেভ করার ফাংশন (Firebase-এ)
         window.saveRate = function(groupId, value) {
-            const numValue = parseFloat(value) || 0;
-            rateValues[groupId] = numValue;
-            localStorage.setItem('userRates', JSON.stringify(rateValues));
-            
-            // টাকার পরিমাণ আপডেট
-            updateAmountDisplay(groupId, numValue);
+            const updates = {};
+            updates[`rates/${groupId}`] = value;
+            update(ref(db), updates)
+                .then(() => {
+                    // লোকাল ডিসপ্লে আপডেট
+                    updateAmountDisplay(groupId, parseFloat(value));
+                    showToast('রেট সেভ হয়েছে', 'success');
+                })
+                .catch(() => showToast('রেট সেভ করতে সমস্যা', 'error'));
         };
 
         // টাকার পরিমাণ আপডেট
@@ -1079,7 +1090,6 @@
                     
                     Object.keys(data).forEach(key => {
                         const item = data[key];
-                        // শুধুমাত্র অ্যাপ্রুভড ডাটা চেক করা হবে
                         if (item.status === 'approved' && item.approvedAt && item.approvedAt < fifteenDaysAgo) {
                             promises.push(remove(ref(db, 'submits/' + key)));
                         }
@@ -1088,7 +1098,7 @@
                     if (promises.length > 0) {
                         await Promise.all(promises);
                         console.log(`${promises.length} টি পুরনো অ্যাপ্রুভড ডাটা ডিলিট হয়েছে`);
-                        loadData(); // রিলোড ডাটা
+                        loadData();
                     }
                 }
             } catch (error) {
@@ -1111,7 +1121,6 @@
             document.getElementById('tabApproved').classList.remove('active');
             document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
             
-            // ডুপ্লিকেট লেবেল আপডেট
             const duplicateLabel = document.getElementById('duplicateLabel');
             if (tab === 'pending') {
                 duplicateLabel.textContent = '✅ পেন্ডিং ওকে আইডি';
@@ -1192,7 +1201,6 @@
             onValue(submitsRef, (snapshot) => {
                 const data = snapshot.val();
                 
-                // কাউন্টার রিসেট
                 let totalPendingCookies = 0;
                 let totalPending2fa = 0;
                 let totalApprovedCookies = 0;
@@ -1201,14 +1209,12 @@
                 if (data) {
                     const grouped = {};
                     
-                    // প্রথমে সব ডাটা গ্রুপ করা এবং কাউন্টিং
                     Object.keys(data).forEach(key => {
                         const item = { id: key, ...data[key] };
                         const number = item.number || 'unknown';
                         const type = item.type || 'cookies';
                         const status = item.status || 'pending';
                         
-                        // টাইপ এবং স্ট্যাটাস অনুযায়ী কাউন্টিং
                         if (type === 'cookies') {
                             if (status === 'pending') totalPendingCookies++;
                             else if (status === 'approved') totalApprovedCookies++;
@@ -1242,7 +1248,6 @@
                     
                     allGroups = Object.values(grouped);
                     
-                    // ডুপ্লিকেট কাউন্ট যোগ করা
                     allGroups.forEach(group => {
                         group.duplicateCount = checkDuplicates(group.accounts);
                     });
@@ -1251,18 +1256,15 @@
                     allGroups = [];
                 }
                 
-                // পেন্ডিং এবং অ্যাপ্রুভড কাউন্ট আপডেট
                 document.getElementById('pendingCount').textContent = totalPendingCookies + totalPending2fa;
                 document.getElementById('approvedCount').textContent = totalApprovedCookies + totalApproved2fa;
                 
-                // বর্তমান ট্যাব এবং টাইপ অনুযায়ী কাউন্টার আপডেট
                 updateCountersByCurrentView(totalPendingCookies, totalPending2fa, totalApprovedCookies, totalApproved2fa);
                 
                 filterData();
             });
         };
 
-        // বর্তমান ভিউ অনুযায়ী কাউন্টার আপডেট করার ফাংশন
         function updateCountersByCurrentView(pendingCookies, pending2fa, approvedCookies, approved2fa) {
             if (currentMainTab === 'pending') {
                 document.getElementById('cookiesCount').textContent = pendingCookies;
@@ -1276,13 +1278,11 @@
         window.filterData = function() {
             searchTerm = document.getElementById('searchInput').value.toLowerCase();
             
-            // প্রথমে টাইপ এবং স্ট্যাটাস অনুযায়ী ফিল্টার
             let filtered = allGroups.filter(group => 
                 group.type === currentType && 
                 group.status === currentMainTab
             );
             
-            // তারপর সার্চ টার্ম অনুযায়ী ফিল্টার
             if (searchTerm) {
                 filtered = filtered.filter(group => 
                     group.number?.toLowerCase().includes(searchTerm) ||
@@ -1290,18 +1290,15 @@
                 );
             }
             
-            // ডুপ্লিকেট কাউন্ট আপডেট করা (শুধু বর্তমান ভিউ অনুযায়ী)
             const totalDuplicatesInView = filtered.reduce((sum, group) => sum + (group.duplicateCount || 0), 0);
             document.getElementById('totalDuplicates').textContent = totalDuplicatesInView;
             
-            // ইউজার এবং একাউন্ট কাউন্ট আপডেট
             document.getElementById('totalUsers').textContent = filtered.length;
             document.getElementById('totalAccounts').textContent = filtered.reduce((sum, group) => sum + group.accounts.length, 0);
             
             displayGroups(filtered);
         };
 
-        // ইউজার অ্যাপ্রুভ করার ফাংশন
         window.approveUser = function(idsStr) {
             const ids = idsStr.split(',');
             const approvedAt = Date.now();
@@ -1316,7 +1313,6 @@
             Promise.all(promises)
                 .then(() => {
                     showToast('✅ ইউজার অ্যাপ্রুভ করা হয়েছে', 'success');
-                    // পুরনো ডাটা চেক করুন
                     deleteOldData();
                 })
                 .catch(() => showToast('অ্যাপ্রুভ করতে সমস্যা', 'error'));
@@ -1337,94 +1333,94 @@
                 return (b.timestamp || 0) - (a.timestamp || 0);
             });
 
-            container.innerHTML = groups.map(group => {
-                const date = new Date(group.timestamp || Date.now());
-                const timeString = date.toLocaleString('bn-BD');
-                const telegramLink = `https://t.me/${group.telegram || ''}`;
-                const savedRate = rateValues[group.id] || 0;
-                const totalAmount = (group.duplicateCount || 0) * savedRate;
+            // Firebase থেকে রেট লোড করে display করা
+            onValue(ratesRef, (snapshot) => {
+                const rates = snapshot.val() || {};
                 
-                // অ্যাপ্রুভড হলে কত দিন হলো তা দেখান
-                let expiryInfo = '';
-                if (group.status === 'approved' && group.approvedAt) {
-                    const daysPassed = Math.floor((Date.now() - group.approvedAt) / (24 * 60 * 60 * 1000));
-                    const daysLeft = 15 - daysPassed;
-                    if (daysLeft > 0) {
-                        expiryInfo = `<div class="expiry-info">⏳ আরো ${daysLeft} দিন বাকি</div>`;
+                container.innerHTML = groups.map(group => {
+                    const date = new Date(group.timestamp || Date.now());
+                    const timeString = date.toLocaleString('bn-BD');
+                    const telegramLink = `https://t.me/${group.telegram || ''}`;
+                    const savedRate = rates[group.id] || '3.50';
+                    const totalAmount = (group.duplicateCount || 0) * parseFloat(savedRate);
+                    
+                    let expiryInfo = '';
+                    if (group.status === 'approved' && group.approvedAt) {
+                        const daysPassed = Math.floor((Date.now() - group.approvedAt) / (24 * 60 * 60 * 1000));
+                        const daysLeft = 15 - daysPassed;
+                        if (daysLeft > 0) {
+                            expiryInfo = `<div class="expiry-info">⏳ আরো ${daysLeft} দিন বাকি</div>`;
+                        }
                     }
-                }
 
-                return `
-                    <div class="user-card">
-                        <div class="card-header">
-                            <span class="phone-number">📞 ${group.number}</span>
-                            <div style="display: flex; gap: 5px;">
-                                <span class="type-badge ${group.type === 'cookies' ? 'cookies' : 'twofa'}">
-                                    ${group.type === 'cookies' ? '🍪 কুকিজ' : '🔐 2FA'}
-                                </span>
-                                <span class="status-badge ${group.status}">
-                                    ${group.status === 'pending' ? '⏳ পেন্ডিং' : '✅ অ্যাপ্রুভড'}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="info-row">
-                            <span>📱</span>
-                            <span>@${group.telegram || 'N/A'}</span>
-                        </div>
-                        
-                        <div class="info-row">
-                            <span>💰</span>
-                            <span class="payment-badge">${group.paymentMethod || 'N/A'}</span>
-                        </div>
-                        
-                        <div class="stats-row-compact">
-                            <div class="stats-top">
-                                <div class="total-accounts">
-                                    📊 মোট একাউন্ট: <strong>${group.accounts.length}</strong>
+                    return `
+                        <div class="user-card">
+                            <div class="card-header">
+                                <span class="phone-number">📞 ${group.number}</span>
+                                <div style="display: flex; gap: 5px;">
+                                    <span class="type-badge ${group.type === 'cookies' ? 'cookies' : 'twofa'}">
+                                        ${group.type === 'cookies' ? '🍪 কুকিজ' : '🔐 2FA'}
+                                    </span>
+                                    <span class="status-badge ${group.status}">
+                                        ${group.status === 'pending' ? '⏳ পেন্ডিং' : '✅ অ্যাপ্রুভড'}
+                                    </span>
                                 </div>
-                                ${group.duplicateCount > 0 ? `
-                                    <div class="duplicate-badge">
-                                        ✅ Okay ID: <strong>${group.duplicateCount}</strong>
-                                    </div>
-                                ` : ''}
                             </div>
                             
-                            <div class="rate-section">
-                                <input type="number" class="rate-input-small" 
-                                    placeholder="রেট" 
-                                    value="${savedRate}"
-                                    onchange="saveRate('${group.id}', this.value)"
-                                    step="0.01"
-                                    min="0">
-                                <span class="amount-display" id="amount-${group.id}">
-                                    ${totalAmount.toFixed(2)} টাকা
-                                </span>
+                            <div class="info-row">
+                                <span>📱</span>
+                                <span>@${group.telegram || 'N/A'}</span>
+                            </div>
+                            
+                            <div class="info-row">
+                                <span>💰</span>
+                                <span class="payment-badge">${group.paymentMethod || 'N/A'}</span>
+                            </div>
+                            
+                            <div class="stats-row-compact">
+                                <div class="stats-top">
+                                    <div class="total-accounts">
+                                        📊 মোট একাউন্ট: <strong>${group.accounts.length}</strong>
+                                    </div>
+                                    ${group.duplicateCount > 0 ? `
+                                        <div class="duplicate-badge">
+                                            ✅ Okay ID: <strong>${group.duplicateCount}</strong>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                
+                                <div class="rate-section">
+                                    <select class="rate-select-small" onchange="saveRate('${group.id}', this.value)">
+                                        ${getRateOptionsHTML(savedRate)}
+                                    </select>
+                                    <span class="amount-display" id="amount-${group.id}">
+                                        ${totalAmount.toFixed(2)} টাকা
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="timestamp">⏰ ${timeString}</div>
+                            ${expiryInfo}
+                            
+                            <div class="action-buttons">
+                                <button class="copy-usernames-btn" onclick='copyUsernames(${JSON.stringify(group.accounts)})'>
+                                    📋 সব কপি (${group.accounts.length})
+                                </button>
+                                <button class="action-btn" onclick="copyText('${group.number}')" title="কপি নাম্বার">📞</button>
+                                <a href="${telegramLink}" target="_blank" class="action-btn" title="টেলিগ্রাম">✈️</a>
+                                ${group.status === 'pending' ? `
+                                    <button class="approve-btn" onclick="approveUser('${group.ids.join(',')}')">
+                                        ✅ অ্যাপ্রুভ
+                                    </button>
+                                ` : ''}
+                                <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}')">🗑️</button>
                             </div>
                         </div>
-                        
-                        <div class="timestamp">⏰ ${timeString}</div>
-                        ${expiryInfo}
-                        
-                        <div class="action-buttons">
-                            <button class="copy-usernames-btn" onclick='copyUsernames(${JSON.stringify(group.accounts)})'>
-                                📋 সব কপি (${group.accounts.length})
-                            </button>
-                            <button class="action-btn" onclick="copyText('${group.number}')" title="কপি নাম্বার">📞</button>
-                            <a href="${telegramLink}" target="_blank" class="action-btn" title="টেলিগ্রাম">✈️</a>
-                            ${group.status === 'pending' ? `
-                                <button class="approve-btn" onclick="approveUser('${group.ids.join(',')}')">
-                                    ✅ অ্যাপ্রুভ
-                                </button>
-                            ` : ''}
-                            <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}')">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+            }, { onlyOnce: true });
         }
 
-        // ইউজারের সব একাউন্ট কপি করার ফাংশন
         window.copyUsernames = function(usernames) {
             if (!usernames || usernames.length === 0) {
                 showToast('❌ কপি করার মতো একাউন্ট নেই', 'error');
@@ -1522,16 +1518,10 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // প্রতি ঘন্টায় পুরনো ডাটা চেক করা (১৫ দিন পর ডিলিট)
-        setInterval(deleteOldData, 60 * 60 * 1000); // প্রতি ঘন্টা
+        setInterval(deleteOldData, 60 * 60 * 1000);
 
-        // লোকাল স্টোরেজ থেকে রেট লোড
-        loadRatesFromStorage();
-
-        // দ্বিতীয় ডাটাবেস লোড করে তারপর প্রথম ডাটাবেস লোড করা
         loadSecondDatabase().then(() => {
             loadData();
-            // প্রথম লোডেই পুরনো ডাটা চেক করুন
             deleteOldData();
         });
     </script>
