@@ -76,34 +76,44 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
-        /* আরজিবি লোগো */
+        /* ===== স্টাইলিশ লোগো - এক কালার + বর্ডার + গ্লো ===== */
         .logo-area {
             text-align: center;
             margin-bottom: 25px;
             position: relative;
         }
-        .rgb-logo {
+        .gold-logo {
             font-size: 48px;
             font-weight: 900;
             font-family: 'Orbitron', 'Rajdhani', sans-serif;
             letter-spacing: 4px;
             text-transform: uppercase;
-            background: linear-gradient(145deg, #ff0000, #00ff00, #0000ff, #ff00ff, #ffff00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-size: 300% 300%;
-            animation: rgbMove 5s ease infinite;
+            color: #ffd700; /* এক কালার - সোনালী */
             text-shadow: 
-                0 0 10px rgba(255,0,0,0.5),
-                0 0 20px rgba(0,255,0,0.5),
-                0 0 30px rgba(0,0,255,0.5);
-            transform: perspective(800px) rotateX(2deg);
+                0 0 10px #ffd700,
+                0 0 20px #ffd700,
+                2px 2px 0 #000,
+                -2px -2px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000; /* ব্ল্যাক বর্ডার */
             line-height: 1.2;
+            animation: glowPulse 2s ease-in-out infinite;
         }
-        @keyframes rgbMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        @keyframes glowPulse {
+            0%, 100% { text-shadow: 
+                0 0 10px #ffd700,
+                0 0 20px #ffd700,
+                2px 2px 0 #000,
+                -2px -2px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000; }
+            50% { text-shadow: 
+                0 0 20px #ffd700,
+                0 0 40px #ffd700,
+                2px 2px 0 #000,
+                -2px -2px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000; }
         }
         .logo-badge {
             display: inline-block;
@@ -446,9 +456,7 @@
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.maateen.me/adorsho-lipi/font.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf-bengali@1.0.0/dist/jspdf-bengali.min.js"></script>
 </head>
 <body>
     <div class="theme-toggle">
@@ -458,10 +466,11 @@
     <div class="container">
         <!-- মেইন কার্ড -->
         <div class="main-card">
-            <!-- আরজিবি লোগো -->
+            <!-- স্টাইলিশ গোল্ড লোগো - এক কালার + বর্ডার + গ্লো -->
             <div class="logo-area">
-                <div class="rgb-logo">EBH TEAM</div>
-                <div class="logo-badge">✦ Earning By Habib ✦</div>
+                <div class="gold-logo"> </div>
+                <div class="gold-logo" style="font-size: 32px; margin-top: -5px;">EBH TEAM</div>
+                <div class="logo-badge">✦ Earning By Habib  ✦</div>
             </div>
 
             <!-- মেইনটেন্যান্স - হিডেন -->
@@ -560,10 +569,9 @@
         let selectedType = '';
         let lastSubmission = null;
 
-        // নোটিফিকেশন পারমিশন চাওয়া
+        // নোটিফিকেশন পারমিশন
         async function requestNotificationPermission() {
             if (!("Notification" in window)) {
-                console.log("ব্রাউজার নোটিফিকেশন সাপোর্ট করে না");
                 return false;
             }
             
@@ -586,26 +594,16 @@
                     const notification = new Notification(title, {
                         body: options.body,
                         icon: 'https://cdn-icons-png.flaticon.com/512/733/733547.png',
-                        badge: 'https://cdn-icons-png.flaticon.com/512/733/733547.png',
-                        silent: false,
-                        vibrate: [200, 100, 200]
+                        silent: false
                     });
-                    
-                    notification.onclick = function() {
-                        window.focus();
-                        this.close();
-                    };
-                    
                     setTimeout(() => notification.close(), 5000);
-                    
                 } catch (error) {
-                    console.log('নোটিফিকেশন error:', error);
-                    showToast(title + ' - ' + options.body, 'success');
+                    console.log('Notification error:', error);
                 }
             }
         }
 
-        // PDF ডাউনলোড ফাংশন - বাংলা সাপোর্ট সহ
+        // PDF ডাউনলোড - সম্পূর্ণ ইংরেজি
         window.downloadPDF = function() {
             if (!lastSubmission) {
                 showToast('কোন রিসিট নেই', 'warning');
@@ -620,14 +618,13 @@
                     format: 'a4'
                 });
                 
-                // ব্যাকগ্রাউন্ড কালার
+                // ডার্ক ব্যাকগ্রাউন্ড
                 doc.setFillColor(10, 15, 30);
                 doc.rect(0, 0, 210, 297, 'F');
                 
-                // ===== হেডার =====
+                // ===== হেডার - ইংলিশ =====
                 doc.setFont("helvetica", "bold");
                 
-                // বড় করে TEAM NAME
                 doc.setFontSize(32);
                 doc.setTextColor(255, 215, 0);
                 doc.text("EARNING BY HABIB", 105, 30, { align: "center" });
@@ -641,80 +638,81 @@
                 doc.setLineWidth(0.5);
                 doc.line(30, 55, 180, 55);
                 
-                // ===== ডিটেইলস =====
+                // ===== ডিটেইলস - ইংলিশ =====
                 doc.setFontSize(14);
-                doc.setTextColor(255, 215, 0);
                 
                 let y = 70;
                 const lineHeight = 10;
                 
-                // টেলিগ্রাম
-                doc.text("📱 টেলিগ্রাম:", 25, y);
+                // Telegram
+                doc.setTextColor(255, 215, 0);
+                doc.text("TELEGRAM:", 25, y);
                 doc.setTextColor(255, 255, 255);
                 doc.text(lastSubmission.telegram, 80, y);
                 y += lineHeight;
                 
-                // একাউন্ট টাইপ
+                // Account Type
                 doc.setTextColor(255, 215, 0);
-                doc.text("📊 একাউন্ট টাইপ:", 25, y);
+                doc.text("ACCOUNT TYPE:", 25, y);
                 doc.setTextColor(255, 255, 255);
-                doc.text(lastSubmission.typeName, 80, y);
+                doc.text(lastSubmission.typeName.toUpperCase(), 80, y);
                 y += lineHeight;
                 
-                // সফল
+                // Successful
                 doc.setTextColor(255, 215, 0);
-                doc.text("✅ সফল:", 25, y);
+                doc.text("SUCCESSFUL:", 25, y);
                 doc.setTextColor(76, 175, 80);
-                doc.text(lastSubmission.uniqueCount + " টি", 80, y);
+                doc.text(lastSubmission.uniqueCount + " Accounts", 80, y);
                 y += lineHeight;
                 
-                // ডুপ্লিকেট
+                // Duplicate
                 if (lastSubmission.duplicateCount > 0) {
                     doc.setTextColor(255, 215, 0);
-                    doc.text("⚠️ ডুপ্লিকেট:", 25, y);
+                    doc.text("DUPLICATE:", 25, y);
                     doc.setTextColor(255, 215, 0);
-                    doc.text(lastSubmission.duplicateCount + " টি", 80, y);
+                    doc.text(lastSubmission.duplicateCount + " Accounts", 80, y);
                     y += lineHeight;
                 }
                 
-                // পেমেন্ট মেথড
+                // Payment Method
                 doc.setTextColor(255, 215, 0);
-                doc.text("💰 পেমেন্ট:", 25, y);
+                doc.text("PAYMENT:", 25, y);
                 doc.setTextColor(255, 255, 255);
                 doc.text(lastSubmission.paymentMethod, 80, y);
                 y += lineHeight;
                 
-                // নাম্বার
+                // Number
                 doc.setTextColor(255, 215, 0);
-                doc.text("📞 নাম্বার:", 25, y);
+                doc.text("NUMBER:", 25, y);
                 doc.setTextColor(255, 255, 255);
                 doc.text(lastSubmission.number, 80, y);
                 y += lineHeight;
                 
-                // সময়
-                const timeStr = new Date(lastSubmission.timestamp).toLocaleString('bn-BD', { 
+                // Time
+                const timeStr = new Date(lastSubmission.timestamp).toLocaleString('en-US', { 
                     timeZone: 'Asia/Dhaka',
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit',
-                    second: '2-digit'
+                    second: '2-digit',
+                    hour12: true
                 });
                 doc.setTextColor(255, 215, 0);
-                doc.text("⏰ সময়:", 25, y);
+                doc.text("TIME:", 25, y);
                 doc.setTextColor(255, 255, 255);
-                doc.text(timeStr, 80, y);
+                doc.text(timeStr + " (BDT)", 80, y);
                 y += lineHeight + 5;
                 
-                // ডেকোরেটিভ লাইন
+                // Decorative Line
                 doc.setDrawColor(255, 215, 0);
                 doc.line(30, y-2, 180, y-2);
                 
-                // ইউজারনেম লিস্ট
+                // Username List
                 doc.setFontSize(14);
                 doc.setTextColor(255, 215, 0);
-                doc.text("📝 ইউজারনেম সমূহ:", 25, y+5);
+                doc.text("USERNAMES:", 25, y+5);
                 y += 12;
                 
                 doc.setFontSize(10);
@@ -730,33 +728,29 @@
                 
                 if (usernameList.length > maxPerPage) {
                     doc.setTextColor(255, 215, 0);
-                    doc.text("... এবং আরও " + (usernameList.length - maxPerPage) + " টি", 30, y);
+                    doc.text("... and " + (usernameList.length - maxPerPage) + " more", 30, y);
                 }
                 
-                // ===== ফুটার =====
+                // ===== ফুটার - ইংলিশ =====
                 y = 250;
                 
-                // ডেকোরেটিভ লাইন
                 doc.setDrawColor(255, 215, 0);
                 doc.line(30, y, 180, y);
                 y += 8;
                 
-                // ধন্যবাদ বার্তা
-                doc.setFontSize(14);
+                doc.setFontSize(16);
                 doc.setTextColor(255, 215, 0);
-                doc.text("আমাদের সাথে কাজ করার জন্য", 105, y, { align: "center" });
-                y += 7;
-                doc.text("আপনাকে অসংখ্য ধন্যবাদ!", 105, y, { align: "center" });
-                y += 7;
+                doc.text("Thank You!", 105, y, { align: "center" });
+                y += 8;
                 
                 doc.setFontSize(12);
                 doc.setTextColor(255, 255, 255);
-                doc.text("দোয়া চাই - ভালো থাকবেন, সুস্থ থাকবেন", 105, y, { align: "center" });
-                y += 10;
+                doc.text("For working with us", 105, y, { align: "center" });
+                y += 8;
                 
                 doc.setFontSize(10);
                 doc.setTextColor(150, 150, 150);
-                doc.text("EBH TEAM - Earning By Habib ", 105, y, { align: "center" });
+                doc.text("EBH TEAM - EARNING BY HABIB", 105, y, { align: "center" });
                 
                 // PDF সেভ
                 const fileName = `EBH_Receipt_${lastSubmission.telegram.replace('@', '')}_${Date.now()}.pdf`;
@@ -1001,7 +995,7 @@
                         ${duplicates.length > 0 ? `<div><span class="label">⚠️ ডুপ্লিকেট:</span> <span class="value">${duplicates.length} টি</span></div>` : ''}
                         <div><span class="label">💰 পেমেন্ট:</span> <span class="value">${selectedPayment}</span></div>
                         <div><span class="label">📞 নাম্বার:</span> <span class="value">${number}</span></div>
-                        <div><span class="label">⏰ সময়:</span> <span class="value">${new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' })}</span></div>
+                        <div><span class="label">⏰ সময়:</span> <span class="value">${new Date().toLocaleString('bn-BD')}</span></div>
                     `;
                 }
                 
@@ -1010,7 +1004,6 @@
                 if (uniqueUsernames.length > 0) {
                     showToast(`${uniqueUsernames.length} টি একাউন্ট সেভ হয়েছে`, 'success');
                     
-                    // ব্রাউজার নোটিফিকেশন
                     const hasPermission = await requestNotificationPermission();
                     if (hasPermission) {
                         showBrowserNotification('✅ EBH TEAM', {
@@ -1048,7 +1041,6 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // পেইজ লোড হলে নোটিফিকেশন পারমিশন চাওয়া
         window.addEventListener('load', () => {
             requestNotificationPermission();
         });
