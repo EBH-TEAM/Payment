@@ -250,6 +250,12 @@
                 0 0 0 3px rgba(255,215,0,0.3);
         }
 
+        .form-group input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #2a2f40;
+        }
+
         .account-count {
             background: linear-gradient(145deg, #ffd700, #ffa500);
             color: #1a1e2b;
@@ -321,6 +327,8 @@
             box-shadow: 
                 10px 10px 30px rgba(0,0,0,0.5),
                 inset 2px 2px 5px rgba(255,255,255,0.1);
+            max-height: 350px;
+            overflow-y: auto;
         }
 
         body.light-mode .payment-dropdown {
@@ -353,6 +361,33 @@
 
         .payment-option:last-child {
             border-bottom: none;
+        }
+
+        .payment-option.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .payment-option.both-payment {
+            background: linear-gradient(145deg, rgba(255,215,0,0.2), rgba(255,165,0,0.1));
+            border-left: 4px solid #ffd700;
+            font-weight: bold;
+        }
+
+        .payment-option.both-payment:hover {
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+        }
+
+        .payment-option.inbox-payment {
+            background: linear-gradient(145deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.1));
+            border-left: 4px solid #4CAF50;
+            font-weight: bold;
+        }
+
+        .payment-option.inbox-payment:hover {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
         }
 
         .btn-submit {
@@ -567,7 +602,7 @@
 
         <div class="form-group">
             <label>📞 পেমেন্ট নম্বর</label>
-            <input type="text" id="number" placeholder="017xxxxxxxx">
+            <input type="text" id="number" placeholder="017xxxxxxxx" value="">
         </div>
 
         <div class="progress-bar" id="progressBar">
@@ -588,6 +623,7 @@
                 <li>১০০ টাকার উপরে পেমেন্ট = বিকাশ/নগদ/রকেট</li>
                 <li>ডুপ্লিকেট অটো বাদ যাবে</li>
                 <li>কুকিজ বা 2FA সিলেক্ট করা বাধ্যতামূলক</li>
+                <li>"টাকা পরে নেব" সিলেক্ট করলে নাম্বার দেওয়া লাগবে না</li>
             </ul>
         </div>
     </div>
@@ -596,7 +632,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, onValue, push, query, orderByChild, equalTo, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getDatabase, ref, onValue, push, query, orderByChild, equalTo, get, set, remove, update, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
@@ -613,7 +649,7 @@
         const db = getDatabase(app);
 
         let selectedPayment = '';
-        let selectedType = ''; // কোন ডিফল্ট টাইপ নেই
+        let selectedType = '';
         let systemEnabled = true;
         let maintenanceMessage = '';
 
@@ -667,7 +703,9 @@
                     nagad: true,
                     rocket: true,
                     mobileRecharge: true,
-                    binance: true
+                    binance: true,
+                    bkashNagad: true,
+                    inbox: true
                 });
             }
         });
@@ -682,24 +720,38 @@
             dropdown.innerHTML = '';
 
             const methodList = [
-                { id: 'bkash', name: '💳 বিকাশ' },
-                { id: 'nagad', name: '💵 নগদ' },
-                { id: 'rocket', name: '🚀 রকেট' },
-                { id: 'mobileRecharge', name: '📱 মোবাইল রিচার্জ' },
-                { id: 'binance', name: '₿ বাইন্যান্স' }
+                { id: 'bkash', name: '💳 বিকাশ', class: '' },
+                { id: 'nagad', name: '💵 নগদ', class: '' },
+                { id: 'bkashNagad', name: '💳+💵 বিকাশ + নগদ (একই নাম্বার)', class: 'both-payment' },
+                { id: 'rocket', name: '🚀 রকেট', class: '' },
+                { id: 'mobileRecharge', name: '📱 মোবাইল রিচার্জ', class: '' },
+                { id: 'binance', name: '₿ বাইন্যান্স', class: '' },
+                { id: 'inbox', name: '📨 টাকা পরে নেব (ইনবক্স)', class: 'inbox-payment' }
             ];
 
             methodList.forEach(method => {
                 const div = document.createElement('div');
-                div.className = 'payment-option';
+                div.className = `payment-option ${method.class}`;
+                
                 if (methods[method.id] === false) {
-                    div.style.opacity = '0.4';
-                    div.style.cursor = 'not-allowed';
+                    div.classList.add('disabled');
                 } else {
                     div.onclick = () => {
                         selectedPayment = method.name;
                         document.getElementById('selectedPaymentText').textContent = method.name;
                         document.getElementById('paymentDropdown').classList.remove('show');
+                        
+                        // ইনবক্স অপশন চেক করলে নাম্বার ফিল্ড ডিজেবল
+                        const numberField = document.getElementById('number');
+                        if (method.id === 'inbox') {
+                            numberField.disabled = true;
+                            numberField.value = 'ইনবক্সে দেওয়া হবে';
+                            numberField.placeholder = 'নাম্বার দেওয়া লাগবে না';
+                        } else {
+                            numberField.disabled = false;
+                            numberField.value = '';
+                            numberField.placeholder = '017xxxxxxxx';
+                        }
                     };
                 }
                 div.textContent = method.name;
@@ -821,7 +873,7 @@
                 return;
             }
 
-            // টাইপ চেক - কোন টাইপ সিলেক্ট করা না থাকলে
+            // টাইপ চেক
             if (!selectedType) {
                 showToast('অনুগ্রহ করে কুকিজ বা 2FA সিলেক্ট করুন', 'warning');
                 return;
@@ -829,7 +881,7 @@
 
             const usernamesText = document.getElementById('usernames').value;
             let telegram = document.getElementById('telegram').value.trim();
-            const number = document.getElementById('number').value.trim();
+            let number = document.getElementById('number').value.trim();
 
             // টেলিগ্রাম ফরম্যাট ঠিক করা
             if (telegram && !telegram.startsWith('@')) {
@@ -842,9 +894,21 @@
                 return;
             }
 
-            if (!usernamesText || !telegram || !number) {
+            if (!usernamesText || !telegram) {
                 showToast('সব ফিল্ড পূরণ করুন', 'warning');
                 return;
+            }
+
+            // ইনবক্স অপশন চেক করা
+            const isInboxPayment = selectedPayment.includes('ইনবক্স');
+            
+            if (!isInboxPayment && !number) {
+                showToast('পেমেন্ট নাম্বার দিন', 'warning');
+                return;
+            }
+
+            if (isInboxPayment) {
+                number = 'ইনবক্সে দেওয়া হবে';
             }
 
             if (telegram === '@' || telegram.length < 2) {
@@ -912,8 +976,9 @@
                     document.getElementById('accountCount').textContent = '০ টি একাউন্ট';
                     document.getElementById('telegram').value = '@';
                     document.getElementById('number').value = '';
+                    document.getElementById('number').disabled = false;
                     selectedPayment = '';
-                    selectedType = ''; // টাইপ রিসেট
+                    selectedType = '';
                     document.getElementById('typeCookies').classList.remove('active');
                     document.getElementById('type2fa').classList.remove('active');
                     document.getElementById('selectedPaymentText').textContent = 'সিলেক্ট করুন';
