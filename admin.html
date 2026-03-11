@@ -555,13 +555,20 @@
 
         .stats-row-compact {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 8px;
             padding: 8px 12px;
             background: rgba(255,255,255,0.02);
             border-radius: 20px;
             margin: 5px 0 8px 0;
             box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .stats-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
         }
 
         .total-accounts {
@@ -597,6 +604,42 @@
             border-radius: 12px;
             margin-left: 5px;
             color: #fff;
+        }
+
+        .rate-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding-top: 5px;
+            border-top: 1px solid rgba(255,215,0,0.2);
+        }
+
+        .rate-input-small {
+            width: 70px;
+            background: #3a4055;
+            border: 1px solid #ffd700;
+            border-radius: 20px;
+            padding: 4px 8px;
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 12px;
+            outline: none;
+            text-align: center;
+        }
+
+        .rate-input-small:focus {
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+
+        .amount-display {
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            color: #1a1e2b;
+            padding: 4px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            white-space: nowrap;
         }
 
         .timestamp {
@@ -823,7 +866,7 @@
                         <input type="checkbox" id="toggleNagad" checked>
                     </div>
                     <div class="toggle-item">
-"                        <label>🚀 রকেট</label>
+                        <label>🚀 রকেট</label>
                         <input type="checkbox" id="toggleRocket" checked>
                     </div>
                     <div class="toggle-item">
@@ -922,6 +965,43 @@
         let currentType = 'cookies';
         let currentMainTab = 'pending';
         let searchTerm = '';
+
+        // রেট সংরক্ষণের জন্য অবজেক্ট (লোকাল স্টোরেজ)
+        let rateValues = {};
+
+        // লোকাল স্টোরেজ থেকে রেট লোড
+        function loadRatesFromStorage() {
+            const saved = localStorage.getItem('userRates');
+            if (saved) {
+                try {
+                    rateValues = JSON.parse(saved);
+                } catch (e) {
+                    rateValues = {};
+                }
+            }
+        }
+
+        // রেট সেভ করার ফাংশন
+        window.saveRate = function(groupId, value) {
+            const numValue = parseFloat(value) || 0;
+            rateValues[groupId] = numValue;
+            localStorage.setItem('userRates', JSON.stringify(rateValues));
+            
+            // টাকার পরিমাণ আপডেট
+            updateAmountDisplay(groupId, numValue);
+        };
+
+        // টাকার পরিমাণ আপডেট
+        function updateAmountDisplay(groupId, rate) {
+            const group = allGroups.find(g => g.id === groupId);
+            if (group) {
+                const amountSpan = document.getElementById(`amount-${groupId}`);
+                if (amountSpan) {
+                    const totalAmount = (group.duplicateCount || 0) * rate;
+                    amountSpan.textContent = totalAmount.toFixed(2) + ' টাকা';
+                }
+            }
+        }
 
         // দ্বিতীয় ডাটাবেস থেকে সব ডাটা লোড করা
         async function loadSecondDatabase() {
@@ -1141,6 +1221,7 @@
                         
                         if (!grouped[groupKey]) {
                             grouped[groupKey] = {
+                                id: groupKey.replace(/[^a-zA-Z0-9]/g, '_'),
                                 number: number,
                                 telegram: item.telegram,
                                 paymentMethod: item.paymentMethod,
@@ -1260,6 +1341,8 @@
                 const date = new Date(group.timestamp || Date.now());
                 const timeString = date.toLocaleString('bn-BD');
                 const telegramLink = `https://t.me/${group.telegram || ''}`;
+                const savedRate = rateValues[group.id] || 0;
+                const totalAmount = (group.duplicateCount || 0) * savedRate;
                 
                 // অ্যাপ্রুভড হলে কত দিন হলো তা দেখান
                 let expiryInfo = '';
@@ -1296,14 +1379,28 @@
                         </div>
                         
                         <div class="stats-row-compact">
-                            <div class="total-accounts">
-                                📊 মোট একাউন্ট: <strong>${group.accounts.length}</strong>
-                            </div>
-                            ${group.duplicateCount > 0 ? `
-                                <div class="duplicate-badge">
-                                    ✅ Okay ID: <strong>${group.duplicateCount}</strong>
+                            <div class="stats-top">
+                                <div class="total-accounts">
+                                    📊 মোট একাউন্ট: <strong>${group.accounts.length}</strong>
                                 </div>
-                            ` : ''}
+                                ${group.duplicateCount > 0 ? `
+                                    <div class="duplicate-badge">
+                                        ✅ Okay ID: <strong>${group.duplicateCount}</strong>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="rate-section">
+                                <input type="number" class="rate-input-small" 
+                                    placeholder="রেট" 
+                                    value="${savedRate}"
+                                    onchange="saveRate('${group.id}', this.value)"
+                                    step="0.01"
+                                    min="0">
+                                <span class="amount-display" id="amount-${group.id}">
+                                    ${totalAmount.toFixed(2)} টাকা
+                                </span>
+                            </div>
                         </div>
                         
                         <div class="timestamp">⏰ ${timeString}</div>
@@ -1427,6 +1524,9 @@
 
         // প্রতি ঘন্টায় পুরনো ডাটা চেক করা (১৫ দিন পর ডিলিট)
         setInterval(deleteOldData, 60 * 60 * 1000); // প্রতি ঘন্টা
+
+        // লোকাল স্টোরেজ থেকে রেট লোড
+        loadRatesFromStorage();
 
         // দ্বিতীয় ডাটাবেস লোড করে তারপর প্রথম ডাটাবেস লোড করা
         loadSecondDatabase().then(() => {
