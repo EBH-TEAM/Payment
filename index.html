@@ -2,638 +2,464 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>𝗘𝗕𝗛 𝗧𝗘𝗔𝗠 - 𝗣𝗔𝗬𝗠𝗘𝗡𝗧 💸💲</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>EBH TEAM | পেমেন্ট সিস্টেম</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #0a0f1e;
             min-height: 100vh;
-            background: linear-gradient(145deg, #1a1e2b 0%, #2d3349 100%);
-            padding: 20px;
-            transition: all 0.3s ease;
-            font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+            padding: 12px;
         }
 
+        /* লাইট মোড */
         body.light-mode {
-            background: linear-gradient(145deg, #f0f2f5 0%, #e6e9f0 100%);
+            background: #f0f4fa;
         }
-
-        body.light-mode .container {
-            background: white;
+        body.light-mode .main-card {
+            background: rgba(255,255,255,0.95);
+            border-color: rgba(0,0,0,0.1);
+        }
+        body.light-mode .input-field {
+            background: #f5f7fb;
+            border-color: #ddd;
+            color: #333;
+        }
+        body.light-mode .rule-item {
+            background: #f8f9ff;
             color: #333;
         }
 
-        body.light-mode .form-group input,
-        body.light-mode .form-group textarea,
-        body.light-mode .type-selector {
-            background: white;
-            color: #333;
-            border-color: #e0e0e0;
-        }
-
-        body.light-mode .rule-box {
-            background: linear-gradient(145deg, #fff3e0, #ffe4bc);
-        }
-
-        body.light-mode .rule-box li {
-            color: #333;
-        }
-
+        /* থিম টগল */
         .theme-toggle {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 12px;
+            right: 12px;
             z-index: 1000;
         }
-
         .theme-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #2d3349;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            cursor: pointer;
-            font-size: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 30px;
+            background: rgba(255,215,0,0.2);
+            border: 1px solid #ffd700;
+            font-size: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
             color: #ffd700;
         }
 
-        body.light-mode .theme-btn {
-            background: white;
-            color: #667eea;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .theme-btn:hover {
-            transform: scale(1.1) rotate(15deg);
-        }
-
+        /* মেইন কন্টেইনার */
         .container {
-            max-width: 600px;
+            max-width: 480px;
             margin: 0 auto;
-            background: #2d3349;
-            border-radius: 50px;
-            padding: 35px 40px;
-            box-shadow: 
-                30px 30px 60px rgba(0,0,0,0.5),
-                inset 2px 2px 5px rgba(255,255,255,0.1),
-                inset -5px -5px 10px rgba(0,0,0,0.5);
-            color: #fff;
+            padding-top: 20px;
+        }
+
+        /* মেইন কার্ড */
+        .main-card {
+            background: rgba(20, 25, 40, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 32px;
+            padding: 22px 18px;
             border: 1px solid rgba(255,215,0,0.2);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
-        body.light-mode .container {
-            background: white;
-            box-shadow: 
-                30px 30px 60px rgba(0,0,0,0.1),
-                inset 2px 2px 5px rgba(255,255,255,0.5),
-                inset -5px -5px 10px rgba(0,0,0,0.05);
-        }
-
-        .logo {
+        /* লোগো */
+        .logo-area {
             text-align: center;
-            margin-bottom: 30px;
-            position: relative;
+            margin-bottom: 20px;
         }
-
-        .logo h1 {
-            font-size: 40px;
-            font-weight: 2000;
-            font-family: 'Orbitron', sans-serif;
-            background: linear-gradient(145deg, #ffd700, #ffa500, #ff8c00);
+        .logo-text {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(145deg, #ffd700, #ffa500);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 
-                0 15px 30px rgba(255,215,0,0.5),
-                3px 3px 0 #00000040,
-                -2px -2px 0 rgba(255,255,255,0.2);
-            letter-spacing: 3px;
-            transform: perspective(800px) rotateX(3deg);
-            animation: logoGlow 3s ease-in-out infinite;
+            letter-spacing: 2px;
         }
 
-        @keyframes logoGlow {
-            0%, 100% { filter: drop-shadow(0 0 20px rgba(255,215,0,0.3)); }
-            50% { filter: drop-shadow(0 0 40px rgba(255,215,0,0.6)); }
-        }
-
-        .maintenance-notice {
-            background: linear-gradient(145deg, #f44336, #d32f2f);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 30px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 5px 15px rgba(244,67,54,0.3);
-            display: none;
-        }
-
-        .maintenance-notice.show {
-            display: block;
-        }
-
-        .type-selector {
+        /* টাইপ সিলেক্টর */
+        .type-row {
             display: flex;
             gap: 10px;
-            margin-bottom: 25px;
-            padding: 6px;
-            background: #3a4055;
-            border-radius: 40px;
-            box-shadow: 
-                inset 5px 5px 10px rgba(0,0,0,0.5),
-                inset -3px -3px 8px rgba(255,255,255,0.1);
+            margin-bottom: 20px;
         }
-
-        .type-option {
+        .type-btn {
             flex: 1;
-            padding: 12px 15px;
-            border-radius: 35px;
-            cursor: pointer;
+            padding: 16px 8px;
+            border-radius: 40px;
             text-align: center;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 15px;
-            transition: all 0.3s ease;
-            color: #fff;
-            box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
-            letter-spacing: 0.5px;
-            opacity: 0.8;
-        }
-
-        .type-option.cookies {
-            background: linear-gradient(145deg, #ff6b6b, #ff4757);
-        }
-
-        .type-option.twofa {
-            background: linear-gradient(145deg, #4834d4, #686de0);
-        }
-
-        .type-option:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-            opacity: 1;
-        }
-
-        .type-option.active {
-            opacity: 1;
-            transform: scale(1.01);
-            box-shadow: 
-                0 0 0 2px #ffd700,
-                inset 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .form-group {
-            margin-bottom: 22px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #ffd700;
-            font-size: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        body.light-mode .form-group label {
-            color: #667eea;
-        }
-
-        .form-group textarea,
-        .form-group input {
-            width: 100%;
-            padding: 16px 22px;
             border: none;
-            border-radius: 30px;
+            background: #2d3349;
+            color: white;
+            box-shadow: 0 8px 0 #1a1e2b;
+            transition: 0.1s;
+            cursor: pointer;
+        }
+        .type-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 #1a1e2b;
+        }
+        .type-btn.cookies.active {
+            background: #ff4757;
+        }
+        .type-btn.twofa.active {
+            background: #4834d4;
+        }
+
+        /* ইউজারনেম ইনপুট - কাউন্টার সহ */
+        .username-container {
+            position: relative;
+            margin-bottom: 18px;
+        }
+        .username-label {
+            display: block;
+            color: #ffd700;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .username-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: #1e2335;
+            border: 1px solid rgba(255,215,0,0.2);
+            border-radius: 40px;
             font-size: 15px;
-            transition: all 0.3s ease;
-            background: #3a4055;
-            color: #fff;
-            box-shadow: 
-                inset 5px 5px 10px rgba(0,0,0,0.5),
-                inset -3px -3px 8px rgba(255,255,255,0.1),
-                5px 5px 15px rgba(0,0,0,0.3);
-            font-family: 'Rajdhani', sans-serif;
+            color: white;
+            box-shadow: inset 0 5px 8px rgba(0,0,0,0.3);
+            padding-right: 70px;
         }
-
-        body.light-mode .form-group textarea,
-        body.light-mode .form-group input {
-            background: white;
-            color: #333;
-            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.05);
-            border: 2px solid #e0e0e0;
-        }
-
-        .form-group textarea {
-            min-height: 160px;
-            resize: vertical;
-        }
-
-        .form-group textarea:focus,
-        .form-group input:focus {
+        .username-input:focus {
             outline: none;
-            box-shadow: 
-                inset 3px 3px 8px rgba(0,0,0,0.6),
-                inset -2px -2px 5px rgba(255,255,255,0.1),
-                0 0 0 3px rgba(255,215,0,0.3);
+            border-color: #ffd700;
+        }
+        .username-counter {
+            position: absolute;
+            right: 15px;
+            bottom: 14px;
+            background: rgba(255,215,0,0.2);
+            color: #ffd700;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px solid #ffd700;
+            pointer-events: none;
         }
 
-        .form-group input:disabled {
+        /* টেলিগ্রাম ইনপুট */
+        .input-group {
+            margin-bottom: 18px;
+        }
+        .input-label {
+            display: block;
+            color: #ffd700;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 16px 20px;
+            background: #1e2335;
+            border: 1px solid rgba(255,215,0,0.2);
+            border-radius: 40px;
+            font-size: 15px;
+            color: white;
+            box-shadow: inset 0 5px 8px rgba(0,0,0,0.3);
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+        .input-field:disabled {
             opacity: 0.5;
-            cursor: not-allowed;
             background: #2a2f40;
         }
 
-        .account-count {
-            background: linear-gradient(145deg, #ffd700, #ffa500);
-            color: #1a1e2b;
-            padding: 16px 22px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            box-shadow: 
-                8px 8px 16px rgba(0,0,0,0.4),
-                inset -3px -3px 7px rgba(0,0,0,0.3),
-                inset 3px 3px 7px rgba(255,255,255,0.5);
-            cursor: pointer;
-        }
-
+        /* পেমেন্ট ড্রপডাউন - স্ক্রোল ছাড়া */
         .payment-selector {
             position: relative;
-            width: 100%;
+            margin-bottom: 18px;
         }
-
         .payment-selected {
             width: 100%;
-            padding: 16px 22px;
-            background: #3a4055;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
+            padding: 16px 20px;
+            background: #1e2335;
+            border: 1px solid rgba(255,215,0,0.2);
+            border-radius: 40px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            font-size: 15px;
-            color: #fff;
-            box-shadow: 
-                inset 5px 5px 10px rgba(0,0,0,0.5),
-                inset -3px -3px 8px rgba(255,255,255,0.1),
-                5px 5px 15px rgba(0,0,0,0.3);
+            align-items: center;
+            color: white;
+            cursor: pointer;
         }
-
-        body.light-mode .payment-selected {
-            background: white;
-            color: #333;
-            border: 2px solid #e0e0e0;
-            box-shadow: none;
-        }
-
-        .payment-selected:hover {
-            box-shadow: 
-                inset 3px 3px 8px rgba(0,0,0,0.6),
-                0 0 0 2px rgba(255,215,0,0.3);
-        }
-
-        .payment-selected .arrow {
-            font-size: 18px;
-            transition: transform 0.3s ease;
-            color: #ffd700;
-        }
-
         .payment-dropdown {
             position: absolute;
             top: 100%;
             left: 0;
             right: 0;
-            background: #3a4055;
-            border-radius: 30px;
-            margin-top: 8px;
+            background: #1e2335;
+            border-radius: 25px;
+            margin-top: 5px;
             overflow: hidden;
             z-index: 100;
             display: none;
-            box-shadow: 
-                10px 10px 30px rgba(0,0,0,0.5),
-                inset 2px 2px 5px rgba(255,255,255,0.1);
-            max-height: 350px;
-            overflow-y: auto;
+            border: 2px solid #ffd700;
+            max-height: none;
         }
-
-        body.light-mode .payment-dropdown {
-            background: white;
-            border: 2px solid #e0e0e0;
-        }
-
         .payment-dropdown.show {
             display: block;
         }
-
         .payment-option {
-            padding: 14px 22px;
+            padding: 14px 18px;
+            color: white;
+            border-bottom: 1px solid #333;
             cursor: pointer;
-            transition: all 0.3s ease;
-            border-bottom: 1px solid #4a5070;
-            color: #fff;
             font-size: 14px;
         }
-
-        body.light-mode .payment-option {
-            color: #333;
-            border-bottom-color: #f0f0f0;
-        }
-
-        .payment-option:hover {
-            background: #ffd700;
-            color: #1a1e2b;
-        }
-
         .payment-option:last-child {
             border-bottom: none;
         }
-
-        .payment-option.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            pointer-events: none;
+        .payment-option:active {
+            background: #ffd700;
+            color: #000;
         }
-
-        .payment-option.both-payment {
-            background: linear-gradient(145deg, rgba(255,215,0,0.2), rgba(255,165,0,0.1));
-            border-left: 4px solid #ffd700;
+        .payment-option.inbox {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 6px solid #4CAF50;
             font-weight: bold;
         }
 
-        .payment-option.both-payment:hover {
-            background: linear-gradient(145deg, #ffd700, #ffa500);
-        }
-
-        .payment-option.inbox-payment {
-            background: linear-gradient(145deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.1));
-            border-left: 4px solid #4CAF50;
-            font-weight: bold;
-        }
-
-        .payment-option.inbox-payment:hover {
-            background: linear-gradient(145deg, #4CAF50, #45a049);
-            color: white;
-        }
-
-        .btn-submit {
+        /* সাবমিট বাটন */
+        .submit-btn {
             width: 100%;
             padding: 18px;
             background: linear-gradient(145deg, #ffd700, #ffa500);
-            color: #1a1e2b;
             border: none;
-            border-radius: 40px;
+            border-radius: 50px;
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 800;
+            color: #000;
+            box-shadow: 0 12px 0 #b27d00;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 
-                10px 10px 20px rgba(0,0,0,0.4),
-                inset -3px -3px 8px rgba(0,0,0,0.3),
-                inset 3px 3px 8px rgba(255,255,255,0.5);
-            margin-top: 22px;
+            transition: 0.1s;
+            margin: 8px 0 16px 0;
         }
-
-        .btn-submit:disabled {
+        .submit-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 6px 0 #b27d00;
+        }
+        .submit-btn:disabled {
             opacity: 0.5;
-            cursor: not-allowed;
             transform: none;
+            box-shadow: 0 8px 0 #b27d00;
         }
 
-        .result-box {
-            background: rgba(255,215,0,0.1);
-            border-radius: 30px;
-            padding: 18px;
-            margin-top: 22px;
-            border-left: 8px solid #ffd700;
-            box-shadow: 
-                inset 3px 3px 8px rgba(0,0,0,0.3),
-                5px 5px 15px rgba(0,0,0,0.3);
-            display: none;
-        }
-
-        .result-box.show {
-            display: block;
-        }
-
-        .success-text {
-            color: #4CAF50;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .duplicate-text {
-            color: #ffd700;
-            font-weight: bold;
-            font-size: 15px;
-        }
-
-        .time-text {
-            color: #fff;
-            font-size: 13px;
-            margin-top: 8px;
-            text-align: right;
-        }
-
-        .rule-box {
-            background: linear-gradient(145deg, rgba(255,215,0,0.1), rgba(255,165,0,0.05));
-            border-radius: 30px;
-            padding: 22px;
-            margin-top: 30px;
-            border-left: 8px solid #ffd700;
-            box-shadow: 
-                inset 3px 3px 8px rgba(0,0,0,0.3),
-                8px 8px 20px rgba(0,0,0,0.4);
-        }
-
-        body.light-mode .rule-box {
-            background: linear-gradient(145deg, #fff3e0, #ffe4bc);
-        }
-
-        .rule-box h3 {
-            color: #ffd700;
-            margin-bottom: 12px;
-            font-size: 18px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        body.light-mode .rule-box h3 {
-            color: #ff9800;
-        }
-
-        .rule-box li {
-            padding: 6px 0;
-            color: #fff;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            list-style: none;
-        }
-
-        body.light-mode .rule-box li {
-            color: #333;
-        }
-
-        .rule-box li:before {
-            content: "⚡";
-            color: #ffd700;
-            font-size: 16px;
-        }
-
-        .toast {
-            position: fixed;
-            top: 30px;
-            right: 30px;
-            padding: 16px 28px;
-            background: #2d3349;
-            color: #fff;
-            border-radius: 30px;
-            box-shadow: 10px 10px 30px rgba(0,0,0,0.4);
-            transform: translateX(450px);
-            transition: transform 0.3s ease;
-            z-index: 9999;
-            border-left: 8px solid;
-            font-size: 15px;
-        }
-
-        .toast.show {
-            transform: translateX(0);
-        }
-
-        .toast.success { border-left-color: #4CAF50; }
-        .toast.error { border-left-color: #f44336; }
-        .toast.warning { border-left-color: #ffd700; }
-
-        .loader {
-            display: inline-block;
-            width: 22px;
-            height: 22px;
-            border: 3px solid #1a1e2b;
-            border-top: 3px solid #ffd700;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
+        /* প্রোগ্রেস বার */
         .progress-bar {
-            width: 100%;
             height: 8px;
-            background: #3a4055;
+            background: #333;
             border-radius: 8px;
-            margin-top: 12px;
             overflow: hidden;
+            margin: 15px 0;
             display: none;
         }
-
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #ffd700, #ffa500);
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.3s;
         }
+
+        /* রেজাল্ট বক্স */
+        .result-box {
+            background: rgba(255,215,0,0.1);
+            border-radius: 20px;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-left: 4px solid #ffd700;
+            display: none;
+            font-size: 14px;
+        }
+        .result-box.show {
+            display: block;
+        }
+        .success-text {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .duplicate-text {
+            color: #ffd700;
+        }
+
+        /* রুলস */
+        .rules-card {
+            background: rgba(20, 25, 40, 0.95);
+            border-radius: 24px;
+            padding: 16px;
+            margin-top: 10px;
+        }
+        .rules-title {
+            color: #ffd700;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        .rule-item {
+            background: rgba(255,255,255,0.03);
+            padding: 10px 12px;
+            border-radius: 16px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #fff;
+        }
+        .rule-icon {
+            width: 22px;
+            height: 22px;
+            background: #ffd700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        /* টোস্ট */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            left: 20px;
+            background: #1e2335;
+            color: white;
+            padding: 14px 18px;
+            border-radius: 30px;
+            transform: translateY(-150%);
+            transition: 0.3s;
+            z-index: 9999;
+            border-left: 6px solid;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            text-align: center;
+            font-size: 14px;
+        }
+        .toast.show {
+            transform: translateY(0);
+        }
+        .toast.success { border-left-color: #4CAF50; }
+        .toast.error { border-left-color: #f44336; }
+        .toast.warning { border-left-color: #ffd700; }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="theme-toggle">
-        <button class="theme-btn" onclick="toggleTheme()">☀️</button>
+        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
     </div>
 
     <div class="container">
-        <div class="logo">
-            <h1>EBH TEAM</h1>
-        </div>
-
-        <div id="maintenanceNotice" class="maintenance-notice"></div>
-
-        <div class="type-selector">
-            <div class="type-option cookies" onclick="selectType('cookies')" id="typeCookies">
-                🍪 IG কুকিজ আইডি 
+        <!-- মেইন কার্ড -->
+        <div class="main-card">
+            <!-- লোগো -->
+            <div class="logo-area">
+                <div class="logo-text">EBH TEAM</div>
             </div>
-            <div class="type-option twofa" onclick="selectType('2fa')" id="type2fa">
-                🔐 IG টু-ফ্যাক্টর (2FA)
+
+            <!-- মেইনটেন্যান্স - হিডেন -->
+            <div id="maintenanceNotice" style="display:none;"></div>
+
+            <!-- টাইপ সিলেক্টর -->
+            <div class="type-row">
+                <button class="type-btn cookies" onclick="selectType('cookies')" id="typeCookies">🍪 কুকিজ</button>
+                <button class="type-btn twofa" onclick="selectType('2fa')" id="type2fa">🔐 2FA</button>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label>📝 ইউজারনেম সমূহ (প্রতি লাইনে একটি)</label>
-            <textarea id="usernames" placeholder="username1&#10;username2&#10;username3" oninput="countAccounts()"></textarea>
-        </div>
+            <!-- ইউজারনেম ইনপুট - কাউন্টার ইনপুটের ভিতরে -->
+            <div class="username-container">
+                <label class="username-label">📝 ইউজারনেম (প্রতি লাইনে একটি)</label>
+                <textarea class="username-input" id="usernames" placeholder="username1&#10;username2" oninput="countAccounts()" rows="4"></textarea>
+                <div class="username-counter" id="accountCount">০</div>
+            </div>
 
-        <div class="form-group">
-            <label>🔢 মোট একাউন্ট সংখ্যা</label>
-            <div class="account-count" id="accountCount">০ টি একাউন্ট</div>
-        </div>
+            <!-- টেলিগ্রাম ইউজারনেম -->
+            <div class="input-group">
+                <label class="input-label">📱 টেলিগ্রাম ইউজারনেম</label>
+                <input class="input-field" type="text" id="telegram" placeholder="@username" value="@">
+            </div>
 
-        <div class="form-group">
-            <label>📱 টেলিগ্রাম ইউজারনেম</label>
-            <input type="text" id="telegram" placeholder="@username" value="@">
-        </div>
-
-        <div class="form-group">
-            <label>💰 পেমেন্ট মেথড</label>
-            <div class="payment-selector">
-                <div class="payment-selected" onclick="togglePaymentDropdown()">
-                    <span id="selectedPaymentText">সিলেক্ট করুন</span>
-                    <span class="arrow">▼</span>
+            <!-- পেমেন্ট মেথড -->
+            <div class="input-group">
+                <label class="input-label">💰 পেমেন্ট মেথড</label>
+                <div class="payment-selector">
+                    <div class="payment-selected" onclick="togglePaymentDropdown()">
+                        <span id="selectedPaymentText">সিলেক্ট করুন</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="payment-dropdown" id="paymentDropdown"></div>
                 </div>
-                <div class="payment-dropdown" id="paymentDropdown"></div>
+            </div>
+
+            <!-- পেমেন্ট নাম্বার -->
+            <div class="input-group">
+                <label class="input-label">📞 পেমেন্ট নম্বর</label>
+                <input class="input-field" type="text" id="number" placeholder="017xxxxxxxx">
+            </div>
+
+            <!-- প্রোগ্রেস বার -->
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <!-- সাবমিট বাটন -->
+            <button class="submit-btn" onclick="submitData()" id="submitBtn">
+                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i>
+                সাবমিট করুন
+            </button>
+
+            <!-- রেজাল্ট (ছোট) -->
+            <div class="result-box" id="resultBox">
+                <div id="resultMessage"></div>
             </div>
         </div>
 
-        <div class="form-group">
-            <label>📞 পেমেন্ট নম্বর</label>
-            <input type="text" id="number" placeholder="017xxxxxxxx" value="">
-        </div>
-
-        <div class="progress-bar" id="progressBar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-
-        <button class="btn-submit" onclick="submitData()">✅ সাবমিট করুন</button>
-
-        <div class="result-box" id="resultBox">
-            <div id="resultMessage"></div>
-            <div class="time-text" id="timeTaken"></div>
-        </div>
-
-        <div class="rule-box">
-            <h3>⚠️ নিয়মাবলী</h3>
-            <ul>
-                <li>১০০ টাকার নিচে পেমেন্ট = মোবাইল রিচার্জ নাম্বার অথবা বাইনান্স UID দিন</li>
-                <li>১০০ টাকার উপরে পেমেন্ট = বিকাশ/নগদ/রকেট</li>
-                <li>ডুপ্লিকেট অটো বাদ যাবে</li>
-                <li>কুকিজ বা 2FA সিলেক্ট করা বাধ্যতামূলক</li>
-                <li>"টাকা পরে নেব" সিলেক্ট করলে নাম্বার দেওয়া লাগবে না</li>
-            </ul>
+        <!-- রুলস -->
+        <div class="rules-card">
+            <div class="rules-title"><i class="fas fa-shield-alt"></i> নিয়মাবলী</div>
+            <div class="rule-item"><div class="rule-icon">১</div>১০০ টাকার নিচে = মোবাইল রিচার্জ/বাইনান্স</div>
+            <div class="rule-item"><div class="rule-icon">২</div>১০০ টাকার উপরে = বিকাশ/নগদ/রকেট</div>
+            <div class="rule-item"><div class="rule-icon">৩</div>ডুপ্লিকেট অটো বাদ যাবে</div>
+            <div class="rule-item"><div class="rule-icon">৪</div>টাকা পরে নিলে নাম্বার লাগবে না</div>
         </div>
     </div>
 
+    <!-- টোস্ট -->
     <div id="toast" class="toast"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, onValue, push, query, orderByChild, equalTo, get, set, remove, update, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getDatabase, ref, onValue, push, query, orderByChild, equalTo, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+        // ফায়ারবেস কনফিগার
         const firebaseConfig = {
             apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
             authDomain: "saprahik-kaj.firebaseapp.com",
@@ -641,71 +467,45 @@
             projectId: "saprahik-kaj",
             storageBucket: "saprahik-kaj.firebasestorage.app",
             messagingSenderId: "336661054558",
-            appId: "1:336661054558:web:1beb394b660c9d6cf520cf",
-            measurementId: "G-VDSE7LQRH9"
+            appId: "1:336661054558:web:1beb394b660c9d6cf520cf"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // টেলিগ্রাম বট টোকেন
+        const BOT_TOKEN = "8625252484:AAECj4HGHWwaslgKSqGOyg05T4wz4YMGXC0";
+        
+        // ⚡⚡⚡ এই লাইনটা true করে দিলাম - এখন টেলিগ্রাম বট চালু! ⚡⚡⚡
+        const USE_TELEGRAM = true;
+
         let selectedPayment = '';
         let selectedType = '';
-        let systemEnabled = true;
-        let maintenanceMessage = '';
 
-        // টাইপ সিলেক্ট ফাংশন
+        // ========== থিম ==========
+        window.toggleTheme = function() {
+            document.body.classList.toggle('light-mode');
+            document.getElementById('themeBtn').textContent = 
+                document.body.classList.contains('light-mode') ? '☀️' : '🌙';
+        };
+
+        // ========== টাইপ সিলেক্ট ==========
         window.selectType = function(type) {
             selectedType = type;
             document.getElementById('typeCookies').classList.remove('active');
             document.getElementById('type2fa').classList.remove('active');
-            
-            if (type === 'cookies') {
-                document.getElementById('typeCookies').classList.add('active');
-            } else {
-                document.getElementById('type2fa').classList.add('active');
-            }
+            document.getElementById('type' + (type === 'cookies' ? 'Cookies' : '2fa')).classList.add('active');
         };
 
-        // সিস্টেম স্ট্যাটাস চেক
-        const systemRef = ref(db, 'settings/system');
-        onValue(systemRef, (snapshot) => {
-            const data = snapshot.val() || {};
-            systemEnabled = data.enabled !== false;
-            maintenanceMessage = data.message || 'সিস্টেম মেইনটেন্যান্স মোডে আছে';
-            
-            const notice = document.getElementById('maintenanceNotice');
-            const submitBtn = document.querySelector('.btn-submit');
-            
-            if (!systemEnabled) {
-                notice.textContent = '⚠️ ' + maintenanceMessage;
-                notice.classList.add('show');
-                submitBtn.disabled = true;
-            } else {
-                notice.classList.remove('show');
-                submitBtn.disabled = false;
-            }
-        });
-
-        // থিম টগল
-        window.toggleTheme = function() {
-            document.body.classList.toggle('light-mode');
-            const btn = document.querySelector('.theme-btn');
-            btn.textContent = document.body.classList.contains('light-mode') ? '🌓' : '☀️';
-        };
-
-        // পেমেন্ট মেথড লোড
+        // ========== পেমেন্ট মেথড লোড ==========
         const paymentMethodsRef = ref(db, 'settings/paymentMethods');
         
         get(paymentMethodsRef).then((snapshot) => {
             if (!snapshot.exists()) {
                 set(paymentMethodsRef, {
-                    bkash: true,
-                    nagad: true,
-                    rocket: true,
-                    mobileRecharge: true,
-                    binance: true,
-                    bkashNagad: true,
-                    inbox: true
+                    bkash: true, nagad: true, rocket: true,
+                    mobileRecharge: true, binance: true,
+                    bkashNagad: true, inbox: true
                 });
             }
         });
@@ -719,40 +519,41 @@
             const dropdown = document.getElementById('paymentDropdown');
             dropdown.innerHTML = '';
 
+            // 'টাকা পরে নেব' প্রথমে রাখলাম
             const methodList = [
-                { id: 'bkash', name: '💳 বিকাশ', class: '' },
-                { id: 'nagad', name: '💵 নগদ', class: '' },
-                { id: 'bkashNagad', name: '💳+💵 বিকাশ + নগদ (একই নাম্বার)', class: 'both-payment' },
-                { id: 'rocket', name: '🚀 রকেট', class: '' },
-                { id: 'mobileRecharge', name: '📱 মোবাইল রিচার্জ', class: '' },
-                { id: 'binance', name: '₿ বাইন্যান্স', class: '' },
-                { id: 'inbox', name: '📨 টাকা পরে নেব (ইনবক্স)', class: 'inbox-payment' }
+                { id: 'inbox', name: '📨 টাকা পরে নেব (ইনবক্সে হিসাব দিন)', class: 'inbox' },
+                { id: 'bkash', name: '💳 বিকাশ' },
+                { id: 'nagad', name: '💵 নগদ' },
+                { id: 'bkashNagad', name: '💳+💵 বিকাশ+নগদ একই নাম্বার' },
+                { id: 'rocket', name: '🚀 রকেট' },
+                { id: 'mobileRecharge', name: '📱 মোবাইল রিচার্জ' },
+                { id: 'binance', name: '₿ বাইন্যান্স' }
             ];
 
             methodList.forEach(method => {
                 const div = document.createElement('div');
-                div.className = `payment-option ${method.class}`;
+                div.className = 'payment-option' + (method.class ? ' ' + method.class : '');
                 
-                if (methods[method.id] === false) {
-                    div.classList.add('disabled');
-                } else {
+                if (methods[method.id] !== false) {
                     div.onclick = () => {
                         selectedPayment = method.name;
                         document.getElementById('selectedPaymentText').textContent = method.name;
                         document.getElementById('paymentDropdown').classList.remove('show');
                         
-                        // ইনবক্স অপশন চেক করলে নাম্বার ফিল্ড ডিজেবল
                         const numberField = document.getElementById('number');
                         if (method.id === 'inbox') {
                             numberField.disabled = true;
                             numberField.value = 'ইনবক্সে দেওয়া হবে';
-                            numberField.placeholder = 'নাম্বার দেওয়া লাগবে না';
+                            numberField.placeholder = 'নাম্বার লাগবে না';
                         } else {
                             numberField.disabled = false;
                             numberField.value = '';
                             numberField.placeholder = '017xxxxxxxx';
                         }
                     };
+                } else {
+                    div.style.opacity = '0.4';
+                    div.style.pointerEvents = 'none';
                 }
                 div.textContent = method.name;
                 dropdown.appendChild(div);
@@ -769,113 +570,115 @@
             }
         });
 
+        // ========== কাউন্ট আপডেট ==========
         window.countAccounts = function() {
             const text = document.getElementById('usernames').value;
             const count = text.split('\n').filter(line => line.trim() !== '').length;
-            document.getElementById('accountCount').textContent = count + ' টি একাউন্ট';
+            document.getElementById('accountCount').textContent = count;
         };
 
-        // সুপারফাস্ট ডুপ্লিকেট চেক
-        async function checkBulkDuplicates(usernames) {
-            const startTime = performance.now();
+        // ========== টেলিগ্রাম কনফার্মেশন (এখন চালু) ==========
+        async function sendTelegramConfirmation(telegram, uniqueCount, duplicateCount, typeName, isInbox) {
+            if (!USE_TELEGRAM) return;
             
+            try {
+                const cleanUsername = telegram.replace('@', '').toLowerCase();
+                
+                // চ্যাট আইডি খুঁজি
+                const chatIdRef = ref(db, 'chatIds/' + cleanUsername);
+                let chatId = null;
+                
+                const snapshot = await get(chatIdRef);
+                if (snapshot.exists()) {
+                    chatId = snapshot.val();
+                }
+
+                if (!chatId) {
+                    console.log('চ্যাট আইডি নেই - ইউজার বট স্টার্ট করেনি');
+                    showToast('কনফার্মেশন পেতে @ebh_confirmation_bot এ /start দিন', 'warning');
+                    return;
+                }
+
+                // মেসেজ
+                let message = '';
+                if (isInbox) {
+                    message = `📨 *EBH TEAM - কনফার্মেশন*\n\nআপনার *${uniqueCount}* টি *${typeName}* একাউন্ট সফলভাবে জমা হয়েছে।\n💬 পেমেন্ট ইনবক্সে দেওয়া হবে।\n\nধন্যবাদ! 🙏`;
+                } else {
+                    message = `✅ *EBH TEAM - কনফার্মেশন*\n\nআপনার *${uniqueCount}* টি *${typeName}* একাউন্ট সফলভাবে জমা হয়েছে।${duplicateCount > 0 ? '\n⚠️ *' + duplicateCount + '* টি ডুপ্লিকেট বাদ দেওয়া হয়েছে' : ''}\n\nধন্যবাদ! 🙏`;
+                }
+
+                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        chat_id: chatId, 
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+
+                const result = await response.json();
+                if (result.ok) {
+                    console.log('✅ কনফার্মেশন পাঠানো হয়েছে');
+                } else {
+                    console.log('টেলিগ্রাম error:', result);
+                }
+
+            } catch (error) {
+                console.error('Telegram error:', error);
+            }
+        }
+
+        // ========== ডুপ্লিকেট চেক ==========
+        async function checkBulkDuplicates(usernames) {
             const uniqueSet = new Set();
             const duplicates = new Set();
             
             usernames.forEach(u => {
-                if (uniqueSet.has(u)) {
-                    duplicates.add(u);
-                } else {
-                    uniqueSet.add(u);
-                }
+                if (uniqueSet.has(u)) duplicates.add(u);
+                else uniqueSet.add(u);
             });
 
             const uniqueUsernames = Array.from(uniqueSet);
             
-            if (uniqueUsernames.length === 0) {
-                return { 
-                    duplicates: Array.from(duplicates), 
-                    uniqueUsernames: [],
-                    checkTime: performance.now() - startTime 
-                };
-            }
-
-            const BATCH_SIZE = 500;
-            const batches = [];
-            for (let i = 0; i < uniqueUsernames.length; i += BATCH_SIZE) {
-                batches.push(uniqueUsernames.slice(i, i + BATCH_SIZE));
-            }
-
             const dbDuplicates = new Set();
+            const batchChecks = uniqueUsernames.map(username => 
+                get(query(ref(db, 'submits'), orderByChild('username'), equalTo(username)))
+                    .then(snapshot => snapshot.exists() ? username : null)
+            );
             
-            const batchPromises = batches.map(async (batch) => {
-                const batchChecks = batch.map(username => 
-                    get(query(ref(db, 'submits'), orderByChild('username'), equalTo(username)))
-                        .then(snapshot => snapshot.exists() ? username : null)
-                );
-                
-                const results = await Promise.all(batchChecks);
-                results.forEach(username => {
-                    if (username) dbDuplicates.add(username);
-                });
-            });
-
-            await Promise.all(batchPromises);
+            const results = await Promise.all(batchChecks);
+            results.forEach(u => { if (u) dbDuplicates.add(u); });
 
             const finalUnique = uniqueUsernames.filter(u => !dbDuplicates.has(u));
             
             return {
                 duplicates: Array.from(new Set([...duplicates, ...dbDuplicates])),
-                uniqueUsernames: finalUnique,
-                checkTime: performance.now() - startTime
+                uniqueUsernames: finalUnique
             };
         }
 
-        // ব্যাচ সাবমিট
+        // ========== সাবমিট ==========
         async function batchSubmit(usernames, telegram, paymentMethod, number) {
-            const BATCH_SIZE = 500;
             const timestamp = Date.now();
-            const batches = [];
-            
-            for (let i = 0; i < usernames.length; i += BATCH_SIZE) {
-                batches.push(usernames.slice(i, i + BATCH_SIZE));
-            }
-
-            for (let i = 0; i < batches.length; i++) {
-                const batch = batches[i];
-                const promises = batch.map(username => 
-                    push(ref(db, 'submits'), {
-                        username: username,
-                        telegram: telegram.replace('@', ''),
-                        paymentMethod: paymentMethod,
-                        number: number,
-                        timestamp: timestamp,
-                        status: 'pending',
-                        accountCount: usernames.length,
-                        type: selectedType
-                    })
-                );
-                
-                await Promise.all(promises);
-                
-                const progress = ((i + 1) / batches.length) * 100;
-                document.getElementById('progressFill').style.width = progress + '%';
-            }
+            const promises = usernames.map(username => 
+                push(ref(db, 'submits'), {
+                    username,
+                    telegram: telegram.replace('@', ''),
+                    paymentMethod,
+                    number,
+                    timestamp,
+                    status: 'pending',
+                    type: selectedType
+                })
+            );
+            await Promise.all(promises);
         }
 
-        // সাবমিট ডাটা
+        // ========== মেইন সাবমিট ==========
         window.submitData = async function() {
-            const totalStartTime = performance.now();
-
-            // সিস্টেম চেক
-            if (!systemEnabled) {
-                showToast('সিস্টেম বন্ধ আছে: ' + maintenanceMessage, 'warning');
-                return;
-            }
-
-            // টাইপ চেক
             if (!selectedType) {
-                showToast('অনুগ্রহ করে কুকিজ বা 2FA সিলেক্ট করুন', 'warning');
+                showToast('কুকিজ বা 2FA সিলেক্ট করুন', 'warning');
                 return;
             }
 
@@ -883,23 +686,21 @@
             let telegram = document.getElementById('telegram').value.trim();
             let number = document.getElementById('number').value.trim();
 
-            // টেলিগ্রাম ফরম্যাট ঠিক করা
+            // টেলিগ্রাম ফরম্যাট
             if (telegram && !telegram.startsWith('@')) {
                 telegram = '@' + telegram;
             }
 
-            // ভ্যালিডেশন
-            if (!selectedPayment) {
-                showToast('পেমেন্ট মেথড সিলেক্ট করুন', 'warning');
-                return;
-            }
-
-            if (!usernamesText || !telegram) {
+            if (!selectedPayment || !usernamesText || !telegram) {
                 showToast('সব ফিল্ড পূরণ করুন', 'warning');
                 return;
             }
 
-            // ইনবক্স অপশন চেক করা
+            if (telegram === '@' || telegram.length < 2) {
+                showToast('সঠিক টেলিগ্রাম দিন', 'warning');
+                return;
+            }
+
             const isInboxPayment = selectedPayment.includes('ইনবক্স');
             
             if (!isInboxPayment && !number) {
@@ -907,73 +708,62 @@
                 return;
             }
 
-            if (isInboxPayment) {
-                number = 'ইনবক্সে দেওয়া হবে';
-            }
+            if (isInboxPayment) number = 'ইনবক্সে দেওয়া হবে';
 
-            if (telegram === '@' || telegram.length < 2) {
-                showToast('সঠিক টেলিগ্রাম ইউজারনেম দিন', 'warning');
-                return;
-            }
-
-            const usernames = usernamesText.split('\n')
-                .map(u => u.trim())
-                .filter(u => u !== '');
-
+            const usernames = usernamesText.split('\n').map(u => u.trim()).filter(u => u);
             if (usernames.length === 0) {
                 showToast('কমপক্ষে একটি ইউজারনেম দিন', 'warning');
                 return;
             }
 
-            // UI আপডেট
-            const submitBtn = document.querySelector('.btn-submit');
+            const submitBtn = document.getElementById('submitBtn');
             const progressBar = document.getElementById('progressBar');
             const progressFill = document.getElementById('progressFill');
             
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loader"></span> প্রসেসিং...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং...';
             progressBar.style.display = 'block';
             progressFill.style.width = '0%';
 
             try {
-                // ডুপ্লিকেট চেক
-                const { duplicates, uniqueUsernames, checkTime } = await checkBulkDuplicates(usernames);
-                
-                progressFill.style.width = '30%';
+                const { duplicates, uniqueUsernames } = await checkBulkDuplicates(usernames);
+                progressFill.style.width = '70%';
 
-                // ব্যাচ সাবমিট
                 if (uniqueUsernames.length > 0) {
                     await batchSubmit(uniqueUsernames, telegram, selectedPayment, number);
                 }
 
-                // রেজাল্ট দেখান
-                const totalTime = ((performance.now() - totalStartTime) / 1000).toFixed(2);
+                const typeName = selectedType === 'cookies' ? 'কুকিজ' : '2FA';
                 
                 const resultBox = document.getElementById('resultBox');
                 const resultMessage = document.getElementById('resultMessage');
-                const timeTaken = document.getElementById('timeTaken');
-
-                const typeName = selectedType === 'cookies' ? 'কুকিজ' : '2FA';
-
+                
                 if (uniqueUsernames.length === 0) {
                     resultMessage.innerHTML = '<span class="duplicate-text">⚠️ সব ইউজারনেম ডুপ্লিকেট!</span>';
                 } else {
                     resultMessage.innerHTML = `
-                        <span class="success-text">✅ ${uniqueUsernames.length} টি ${typeName} একাউন্ট সেভ হয়েছে</span><br>
-                        ${duplicates.length > 0 ? `<span class="duplicate-text">⚠️ ${duplicates.length} টি ডুপ্লিকেট বাদ</span>` : ''}
+                        <span class="success-text">✅ ${uniqueUsernames.length} টি ${typeName} সেভ হয়েছে</span>
+                        ${duplicates.length > 0 ? `<br><span class="duplicate-text">⚠️ ${duplicates.length} টি ডুপ্লিকেট</span>` : ''}
                     `;
                 }
                 
-                timeTaken.innerHTML = `⚡ সময়: ${totalTime} সেকেন্ড`;
                 resultBox.classList.add('show');
 
-                // সাকসেস টোস্ট
                 if (uniqueUsernames.length > 0) {
-                    showToast(`${uniqueUsernames.length} টি ${typeName} একাউন্ট সেভ হয়েছে`, 'success');
+                    showToast(`${uniqueUsernames.length} টি একাউন্ট সেভ হয়েছে`, 'success');
+                    
+                    // টেলিগ্রামে পাঠানোর চেষ্টা (এখন চালু)
+                    await sendTelegramConfirmation(
+                        telegram, 
+                        uniqueUsernames.length, 
+                        duplicates.length, 
+                        typeName,
+                        isInboxPayment
+                    );
                     
                     // ফর্ম ক্লিয়ার
                     document.getElementById('usernames').value = '';
-                    document.getElementById('accountCount').textContent = '০ টি একাউন্ট';
+                    document.getElementById('accountCount').textContent = '০';
                     document.getElementById('telegram').value = '@';
                     document.getElementById('number').value = '';
                     document.getElementById('number').disabled = false;
@@ -982,32 +772,27 @@
                     document.getElementById('typeCookies').classList.remove('active');
                     document.getElementById('type2fa').classList.remove('active');
                     document.getElementById('selectedPaymentText').textContent = 'সিলেক্ট করুন';
-                } else {
-                    showToast('কোন নতুন একাউন্ট সেভ হয়নি', 'warning');
                 }
 
             } catch (error) {
-                console.error('Submit Error:', error);
-                showToast('সাবমিট করতে সমস্যা: ' + error.message, 'error');
+                console.error('Error:', error);
+                showToast('সমস্যা: ' + error.message, 'error');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '✅ সাবমিট করুন';
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> সাবমিট করুন';
                 progressBar.style.display = 'none';
             }
         };
 
-        // টোস্ট মেসেজ
-        function showToast(message, type = 'info') {
+        // ========== টোস্ট ==========
+        function showToast(message, type) {
             const toast = document.getElementById('toast');
             toast.className = `toast ${type} show`;
             toast.innerHTML = message;
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 4000);
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // প্রাথমিক কাউন্ট
+        // ইনিশিয়াল কাউন্ট
         countAccounts();
     </script>
 </body>
