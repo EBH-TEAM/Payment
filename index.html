@@ -76,18 +76,46 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
-        /* লোগো */
+        /* আরজিবি লোগো */
         .logo-area {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            position: relative;
         }
-        .logo-text {
-            font-size: 32px;
-            font-weight: 800;
-            background: linear-gradient(145deg, #ffd700, #ffa500);
+        .rgb-logo {
+            font-size: 48px;
+            font-weight: 900;
+            font-family: 'Orbitron', 'Rajdhani', sans-serif;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            background: linear-gradient(145deg, #ff0000, #00ff00, #0000ff, #ff00ff, #ffff00);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: 2px;
+            background-size: 300% 300%;
+            animation: rgbMove 5s ease infinite;
+            text-shadow: 
+                0 0 10px rgba(255,0,0,0.5),
+                0 0 20px rgba(0,255,0,0.5),
+                0 0 30px rgba(0,0,255,0.5);
+            transform: perspective(800px) rotateX(2deg);
+            line-height: 1.2;
+        }
+        @keyframes rgbMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .logo-badge {
+            display: inline-block;
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            color: #000;
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 8px;
+            box-shadow: 0 5px 15px rgba(255,215,0,0.3);
+            letter-spacing: 1px;
         }
 
         /* টাইপ সিলেক্টর */
@@ -192,7 +220,7 @@
             background: #2a2f40;
         }
 
-        /* পেমেন্ট ড্রপডাউন - স্ক্রোল ছাড়া */
+        /* পেমেন্ট ড্রপডাউন */
         .payment-selector {
             position: relative;
             margin-bottom: 18px;
@@ -287,15 +315,14 @@
             transition: width 0.3s;
         }
 
-        /* রেজাল্ট বক্স */
+        /* রেজাল্ট বক্স - রিসিট ডাউনলোড বাটন সহ */
         .result-box {
             background: rgba(255,215,0,0.1);
             border-radius: 20px;
-            padding: 12px 15px;
-            margin: 10px 0;
+            padding: 15px;
+            margin: 15px 0;
             border-left: 4px solid #ffd700;
             display: none;
-            font-size: 14px;
         }
         .result-box.show {
             display: block;
@@ -303,9 +330,46 @@
         .success-text {
             color: #4CAF50;
             font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
         }
         .duplicate-text {
             color: #ffd700;
+        }
+        .receipt-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 8px 0 #2d6a4f;
+            transition: 0.1s;
+        }
+        .receipt-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #2d6a4f;
+        }
+        .receipt-details {
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: #fff;
+            line-height: 1.8;
+        }
+        .receipt-details span {
+            color: #ffd700;
+            font-weight: bold;
         }
 
         /* রুলস */
@@ -368,9 +432,9 @@
         }
         .toast.success { border-left-color: #4CAF50; }
         .toast.error { border-left-color: #f44336; }
-        .toast.warning { border-left-color: #ffd700; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="theme-toggle">
@@ -380,9 +444,10 @@
     <div class="container">
         <!-- মেইন কার্ড -->
         <div class="main-card">
-            <!-- লোগো -->
+            <!-- আরজিবি লোগো -->
             <div class="logo-area">
-                <div class="logo-text">EBH TEAM</div>
+                <div class="rgb-logo">EBH TEAM</div>
+                <div class="logo-badge">✦ প্রিমিয়াম পেমেন্ট ✦</div>
             </div>
 
             <!-- মেইনটেন্যান্স - হিডেন -->
@@ -394,9 +459,9 @@
                 <button class="type-btn twofa" onclick="selectType('2fa')" id="type2fa">🔐 2FA</button>
             </div>
 
-            <!-- ইউজারনেম ইনপুট - কাউন্টার ইনপুটের ভিতরে -->
+            <!-- ইউজারনেম ইনপুট -->
             <div class="username-container">
-                <label class="username-label">📝 ইউজারনেম (প্রতি লাইনে একটি)</label>
+                <label class="username-label">📝 ইউজারনেম (প্রতি লাইনে)</label>
                 <textarea class="username-input" id="usernames" placeholder="username1&#10;username2" oninput="countAccounts()" rows="4"></textarea>
                 <div class="username-counter" id="accountCount">০</div>
             </div>
@@ -436,9 +501,14 @@
                 সাবমিট করুন
             </button>
 
-            <!-- রেজাল্ট (ছোট) -->
+            <!-- রেজাল্ট বক্স - রিসিট সহ -->
             <div class="result-box" id="resultBox">
                 <div id="resultMessage"></div>
+                <div class="receipt-details" id="receiptDetails"></div>
+                <button class="receipt-btn" onclick="downloadReceipt()" id="receiptBtn">
+                    <i class="fas fa-download"></i>
+                    রিসিট ডাউনলোড করুন
+                </button>
             </div>
         </div>
 
@@ -459,7 +529,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, push, query, orderByChild, equalTo, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // ফায়ারবেস কনফিগার
         const firebaseConfig = {
             apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
             authDomain: "saprahik-kaj.firebaseapp.com",
@@ -473,14 +542,35 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // টেলিগ্রাম বট টোকেন
-        const BOT_TOKEN = "8625252484:AAECj4HGHWwaslgKSqGOyg05T4wz4YMGXC0";
-        
-        // ⚡⚡⚡ এই লাইনটা true করে দিলাম - এখন টেলিগ্রাম বট চালু! ⚡⚡⚡
-        const USE_TELEGRAM = true;
-
         let selectedPayment = '';
         let selectedType = '';
+        let lastSubmission = null; // শেষ সাবমিটের ডাটা সংরক্ষণ
+
+        // নোটিফিকেশন পারমিশন চাওয়া
+        async function requestNotificationPermission() {
+            if (!("Notification" in window)) {
+                console.log("ব্রাউজার নোটিফিকেশন সাপোর্ট করে না");
+                return false;
+            }
+            
+            if (Notification.permission === "granted") {
+                return true;
+            }
+            
+            if (Notification.permission !== "denied") {
+                const permission = await Notification.requestPermission();
+                return permission === "granted";
+            }
+            
+            return false;
+        }
+
+        // নোটিফিকেশন দেখানো
+        function showBrowserNotification(title, options) {
+            if (Notification.permission === "granted") {
+                new Notification(title, options);
+            }
+        }
 
         // ========== থিম ==========
         window.toggleTheme = function() {
@@ -519,7 +609,6 @@
             const dropdown = document.getElementById('paymentDropdown');
             dropdown.innerHTML = '';
 
-            // 'টাকা পরে নেব' প্রথমে রাখলাম
             const methodList = [
                 { id: 'inbox', name: '📨 টাকা পরে নেব (ইনবক্সে হিসাব দিন)', class: 'inbox' },
                 { id: 'bkash', name: '💳 বিকাশ' },
@@ -570,64 +659,11 @@
             }
         });
 
-        // ========== কাউন্ট আপডেট ==========
         window.countAccounts = function() {
             const text = document.getElementById('usernames').value;
             const count = text.split('\n').filter(line => line.trim() !== '').length;
             document.getElementById('accountCount').textContent = count;
         };
-
-        // ========== টেলিগ্রাম কনফার্মেশন (এখন চালু) ==========
-        async function sendTelegramConfirmation(telegram, uniqueCount, duplicateCount, typeName, isInbox) {
-            if (!USE_TELEGRAM) return;
-            
-            try {
-                const cleanUsername = telegram.replace('@', '').toLowerCase();
-                
-                // চ্যাট আইডি খুঁজি
-                const chatIdRef = ref(db, 'chatIds/' + cleanUsername);
-                let chatId = null;
-                
-                const snapshot = await get(chatIdRef);
-                if (snapshot.exists()) {
-                    chatId = snapshot.val();
-                }
-
-                if (!chatId) {
-                    console.log('চ্যাট আইডি নেই - ইউজার বট স্টার্ট করেনি');
-                    showToast('কনফার্মেশন পেতে @ebh_confirmation_bot এ /start দিন', 'warning');
-                    return;
-                }
-
-                // মেসেজ
-                let message = '';
-                if (isInbox) {
-                    message = `📨 *EBH TEAM - কনফার্মেশন*\n\nআপনার *${uniqueCount}* টি *${typeName}* একাউন্ট সফলভাবে জমা হয়েছে।\n💬 পেমেন্ট ইনবক্সে দেওয়া হবে।\n\nধন্যবাদ! 🙏`;
-                } else {
-                    message = `✅ *EBH TEAM - কনফার্মেশন*\n\nআপনার *${uniqueCount}* টি *${typeName}* একাউন্ট সফলভাবে জমা হয়েছে।${duplicateCount > 0 ? '\n⚠️ *' + duplicateCount + '* টি ডুপ্লিকেট বাদ দেওয়া হয়েছে' : ''}\n\nধন্যবাদ! 🙏`;
-                }
-
-                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        chat_id: chatId, 
-                        text: message,
-                        parse_mode: 'Markdown'
-                    })
-                });
-
-                const result = await response.json();
-                if (result.ok) {
-                    console.log('✅ কনফার্মেশন পাঠানো হয়েছে');
-                } else {
-                    console.log('টেলিগ্রাম error:', result);
-                }
-
-            } catch (error) {
-                console.error('Telegram error:', error);
-            }
-        }
 
         // ========== ডুপ্লিকেট চেক ==========
         async function checkBulkDuplicates(usernames) {
@@ -673,7 +709,47 @@
                 })
             );
             await Promise.all(promises);
+            return timestamp;
         }
+
+        // ========== রিসিট ডাউনলোড ==========
+        window.downloadReceipt = function() {
+            if (!lastSubmission) {
+                showToast('কোন রিসিট নেই', 'warning');
+                return;
+            }
+
+            const receiptText = `
+════════════════════════
+      EBH TEAM - রিসিট
+════════════════════════
+
+👤 টেলিগ্রাম: ${lastSubmission.telegram}
+📊 একাউন্ট টাইপ: ${lastSubmission.typeName}
+✅ সফল: ${lastSubmission.uniqueCount} টি
+⚠️ ডুপ্লিকেট: ${lastSubmission.duplicateCount} টি
+💰 পেমেন্ট মেথড: ${lastSubmission.paymentMethod}
+📞 নাম্বার: ${lastSubmission.number}
+⏰ সময়: ${new Date(lastSubmission.timestamp).toLocaleString('bn-BD')}
+
+📝 ইউজারনেম সমূহ:
+${lastSubmission.usernames.map(u => '• ' + u).join('\n')}
+
+════════════════════════
+    ধন্যবাদ! 🙏
+════════════════════════
+            `;
+
+            const blob = new Blob([receiptText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `EBH_Receipt_${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
 
         // ========== মেইন সাবমিট ==========
         window.submitData = async function() {
@@ -686,7 +762,6 @@
             let telegram = document.getElementById('telegram').value.trim();
             let number = document.getElementById('number').value.trim();
 
-            // টেলিগ্রাম ফরম্যাট
             if (telegram && !telegram.startsWith('@')) {
                 telegram = '@' + telegram;
             }
@@ -729,21 +804,44 @@
                 const { duplicates, uniqueUsernames } = await checkBulkDuplicates(usernames);
                 progressFill.style.width = '70%';
 
+                let timestamp = null;
                 if (uniqueUsernames.length > 0) {
-                    await batchSubmit(uniqueUsernames, telegram, selectedPayment, number);
+                    timestamp = await batchSubmit(uniqueUsernames, telegram, selectedPayment, number);
                 }
 
                 const typeName = selectedType === 'cookies' ? 'কুকিজ' : '2FA';
                 
+                // শেষ সাবমিটের ডাটা সংরক্ষণ
+                lastSubmission = {
+                    telegram,
+                    typeName,
+                    uniqueCount: uniqueUsernames.length,
+                    duplicateCount: duplicates.length,
+                    paymentMethod: selectedPayment,
+                    number,
+                    timestamp: timestamp || Date.now(),
+                    usernames: uniqueUsernames
+                };
+
                 const resultBox = document.getElementById('resultBox');
                 const resultMessage = document.getElementById('resultMessage');
+                const receiptDetails = document.getElementById('receiptDetails');
                 
                 if (uniqueUsernames.length === 0) {
                     resultMessage.innerHTML = '<span class="duplicate-text">⚠️ সব ইউজারনেম ডুপ্লিকেট!</span>';
+                    receiptDetails.innerHTML = '';
                 } else {
                     resultMessage.innerHTML = `
                         <span class="success-text">✅ ${uniqueUsernames.length} টি ${typeName} সেভ হয়েছে</span>
                         ${duplicates.length > 0 ? `<br><span class="duplicate-text">⚠️ ${duplicates.length} টি ডুপ্লিকেট</span>` : ''}
+                    `;
+                    
+                    receiptDetails.innerHTML = `
+                        <div><span>👤 টেলিগ্রাম:</span> ${telegram}</div>
+                        <div><span>💰 পেমেন্ট:</span> ${selectedPayment}</div>
+                        <div><span>📞 নাম্বার:</span> ${number}</div>
+                        <div><span>✅ সফল:</span> ${uniqueUsernames.length} টি</div>
+                        <div><span>⏰ সময়:</span> ${new Date().toLocaleString('bn-BD')}</div>
                     `;
                 }
                 
@@ -752,14 +850,16 @@
                 if (uniqueUsernames.length > 0) {
                     showToast(`${uniqueUsernames.length} টি একাউন্ট সেভ হয়েছে`, 'success');
                     
-                    // টেলিগ্রামে পাঠানোর চেষ্টা (এখন চালু)
-                    await sendTelegramConfirmation(
-                        telegram, 
-                        uniqueUsernames.length, 
-                        duplicates.length, 
-                        typeName,
-                        isInboxPayment
-                    );
+                    // ব্রাউজার নোটিফিকেশন
+                    const hasPermission = await requestNotificationPermission();
+                    if (hasPermission) {
+                        showBrowserNotification('✅ EBH TEAM - সফল', {
+                            body: `${telegram} - ${uniqueUsernames.length} টি ${typeName} একাউন্ট সেভ হয়েছে\nপেমেন্ট: ${selectedPayment}`,
+                            icon: 'https://cdn-icons-png.flaticon.com/512/733/733547.png',
+                            badge: 'https://cdn-icons-png.flaticon.com/512/733/733547.png',
+                            silent: false
+                        });
+                    }
                     
                     // ফর্ম ক্লিয়ার
                     document.getElementById('usernames').value = '';
@@ -784,7 +884,6 @@
             }
         };
 
-        // ========== টোস্ট ==========
         function showToast(message, type) {
             const toast = document.getElementById('toast');
             toast.className = `toast ${type} show`;
@@ -792,7 +891,11 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // ইনিশিয়াল কাউন্ট
+        // পেইজ লোড হলে নোটিফিকেশন পারমিশন চাওয়া
+        window.addEventListener('load', () => {
+            requestNotificationPermission();
+        });
+
         countAccounts();
     </script>
 </body>
