@@ -969,8 +969,8 @@
         let currentMainTab = 'pending';
         let searchTerm = '';
 
-        // রেট সংরক্ষণের জন্য Firebase রেফারেন্স
-        const ratesRef = ref(db, 'rates');
+        // টেলিগ্রাম ইউজারনেম ভিত্তিক রেট সংরক্ষণের জন্য Firebase রেফারেন্স
+        const userRatesRef = ref(db, 'userRates'); // { "telegram_username": rate }
 
         // রেট অপশন জেনারেট করা (৩.৫০ থেকে ৪.৫০ পর্যন্ত প্রতি ১০ পয়সা)
         function generateRateOptions() {
@@ -981,34 +981,56 @@
             return options;
         }
 
-        // রেট অপশন HTML জেনারেট করা
-        function getRateOptionsHTML(selectedRate = '3.50') {
-            const options = generateRateOptions();
-            return options.map(rate => 
-                `<option value="${rate}" ${rate === selectedRate ? 'selected' : ''}>${rate}</option>`
-            ).join('');
+        // টেলিগ্রাম ইউজারনেম ফরম্যাট করা
+        function formatTelegramUsername(username) {
+            if (!username) return 'unknown';
+            // @ চিহ্ন ছাড়া ইউজারনেম
+            return username.replace('@', '').toLowerCase().trim();
         }
 
-        // রেট সেভ করার ফাংশন (Firebase-এ)
-        window.saveRate = function(groupId, value) {
+        // রেট সেভ করার ফাংশন (টেলিগ্রাম ইউজারনেম ভিত্তিক)
+        window.saveUserRate = function(telegram, value) {
+            const formattedTelegram = formatTelegramUsername(telegram);
+            if (formattedTelegram === 'unknown' || formattedTelegram === 'N/A') {
+                showToast('টেলিগ্রাম ইউজারনেম নেই', 'error');
+                return;
+            }
+            
             const updates = {};
-            updates[`rates/${groupId}`] = value;
+            updates[`userRates/${formattedTelegram}`] = value;
+            
             update(ref(db), updates)
                 .then(() => {
-                    // লোকাল ডিসপ্লে আপডেট
-                    updateAmountDisplay(groupId, parseFloat(value));
-                    showToast('রেট সেভ হয়েছে', 'success');
+                    showToast(`@${formattedTelegram} এর রেট ${value} সেট হয়েছে`, 'success');
                 })
                 .catch(() => showToast('রেট সেভ করতে সমস্যা', 'error'));
         };
 
+        // টেলিগ্রাম ইউজারনেম থেকে রেট পাওয়া
+        async function getUserRate(telegram) {
+            const formattedTelegram = formatTelegramUsername(telegram);
+            if (formattedTelegram === 'unknown' || formattedTelegram === 'N/A') {
+                return '3.50'; // ডিফল্ট রেট
+            }
+            
+            try {
+                const snapshot = await get(child(userRatesRef, formattedTelegram));
+                if (snapshot.exists()) {
+                    return snapshot.val();
+                }
+            } catch (error) {
+                console.error('রেট লোড করতে সমস্যা:', error);
+            }
+            return '3.50'; // ডিফল্ট রেট
+        }
+
         // টাকার পরিমাণ আপডেট
-        function updateAmountDisplay(groupId, rate) {
+        function updateAmountDisplay(groupId, telegram, rate) {
             const group = allGroups.find(g => g.id === groupId);
             if (group) {
                 const amountSpan = document.getElementById(`amount-${groupId}`);
                 if (amountSpan) {
-                    const totalAmount = (group.duplicateCount || 0) * rate;
+                    const totalAmount = (group.duplicateCount || 0) * parseFloat(rate);
                     amountSpan.textContent = totalAmount.toFixed(2) + ' টাকা';
                 }
             }
@@ -1229,7 +1251,7 @@
                             grouped[groupKey] = {
                                 id: groupKey.replace(/[^a-zA-Z0-9]/g, '_'),
                                 number: number,
-                                telegram: item.telegram,
+                                telegram: item.telegram || 'N/A',
                                 paymentMethod: item.paymentMethod,
                                 timestamp: item.timestamp,
                                 status: status,
@@ -1318,7 +1340,7 @@
                 .catch(() => showToast('অ্যাপ্রুভ করতে সমস্যা', 'error'));
         };
 
-        function displayGroups(groups) {
+        async function displayGroups(groups) {
             const container = document.getElementById('usersGrid');
             
             if (groups.length === 0) {
@@ -1333,15 +1355,18 @@
                 return (b.timestamp || 0) - (a.timestamp || 0);
             });
 
-            // Firebase থেকে রেট লোড করে display করা
-            onValue(ratesRef, (snapshot) => {
-                const rates = snapshot.val() || {};
+            // ইউজার রেট লোড করে display করা
+            onValue(userRatesRef, async (snapshot) => {
+                const userRates = snapshot.val() || {};
                 
-                container.innerHTML = groups.map(group => {
+                const groupsHtml = await Promise.all(groups.map(async (group) => {
                     const date = new Date(group.timestamp || Date.now());
                     const timeString = date.toLocaleString('bn-BD');
-                    const telegramLink = `https://t.me/${group.telegram || ''}`;
-                    const savedRate = rates[group.id] || '3.50';
+                    const telegramLink = `https://t.me/${group.telegram}`;
+                    
+                    // টেলিগ্রাম ইউজারনেম ভিত্তিক রেট পাওয়া
+                    const formattedTelegram = formatTelegramUsername(group.telegram);
+                    const savedRate = userRates[formattedTelegram] || '3.50';
                     const totalAmount = (group.duplicateCount || 0) * parseFloat(savedRate);
                     
                     let expiryInfo = '';
@@ -1369,7 +1394,7 @@
                             
                             <div class="info-row">
                                 <span>📱</span>
-                                <span>@${group.telegram || 'N/A'}</span>
+                                <span>@${group.telegram}</span>
                             </div>
                             
                             <div class="info-row">
@@ -1390,8 +1415,10 @@
                                 </div>
                                 
                                 <div class="rate-section">
-                                    <select class="rate-select-small" onchange="saveRate('${group.id}', this.value)">
-                                        ${getRateOptionsHTML(savedRate)}
+                                    <select class="rate-select-small" onchange="saveUserRate('${group.telegram}', this.value)">
+                                        ${generateRateOptions().map(rate => 
+                                            `<option value="${rate}" ${rate === savedRate ? 'selected' : ''}>${rate}</option>`
+                                        ).join('')}
                                     </select>
                                     <span class="amount-display" id="amount-${group.id}">
                                         ${totalAmount.toFixed(2)} টাকা
@@ -1417,8 +1444,10 @@
                             </div>
                         </div>
                     `;
-                }).join('');
-            }, { onlyOnce: true });
+                }));
+                
+                container.innerHTML = groupsHtml.join('');
+            }, { onlyOnce: false });
         }
 
         window.copyUsernames = function(usernames) {
