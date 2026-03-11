@@ -678,40 +678,62 @@
             height: 38px;
             border-radius: 12px;
             border: none;
-            background: #3a4055;
-            color: white;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            font-size: 16px;
+            font-size: 18px;
             box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
         }
 
-        .action-btn:hover {
-            background: #ffd700;
-            color: #1a1e2b;
-            transform: scale(1.1);
+        /* ফোন কপি বাটন - ইউনিক কালার */
+        .action-btn.phone-btn {
+            background: linear-gradient(145deg, #00b894, #00a884);
+            color: white;
+            border: 1px solid #00d4a0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
 
+        .action-btn.phone-btn:hover {
+            background: linear-gradient(145deg, #00a884, #009970);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #00b894;
+        }
+
+        /* টেলিগ্রাম বাটন - টেলিগ্রামের অফিসিয়াল কালার */
+        .action-btn.telegram-btn {
+            background: linear-gradient(145deg, #0088cc, #0077b5);
+            color: white;
+            border: 1px solid #00a0e0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .action-btn.telegram-btn:hover {
+            background: linear-gradient(145deg, #0077b5, #006699);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #0088cc;
+        }
+
+        /* কপি ইউজারনেম বাটন */
         .copy-usernames-btn {
             flex: 2;
             padding: 8px;
             border-radius: 12px;
             border: none;
-            background: #667eea;
+            background: linear-gradient(145deg, #667eea, #764ba2);
             color: white;
             cursor: pointer;
             font-weight: bold;
             font-size: 12px;
             transition: all 0.3s ease;
             white-space: nowrap;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
         }
 
         .copy-usernames-btn:hover {
-            background: #5a67d8;
+            background: linear-gradient(145deg, #5a67d8, #6b46a0);
             transform: scale(1.02);
         }
 
@@ -725,21 +747,24 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 12px;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
         }
 
         .approve-btn:hover {
             filter: brightness(1.1);
+            transform: scale(1.02);
         }
 
         .delete-btn {
-            background: rgba(244,67,54,0.2);
-            color: #f44336;
-            border: 1px solid #f44336;
+            background: linear-gradient(145deg, #f44336, #d32f2f);
+            color: white;
+            border: 1px solid #ff6b6b;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
         }
 
         .delete-btn:hover {
-            background: #f44336;
-            color: white;
+            background: linear-gradient(145deg, #d32f2f, #b71c1c);
+            transform: scale(1.1);
         }
 
         .toast {
@@ -797,6 +822,8 @@
             }
         }
     </style>
+    <!-- Font Awesome for better icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -826,7 +853,7 @@
         </div>
 
         <div class="action-bar">
-            <button class="copy-all-btn" onclick="copyAllUsernames()">📋 সব একাউন্ট কপি</button>
+            <button class="copy-all-btn" onclick="copyAllUsernames()"><i class="fas fa-copy" style="margin-right: 8px;"></i>সব একাউন্ট কপি</button>
             <div class="search-box"><input type="text" id="searchInput" placeholder="🔍 ফোন বা টেলিগ্রাম সার্চ..." onkeyup="filterData()"></div>
         </div>
 
@@ -858,7 +885,7 @@
                     </div>
                     <button class="save-settings-btn" onclick="updateSystemStatus()" style="margin-top: 10px;">📢 সিস্টেম স্ট্যাটাস আপডেট</button>
                 </div>
-                <div class="danger-zone"><button class="danger-btn" onclick="clearAllDatabase()">🗑️ সম্পূর্ণ ডাটাবেজ ডিলিট</button></div>
+                <div class="danger-zone"><button class="danger-btn" onclick="clearAllDatabase()"><i class="fas fa-trash-alt" style="margin-right: 8px;"></i>সম্পূর্ণ ডাটাবেজ ডিলিট</button></div>
             </div>
         </div>
 
@@ -882,7 +909,7 @@
             measurementId: "G-VDSE7LQRH9"
         };
 
-        // দ্বিতীয় ডাটাবেস কনফিগারেশন - আপনার দেওয়া
+        // দ্বিতীয় ডাটাবেস কনফিগারেশন
         const secondDatabaseConfig = {
             databaseURL: "https://free-lancher-24-default-rtdb.firebaseio.com"
         };
@@ -1177,7 +1204,6 @@
                     const formattedTelegram = formatTelegramUsername(group.telegram);
                     const savedRate = userRates[formattedTelegram] || '3.50';
                     
-                    // টাকার পরিমাণ duplicateCount এর উপর নির্ভরশীল
                     const totalAmount = (group.duplicateCount || 0) * parseFloat(savedRate);
 
                     let expiryInfo = '';
@@ -1213,11 +1239,11 @@
                             <div class="timestamp">⏰ ${timeString}</div>
                             ${expiryInfo}
                             <div class="action-buttons">
-                                <button class="copy-usernames-btn" onclick='copyUsernames(${JSON.stringify(group.accounts)})'>📋 সব কপি (${group.accounts.length})</button>
-                                <button class="action-btn" onclick="copyText('${group.number}')" title="কপি নাম্বার">📞</button>
-                                <a href="${telegramLink}" target="_blank" class="action-btn" title="টেলিগ্রাম">✈️</a>
-                                ${group.status === 'pending' ? `<button class="approve-btn" onclick="approveUser('${group.ids.join(',')}')">✅ অ্যাপ্রুভ</button>` : ''}
-                                <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}', '${group.id}')">🗑️</button>
+                                <button class="copy-usernames-btn" onclick='copyUsernames(${JSON.stringify(group.accounts)})'><i class="fas fa-copy" style="margin-right: 5px;"></i>সব কপি (${group.accounts.length})</button>
+                                <button class="action-btn phone-btn" onclick="copyText('${group.number}')" title="কপি নাম্বার"><i class="fas fa-phone-alt"></i></button>
+                                <a href="${telegramLink}" target="_blank" class="action-btn telegram-btn" title="টেলিগ্রাম"><i class="fab fa-telegram-plane"></i></a>
+                                ${group.status === 'pending' ? `<button class="approve-btn" onclick="approveUser('${group.ids.join(',')}')"><i class="fas fa-check-circle" style="margin-right: 5px;"></i>অ্যাপ্রুভ</button>` : ''}
+                                <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}', '${group.id}')" title="ডিলিট"><i class="fas fa-trash-alt"></i></button>
                             </div>
                         </div>
                     `;
@@ -1292,5 +1318,7 @@
         
         setInterval(deleteOldData, 60 * 60 * 1000);
     </script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </body>
 </html>
