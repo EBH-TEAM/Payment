@@ -315,7 +315,7 @@
             transition: width 0.3s;
         }
 
-        /* রেজাল্ট বক্স - রিসিট ডাউনলোড বাটন সহ */
+        /* রেজাল্ট বক্স - PDF ডাউনলোড সহ */
         .result-box {
             background: rgba(255,215,0,0.1);
             border-radius: 20px;
@@ -339,7 +339,7 @@
         .receipt-btn {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(145deg, #4CAF50, #45a049);
+            background: linear-gradient(145deg, #dc3545, #c82333);
             border: none;
             border-radius: 40px;
             color: white;
@@ -351,25 +351,36 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 8px 0 #2d6a4f;
+            box-shadow: 0 8px 0 #8b0000;
             transition: 0.1s;
         }
         .receipt-btn:active {
             transform: translateY(4px);
-            box-shadow: 0 4px 0 #2d6a4f;
+            box-shadow: 0 4px 0 #8b0000;
         }
         .receipt-details {
             background: rgba(0,0,0,0.2);
             border-radius: 16px;
-            padding: 12px;
+            padding: 15px;
             margin: 10px 0;
-            font-size: 13px;
+            font-size: 14px;
             color: #fff;
-            line-height: 1.8;
+            line-height: 2;
+            border: 1px solid rgba(255,215,0,0.2);
         }
-        .receipt-details span {
+        .receipt-details div {
+            display: flex;
+            border-bottom: 1px dashed rgba(255,215,0,0.2);
+            padding: 5px 0;
+        }
+        .receipt-details span.label {
             color: #ffd700;
             font-weight: bold;
+            width: 100px;
+        }
+        .receipt-details span.value {
+            color: #fff;
+            flex: 1;
         }
 
         /* রুলস */
@@ -435,6 +446,8 @@
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- PDF.js লাইব্রেরি -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="theme-toggle">
@@ -501,13 +514,13 @@
                 সাবমিট করুন
             </button>
 
-            <!-- রেজাল্ট বক্স - রিসিট সহ -->
+            <!-- রেজাল্ট বক্স - PDF সহ -->
             <div class="result-box" id="resultBox">
                 <div id="resultMessage"></div>
                 <div class="receipt-details" id="receiptDetails"></div>
-                <button class="receipt-btn" onclick="downloadReceipt()" id="receiptBtn">
-                    <i class="fas fa-download"></i>
-                    রিসিট ডাউনলোড করুন
+                <button class="receipt-btn" onclick="downloadPDF()" id="receiptBtn">
+                    <i class="fas fa-file-pdf"></i>
+                    PDF রিসিট ডাউনলোড করুন
                 </button>
             </div>
         </div>
@@ -544,7 +557,7 @@
 
         let selectedPayment = '';
         let selectedType = '';
-        let lastSubmission = null; // শেষ সাবমিটের ডাটা সংরক্ষণ
+        let lastSubmission = null;
 
         // নোটিফিকেশন পারমিশন চাওয়া
         async function requestNotificationPermission() {
@@ -565,12 +578,174 @@
             return false;
         }
 
-        // নোটিফিকেশন দেখানো
+        // নোটিফিকেশন দেখানো (ফিক্সড)
         function showBrowserNotification(title, options) {
             if (Notification.permission === "granted") {
-                new Notification(title, options);
+                // ব্রাউজার চেক করা
+                const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+                const isFirefox = typeof InstallTrigger !== 'undefined';
+                const isEdge = /Edg/.test(navigator.userAgent);
+                
+                try {
+                    const notification = new Notification(title, {
+                        body: options.body,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/733/733547.png',
+                        badge: 'https://cdn-icons-png.flaticon.com/512/733/733547.png',
+                        silent: false,
+                        vibrate: [200, 100, 200],
+                        requireInteraction: true
+                    });
+                    
+                    notification.onclick = function() {
+                        window.focus();
+                        this.close();
+                    };
+                    
+                    // 5 সেকেন্ড পর অটো ক্লোজ
+                    setTimeout(() => notification.close(), 5000);
+                    
+                } catch (error) {
+                    console.log('নোটিফিকেশন error:', error);
+                    // Fallback - শুধু টোস্ট দেখানো
+                    showToast(title + ' - ' + options.body, 'success');
+                }
             }
         }
+
+        // PDF ডাউনলোড ফাংশন
+        window.downloadPDF = function() {
+            if (!lastSubmission) {
+                showToast('কোন রিসিট নেই', 'warning');
+                return;
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // ব্যাকগ্রাউন্ড কালার
+                doc.setFillColor(10, 15, 30);
+                doc.rect(0, 0, 210, 297, 'F');
+                
+                // হেডার
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(24);
+                doc.setTextColor(255, 215, 0);
+                doc.text("EBH TEAM", 105, 30, { align: "center" });
+                
+                doc.setFontSize(16);
+                doc.setTextColor(255, 255, 255);
+                doc.text("পেমেন্ট রিসিট", 105, 45, { align: "center" });
+                
+                // লাইন
+                doc.setDrawColor(255, 215, 0);
+                doc.line(20, 55, 190, 55);
+                
+                // ডিটেইলস
+                doc.setFontSize(12);
+                doc.setTextColor(255, 215, 0);
+                
+                let y = 70;
+                const lineHeight = 10;
+                
+                // টেলিগ্রাম
+                doc.text("👤 টেলিগ্রাম:", 25, y);
+                doc.setTextColor(255, 255, 255);
+                doc.text(lastSubmission.telegram, 80, y);
+                y += lineHeight;
+                
+                // একাউন্ট টাইপ
+                doc.setTextColor(255, 215, 0);
+                doc.text("📊 একাউন্ট টাইপ:", 25, y);
+                doc.setTextColor(255, 255, 255);
+                doc.text(lastSubmission.typeName, 80, y);
+                y += lineHeight;
+                
+                // সফল
+                doc.setTextColor(255, 215, 0);
+                doc.text("✅ সফল:", 25, y);
+                doc.setTextColor(76, 175, 80);
+                doc.text(lastSubmission.uniqueCount + " টি", 80, y);
+                y += lineHeight;
+                
+                // ডুপ্লিকেট
+                if (lastSubmission.duplicateCount > 0) {
+                    doc.setTextColor(255, 215, 0);
+                    doc.text("⚠️ ডুপ্লিকেট:", 25, y);
+                    doc.setTextColor(255, 215, 0);
+                    doc.text(lastSubmission.duplicateCount + " টি", 80, y);
+                    y += lineHeight;
+                }
+                
+                // পেমেন্ট মেথড
+                doc.setTextColor(255, 215, 0);
+                doc.text("💰 পেমেন্ট:", 25, y);
+                doc.setTextColor(255, 255, 255);
+                doc.text(lastSubmission.paymentMethod, 80, y);
+                y += lineHeight;
+                
+                // নাম্বার
+                doc.setTextColor(255, 215, 0);
+                doc.text("📞 নাম্বার:", 25, y);
+                doc.setTextColor(255, 255, 255);
+                doc.text(lastSubmission.number, 80, y);
+                y += lineHeight;
+                
+                // সময়
+                const timeStr = new Date(lastSubmission.timestamp).toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' });
+                doc.setTextColor(255, 215, 0);
+                doc.text("⏰ সময়:", 25, y);
+                doc.setTextColor(255, 255, 255);
+                doc.text(timeStr, 80, y);
+                y += lineHeight + 5;
+                
+                // ইউজারনেম লিস্ট
+                doc.setFontSize(14);
+                doc.setTextColor(255, 215, 0);
+                doc.text("📝 ইউজারনেম সমূহ:", 25, y);
+                y += lineHeight;
+                
+                doc.setFontSize(10);
+                doc.setTextColor(200, 200, 200);
+                
+                let usernameList = lastSubmission.usernames;
+                let maxPerPage = 15;
+                
+                for (let i = 0; i < Math.min(usernameList.length, maxPerPage); i++) {
+                    doc.text("• " + usernameList[i], 30, y);
+                    y += 7;
+                }
+                
+                if (usernameList.length > maxPerPage) {
+                    doc.setTextColor(255, 215, 0);
+                    doc.text("... এবং আরও " + (usernameList.length - maxPerPage) + " টি", 30, y);
+                }
+                
+                // ফুটার
+                y = 260;
+                doc.setDrawColor(255, 215, 0);
+                doc.line(20, y, 190, y);
+                y += 10;
+                
+                doc.setFontSize(12);
+                doc.setTextColor(255, 215, 0);
+                doc.text("ধন্যবাদ!", 105, y, { align: "center" });
+                y += 7;
+                doc.setFontSize(10);
+                doc.setTextColor(150, 150, 150);
+                doc.text("EBH TEAM - প্রিমিয়াম পেমেন্ট সিস্টেম", 105, y, { align: "center" });
+                
+                // PDF সেভ
+                const fileName = `EBH_Receipt_${lastSubmission.telegram.replace('@', '')}_${Date.now()}.pdf`;
+                doc.save(fileName);
+                
+                showToast('PDF ডাউনলোড শুরু হয়েছে', 'success');
+                
+            } catch (error) {
+                console.error('PDF error:', error);
+                showToast('PDF তৈরি করতে সমস্যা', 'error');
+            }
+        };
 
         // ========== থিম ==========
         window.toggleTheme = function() {
@@ -712,45 +887,6 @@
             return timestamp;
         }
 
-        // ========== রিসিট ডাউনলোড ==========
-        window.downloadReceipt = function() {
-            if (!lastSubmission) {
-                showToast('কোন রিসিট নেই', 'warning');
-                return;
-            }
-
-            const receiptText = `
-════════════════════════
-      EBH TEAM - রিসিট
-════════════════════════
-
-👤 টেলিগ্রাম: ${lastSubmission.telegram}
-📊 একাউন্ট টাইপ: ${lastSubmission.typeName}
-✅ সফল: ${lastSubmission.uniqueCount} টি
-⚠️ ডুপ্লিকেট: ${lastSubmission.duplicateCount} টি
-💰 পেমেন্ট মেথড: ${lastSubmission.paymentMethod}
-📞 নাম্বার: ${lastSubmission.number}
-⏰ সময়: ${new Date(lastSubmission.timestamp).toLocaleString('bn-BD')}
-
-📝 ইউজারনেম সমূহ:
-${lastSubmission.usernames.map(u => '• ' + u).join('\n')}
-
-════════════════════════
-    ধন্যবাদ! 🙏
-════════════════════════
-            `;
-
-            const blob = new Blob([receiptText], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `EBH_Receipt_${Date.now()}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        };
-
         // ========== মেইন সাবমিট ==========
         window.submitData = async function() {
             if (!selectedType) {
@@ -811,7 +947,6 @@ ${lastSubmission.usernames.map(u => '• ' + u).join('\n')}
 
                 const typeName = selectedType === 'cookies' ? 'কুকিজ' : '2FA';
                 
-                // শেষ সাবমিটের ডাটা সংরক্ষণ
                 lastSubmission = {
                     telegram,
                     typeName,
@@ -837,11 +972,13 @@ ${lastSubmission.usernames.map(u => '• ' + u).join('\n')}
                     `;
                     
                     receiptDetails.innerHTML = `
-                        <div><span>👤 টেলিগ্রাম:</span> ${telegram}</div>
-                        <div><span>💰 পেমেন্ট:</span> ${selectedPayment}</div>
-                        <div><span>📞 নাম্বার:</span> ${number}</div>
-                        <div><span>✅ সফল:</span> ${uniqueUsernames.length} টি</div>
-                        <div><span>⏰ সময়:</span> ${new Date().toLocaleString('bn-BD')}</div>
+                        <div><span class="label">👤 টেলিগ্রাম:</span> <span class="value">${telegram}</span></div>
+                        <div><span class="label">📊 টাইপ:</span> <span class="value">${typeName}</span></div>
+                        <div><span class="label">✅ সফল:</span> <span class="value">${uniqueUsernames.length} টি</span></div>
+                        ${duplicates.length > 0 ? `<div><span class="label">⚠️ ডুপ্লিকেট:</span> <span class="value">${duplicates.length} টি</span></div>` : ''}
+                        <div><span class="label">💰 পেমেন্ট:</span> <span class="value">${selectedPayment}</span></div>
+                        <div><span class="label">📞 নাম্বার:</span> <span class="value">${number}</span></div>
+                        <div><span class="label">⏰ সময়:</span> <span class="value">${new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' })}</span></div>
                     `;
                 }
                 
@@ -853,11 +990,8 @@ ${lastSubmission.usernames.map(u => '• ' + u).join('\n')}
                     // ব্রাউজার নোটিফিকেশন
                     const hasPermission = await requestNotificationPermission();
                     if (hasPermission) {
-                        showBrowserNotification('✅ EBH TEAM - সফল', {
-                            body: `${telegram} - ${uniqueUsernames.length} টি ${typeName} একাউন্ট সেভ হয়েছে\nপেমেন্ট: ${selectedPayment}`,
-                            icon: 'https://cdn-icons-png.flaticon.com/512/733/733547.png',
-                            badge: 'https://cdn-icons-png.flaticon.com/512/733/733547.png',
-                            silent: false
+                        showBrowserNotification('✅ EBH TEAM', {
+                            body: `${telegram} - ${uniqueUsernames.length} টি ${typeName}\nপেমেন্ট: ${selectedPayment}`
                         });
                     }
                     
