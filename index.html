@@ -391,10 +391,12 @@
         .duplicate-text {
             color: #ffd700;
         }
+
+        /* ===== PNG ডাউনলোড বাটন (নতুন) ===== */
         .receipt-btn {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(145deg, #dc3545, #c82333);
+            background: linear-gradient(145deg, #00b894, #00a884);
             border: none;
             border-radius: 40px;
             color: white;
@@ -406,12 +408,12 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 8px 0 #8b0000;
+            box-shadow: 0 8px 0 #006b54;
             transition: 0.1s;
         }
         .receipt-btn:active {
             transform: translateY(4px);
-            box-shadow: 0 4px 0 #8b0000;
+            box-shadow: 0 4px 0 #006b54;
         }
         .receipt-details {
             background: rgba(0,0,0,0.2);
@@ -502,7 +504,7 @@
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <div class="theme-toggle">
@@ -514,7 +516,7 @@
         <div class="main-card">
             <!-- স্টাইলিশ গোল্ড লোগো -->
             <div class="logo-area">
-                <div class="gold-logo"></div>
+                <div class="gold-logo"> </div>
                 <div class="gold-logo" style="font-size: 32px; margin-top: -5px;">EBH TEAM</div>
                 <div class="logo-badge">✦ Earning By Habib ✦</div>
             </div>
@@ -573,13 +575,13 @@
                 সাবমিট করুন
             </button>
 
-            <!-- রেজাল্ট বক্স - PDF সহ -->
+            <!-- রেজাল্ট বক্স - PNG ইমেজ ডাউনলোড -->
             <div class="result-box" id="resultBox">
                 <div id="resultMessage"></div>
                 <div class="receipt-details" id="receiptDetails"></div>
-                <button class="receipt-btn" onclick="downloadPDF()" id="receiptBtn">
-                    <i class="fas fa-file-pdf"></i>
-                    PDF রিসিট ডাউনলোড করুন
+                <button class="receipt-btn" onclick="downloadPNG()" id="receiptBtn">
+                    <i class="fas fa-image"></i>
+                    PNG রিসিট ডাউনলোড করুন
                 </button>
             </div>
         </div>
@@ -592,6 +594,11 @@
             <div class="rule-item"><div class="rule-icon">৩</div>ডুপ্লিকেট অটো বাদ যাবে</div>
             <div class="rule-item"><div class="rule-icon">৪</div>টাকা পরে নিলে নাম্বার লাগবে না</div>
         </div>
+    </div>
+
+    <!-- লুকানো ক্যানভাস (PNG জেনারেশনের জন্য) -->
+    <div style="position: absolute; left: -9999px; top: -9999px;">
+        <div id="receiptCanvas" style="width: 600px; background: #0a0f1e; padding: 30px; border-radius: 20px; border: 2px solid #ffd700;"></div>
     </div>
 
     <!-- টোস্ট -->
@@ -628,8 +635,6 @@
             systemEnabled = data.enabled !== false;
             maintenanceMessage = data.message || 'সিস্টেম মেইনটেন্যান্স মোডে আছে';
             
-            console.log('System Status:', systemEnabled ? 'চালু' : 'বন্ধ', 'Message:', maintenanceMessage);
-            
             updateUIBasedOnSystemStatus();
         });
 
@@ -665,7 +670,6 @@
                 if (paymentSelected) paymentSelected.classList.remove('disabled');
                 usernamesInput.disabled = false;
                 telegramInput.disabled = false;
-                // নাম্বার ইনপুট ডিজেবল হবে শুধু ইনবক্স সিলেক্ট করলে
             }
         }
 
@@ -773,48 +777,20 @@
             document.getElementById('accountCount').textContent = count;
         };
 
-        // ========== PDF ডাউনলোড - ইংরেজি (এখন বিকাশ+নগদ ঠিক মতো দেখাবে) ==========
-        window.downloadPDF = function() {
+        // ========== PNG ইমেজ জেনারেট ও ডাউনলোড ফাংশন ==========
+        window.downloadPNG = function() {
             if (!lastSubmission) {
                 showToast('কোন রিসিট নেই', 'warning');
                 return;
             }
 
             try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4'
-                });
-                
-                doc.setFillColor(10, 15, 30);
-                doc.rect(0, 0, 210, 297, 'F');
-                
-                doc.setFont("helvetica", "bold");
-                
-                doc.setFontSize(32);
-                doc.setTextColor(255, 215, 0);
-                doc.text("EARNING BY HABIB", 105, 30, { align: "center" });
-                
-                doc.setFontSize(24);
-                doc.setTextColor(255, 255, 255);
-                doc.text("EBH TEAM", 105, 45, { align: "center" });
-                
-                doc.setDrawColor(255, 215, 0);
-                doc.setLineWidth(0.5);
-                doc.line(30, 55, 180, 55);
-                
-                // ===== অ্যাকাউন্ট টাইপ ইংরেজিতে =====
-                let accountTypeEnglish = lastSubmission.typeName === 'কুকিজ' ? 'COOKIES' : '2FA';
-                
-                // ===== পেমেন্ট মেথড ইংরেজিতে কনভার্ট - এখন বিকাশ+নগদ ঠিক মতো দেখাবে =====
+                // পেমেন্ট মেথড ইংরেজিতে কনভার্ট
                 let paymentMethodEnglish = lastSubmission.paymentMethod;
-                
                 if (paymentMethodEnglish.includes('ইনবক্স')) {
                     paymentMethodEnglish = 'Inbox Payment';
                 } else if (paymentMethodEnglish.includes('বিকাশ+নগদ')) {
-                    paymentMethodEnglish = 'bKash + Nagad (Same Number)';  // সম্পূর্ণ টেক্সট
+                    paymentMethodEnglish = 'bKash + Nagad (Same Number)';
                 } else if (paymentMethodEnglish.includes('বিকাশ')) {
                     paymentMethodEnglish = 'bKash';
                 } else if (paymentMethodEnglish.includes('নগদ')) {
@@ -827,63 +803,11 @@
                     paymentMethodEnglish = 'Binance';
                 }
                 
-                // ===== নাম্বার ইংরেজিতে =====
-                let numberEnglish = lastSubmission.number;
-                if (numberEnglish.includes('ইনবক্সে')) {
-                    numberEnglish = 'Inbox Payment';
-                }
+                let numberEnglish = lastSubmission.number.includes('ইনবক্সে') ? 'Inbox Payment' : lastSubmission.number;
+                let accountTypeEnglish = lastSubmission.typeName === 'কুকিজ' ? 'COOKIES' : '2FA';
                 
-                // ===== ডিটেইলস =====
-                doc.setFontSize(14);
-                
-                let y = 70;
-                const lineHeight = 10;
-                
-                // Telegram
-                doc.setTextColor(255, 215, 0);
-                doc.text("TELEGRAM:", 25, y);
-                doc.setTextColor(255, 255, 255);
-                doc.text(lastSubmission.telegram, 80, y);
-                y += lineHeight;
-                
-                // Account Type
-                doc.setTextColor(255, 215, 0);
-                doc.text("ACCOUNT TYPE:", 25, y);
-                doc.setTextColor(255, 255, 255);
-                doc.text(accountTypeEnglish, 80, y);
-                y += lineHeight;
-                
-                // Successful
-                doc.setTextColor(255, 215, 0);
-                doc.text("SUCCESSFUL:", 25, y);
-                doc.setTextColor(76, 175, 80);
-                doc.text(lastSubmission.uniqueCount + " Accounts", 80, y);
-                y += lineHeight;
-                
-                // Duplicate
-                if (lastSubmission.duplicateCount > 0) {
-                    doc.setTextColor(255, 215, 0);
-                    doc.text("DUPLICATE:", 25, y);
-                    doc.setTextColor(255, 215, 0);
-                    doc.text(lastSubmission.duplicateCount + " Accounts", 80, y);
-                    y += lineHeight;
-                }
-                
-                // Payment Method (এখন বিকাশ+নগদ সম্পূর্ণ দেখাবে)
-                doc.setTextColor(255, 215, 0);
-                doc.text("PAYMENT:", 25, y);
-                doc.setTextColor(255, 255, 255);
-                doc.text(paymentMethodEnglish, 80, y);
-                y += lineHeight;
-                
-                // Number
-                doc.setTextColor(255, 215, 0);
-                doc.text("NUMBER:", 25, y);
-                doc.setTextColor(255, 255, 255);
-                doc.text(numberEnglish, 80, y);
-                y += lineHeight;
-                
-                // Time
+                // ক্যানভাসের HTML তৈরি
+                const canvasDiv = document.getElementById('receiptCanvas');
                 const timeStr = new Date(lastSubmission.timestamp).toLocaleString('en-US', { 
                     timeZone: 'Asia/Dhaka',
                     year: 'numeric',
@@ -894,68 +818,76 @@
                     second: '2-digit',
                     hour12: true
                 });
-                doc.setTextColor(255, 215, 0);
-                doc.text("TIME:", 25, y);
-                doc.setTextColor(255, 255, 255);
-                doc.text(timeStr + " (BDT)", 80, y);
-                y += lineHeight + 5;
                 
-                // Decorative Line
-                doc.setDrawColor(255, 215, 0);
-                doc.line(30, y-2, 180, y-2);
-                
-                // Username List
-                doc.setFontSize(14);
-                doc.setTextColor(255, 215, 0);
-                doc.text("USERNAMES:", 25, y+5);
-                y += 12;
-                
-                doc.setFontSize(10);
-                doc.setTextColor(200, 200, 200);
-                
-                let usernameList = lastSubmission.usernames;
-                let maxPerPage = 20;
-                
-                for (let i = 0; i < Math.min(usernameList.length, maxPerPage); i++) {
-                    doc.text("• " + usernameList[i], 30, y);
-                    y += 6;
+                let usernamesHTML = '';
+                lastSubmission.usernames.slice(0, 15).forEach(u => {
+                    usernamesHTML += `<div style="color: #ccc; font-size: 12px; margin-bottom: 3px;">• ${u}</div>`;
+                });
+                if (lastSubmission.usernames.length > 15) {
+                    usernamesHTML += `<div style="color: #ffd700; font-size: 12px;">... and ${lastSubmission.usernames.length - 15} more</div>`;
                 }
                 
-                if (usernameList.length > maxPerPage) {
-                    doc.setTextColor(255, 215, 0);
-                    doc.text("... and " + (usernameList.length - maxPerPage) + " more", 30, y);
-                }
+                canvasDiv.innerHTML = `
+                    <div style="font-family: Arial, sans-serif; background: #0a0f1e; color: white; padding: 25px;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 36px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px #ffd700;">EARNING BY HABIB</div>
+                            <div style="font-size: 24px; color: white; margin-top: -5px;">EBH TEAM</div>
+                            <div style="height: 2px; background: #ffd700; margin: 15px 0;"></div>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">TELEGRAM:</span><span>${lastSubmission.telegram}</span></div>
+                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">ACCOUNT TYPE:</span><span>${accountTypeEnglish}</span></div>
+                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">SUCCESSFUL:</span><span style="color: #4CAF50;">${lastSubmission.uniqueCount} Accounts</span></div>
+                            ${lastSubmission.duplicateCount > 0 ? `<div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">DUPLICATE:</span><span style="color: #ffd700;">${lastSubmission.duplicateCount} Accounts</span></div>` : ''}
+                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">PAYMENT:</span><span>${paymentMethodEnglish}</span></div>
+                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">NUMBER:</span><span>${numberEnglish}</span></div>
+                            <div style="display: flex; margin-bottom: 15px;"><span style="color: #ffd700; width: 120px;">TIME:</span><span>${timeStr} (BDT)</span></div>
+                        </div>
+                        
+                        <div style="height: 2px; background: #ffd700; margin: 15px 0;"></div>
+                        
+                        <div style="margin-top: 15px;">
+                            <div style="color: #ffd700; font-size: 16px; margin-bottom: 10px;">USERNAMES:</div>
+                            ${usernamesHTML}
+                        </div>
+                        
+                        <div style="height: 2px; background: #ffd700; margin: 20px 0;"></div>
+                        
+                        <div style="text-align: center;">
+                            <div style="color: #ffd700; font-size: 18px; margin-bottom: 5px;">Thank You!</div>
+                            <div style="color: white; font-size: 14px;">For working with us</div>
+                            <div style="color: #666; font-size: 12px; margin-top: 10px;">EBH TEAM - EARNING BY HABIB</div>
+                        </div>
+                    </div>
+                `;
                 
-                // ===== ফুটার =====
-                y = 250;
-                
-                doc.setDrawColor(255, 215, 0);
-                doc.line(30, y, 180, y);
-                y += 8;
-                
-                doc.setFontSize(16);
-                doc.setTextColor(255, 215, 0);
-                doc.text("Thank You!", 105, y, { align: "center" });
-                y += 8;
-                
-                doc.setFontSize(12);
-                doc.setTextColor(255, 255, 255);
-                doc.text("For working with us", 105, y, { align: "center" });
-                y += 8;
-                
-                doc.setFontSize(10);
-                doc.setTextColor(150, 150, 150);
-                doc.text("EBH TEAM - EARNING BY HABIB", 105, y, { align: "center" });
-                
-                // PDF সেভ
-                const fileName = `EBH_Receipt_${lastSubmission.telegram.replace('@', '')}_${Date.now()}.pdf`;
-                doc.save(fileName);
-                
-                showToast('PDF ডাউনলোড শুরু হয়েছে', 'success');
+                // html2canvas দিয়ে PNG ইমেজ তৈরি
+                html2canvas(canvasDiv, {
+                    scale: 2,
+                    backgroundColor: '#0a0f1e',
+                    logging: false,
+                    allowTaint: false,
+                    useCORS: true
+                }).then(canvas => {
+                    // Canvas থেকে PNG ডেটা URL তৈরি
+                    const imgData = canvas.toDataURL('image/png');
+                    
+                    // ডাউনলোড লিঙ্ক তৈরি
+                    const link = document.createElement('a');
+                    link.download = `EBH_Receipt_${lastSubmission.telegram.replace('@', '')}_${Date.now()}.png`;
+                    link.href = imgData;
+                    link.click();
+                    
+                    showToast('PNG ইমেজ ডাউনলোড শুরু হয়েছে', 'success');
+                }).catch(error => {
+                    console.error('PNG generation error:', error);
+                    showToast('PNG তৈরি করতে সমস্যা', 'error');
+                });
                 
             } catch (error) {
-                console.error('PDF error:', error);
-                showToast('PDF তৈরি করতে সমস্যা', 'error');
+                console.error('PNG error:', error);
+                showToast('PNG তৈরি করতে সমস্যা', 'error');
             }
         };
 
@@ -1008,7 +940,6 @@
 
         // ========== মেইন সাবমিট ==========
         window.submitData = async function() {
-            // সিস্টেম চেক
             if (!systemEnabled) {
                 showToast('সিস্টেম বন্ধ আছে: ' + maintenanceMessage, 'warning');
                 return;
