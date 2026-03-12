@@ -82,7 +82,7 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
-        /* মেইনটেন্যান্স নোটিশ - এখন কাজ করবে */
+        /* মেইনটেন্যান্স নোটিশ */
         .maintenance-notice {
             background: rgba(244, 67, 54, 0.2);
             border: 2px solid #f44336;
@@ -317,6 +317,11 @@
             border-left: 6px solid #4CAF50;
             font-weight: bold;
         }
+        .payment-option.both-payment {
+            background: rgba(255, 215, 0, 0.2);
+            border-left: 6px solid #ffd700;
+            font-weight: bold;
+        }
         .payment-option.disabled-option {
             opacity: 0.4;
             pointer-events: none;
@@ -509,12 +514,12 @@
         <div class="main-card">
             <!-- স্টাইলিশ গোল্ড লোগো -->
             <div class="logo-area">
-                <div class="gold-logo"> </div>
+                <div class="gold-logo"></div>
                 <div class="gold-logo" style="font-size: 32px; margin-top: -5px;">EBH TEAM</div>
-                <div class="logo-badge">✦ Earning By Habib  ✦</div>
+                <div class="logo-badge">✦ Earning By Habib ✦</div>
             </div>
 
-            <!-- মেইনটেন্যান্স নোটিশ - এখন সঠিকভাবে কাজ করবে -->
+            <!-- মেইনটেন্যান্স নোটিশ -->
             <div id="maintenanceNotice" class="maintenance-notice">
                 <i class="fas fa-exclamation-triangle"></i>
                 <span id="maintenanceMessageText">সিস্টেম বন্ধ আছে</span>
@@ -596,7 +601,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, push, query, orderByChild, equalTo, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // ফায়ারবেস কনফিগার (আপনার দেওয়া)
+        // ফায়ারবেস কনফিগার
         const firebaseConfig = {
             apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
             authDomain: "saprahik-kaj.firebaseapp.com",
@@ -613,14 +618,14 @@
         let selectedPayment = '';
         let selectedType = '';
         let lastSubmission = null;
-        let systemEnabled = true; // ডিফল্ট true
+        let systemEnabled = true;
         let maintenanceMessage = '';
 
-        // ========== সিস্টেম স্ট্যাটাস চেক - এখন কাজ করবে ==========
+        // ========== সিস্টেম স্ট্যাটাস চেক ==========
         const systemRef = ref(db, 'settings/system');
         onValue(systemRef, (snapshot) => {
             const data = snapshot.val() || {};
-            systemEnabled = data.enabled !== false; // false ছাড়া সব true
+            systemEnabled = data.enabled !== false;
             maintenanceMessage = data.message || 'সিস্টেম মেইনটেন্যান্স মোডে আছে';
             
             console.log('System Status:', systemEnabled ? 'চালু' : 'বন্ধ', 'Message:', maintenanceMessage);
@@ -628,7 +633,7 @@
             updateUIBasedOnSystemStatus();
         });
 
-        // ========== UI আপডেট ফাংশন (সিস্টেম স্ট্যাটাস অনুযায়ী) ==========
+        // ========== UI আপডেট ফাংশন ==========
         function updateUIBasedOnSystemStatus() {
             const notice = document.getElementById('maintenanceNotice');
             const noticeText = document.getElementById('maintenanceMessageText');
@@ -638,39 +643,29 @@
             const usernamesInput = document.getElementById('usernames');
             const telegramInput = document.getElementById('telegram');
             const numberInput = document.getElementById('number');
-            const paymentOptions = document.querySelectorAll('.payment-option');
             
             if (!systemEnabled) {
-                // সিস্টেম বন্ধ - সবকিছু নিষ্ক্রিয়
                 notice.classList.add('show');
                 noticeText.textContent = '⛔ ' + maintenanceMessage;
                 
                 submitBtn.disabled = true;
-                
                 typeBtns.forEach(btn => btn.disabled = true);
-                
                 if (paymentSelected) paymentSelected.classList.add('disabled');
-                
                 usernamesInput.disabled = true;
                 telegramInput.disabled = true;
                 numberInput.disabled = true;
                 
-                // ড্রপডাউন বন্ধ করা
                 document.getElementById('paymentDropdown').classList.remove('show');
                 
             } else {
-                // সিস্টেম চালু - সবকিছু সক্রিয়
                 notice.classList.remove('show');
                 
                 submitBtn.disabled = false;
-                
                 typeBtns.forEach(btn => btn.disabled = false);
-                
                 if (paymentSelected) paymentSelected.classList.remove('disabled');
-                
                 usernamesInput.disabled = false;
                 telegramInput.disabled = false;
-                numberInput.disabled = false; // ইনবক্স ছাড়া
+                // নাম্বার ইনপুট ডিজেবল হবে শুধু ইনবক্স সিলেক্ট করলে
             }
         }
 
@@ -717,12 +712,12 @@
 
             const methodList = [
                 { id: 'inbox', name: '📨 টাকা পরে নেব (ইনবক্সে হিসাব দিন)', class: 'inbox' },
-                { id: 'bkash', name: '💳 বিকাশ' },
-                { id: 'nagad', name: '💵 নগদ' },
-                { id: 'bkashNagad', name: '💳+💵 বিকাশ+নগদ একই নাম্বার' },
-                { id: 'rocket', name: '🚀 রকেট' },
-                { id: 'mobileRecharge', name: '📱 মোবাইল রিচার্জ' },
-                { id: 'binance', name: '₿ বাইন্যান্স' }
+                { id: 'bkash', name: '💳 বিকাশ', class: '' },
+                { id: 'nagad', name: '💵 নগদ', class: '' },
+                { id: 'bkashNagad', name: '💳+💵 বিকাশ+নগদ একই নাম্বার', class: 'both-payment' },
+                { id: 'rocket', name: '🚀 রকেট', class: '' },
+                { id: 'mobileRecharge', name: '📱 মোবাইল রিচার্জ', class: '' },
+                { id: 'binance', name: '₿ বাইন্যান্স', class: '' }
             ];
 
             methodList.forEach(method => {
@@ -778,7 +773,7 @@
             document.getElementById('accountCount').textContent = count;
         };
 
-        // ========== PDF ডাউনলোড (ইংরেজি) ==========
+        // ========== PDF ডাউনলোড - ইংরেজি (এখন বিকাশ+নগদ ঠিক মতো দেখাবে) ==========
         window.downloadPDF = function() {
             if (!lastSubmission) {
                 showToast('কোন রিসিট নেই', 'warning');
@@ -810,50 +805,152 @@
                 doc.setLineWidth(0.5);
                 doc.line(30, 55, 180, 55);
                 
+                // ===== অ্যাকাউন্ট টাইপ ইংরেজিতে =====
                 let accountTypeEnglish = lastSubmission.typeName === 'কুকিজ' ? 'COOKIES' : '2FA';
+                
+                // ===== পেমেন্ট মেথড ইংরেজিতে কনভার্ট - এখন বিকাশ+নগদ ঠিক মতো দেখাবে =====
                 let paymentMethodEnglish = lastSubmission.paymentMethod;
-                if (paymentMethodEnglish.includes('ইনবক্স')) paymentMethodEnglish = 'Inbox Payment';
-                else if (paymentMethodEnglish.includes('বিকাশ')) paymentMethodEnglish = 'bKash';
-                else if (paymentMethodEnglish.includes('নগদ')) paymentMethodEnglish = 'Nagad';
-                else if (paymentMethodEnglish.includes('রকেট')) paymentMethodEnglish = 'Rocket';
-                else if (paymentMethodEnglish.includes('মোবাইল রিচার্জ')) paymentMethodEnglish = 'Mobile Recharge';
-                else if (paymentMethodEnglish.includes('বাইন্যান্স')) paymentMethodEnglish = 'Binance';
-                else if (paymentMethodEnglish.includes('বিকাশ+নগদ')) paymentMethodEnglish = 'bKash / Nagad (Same Number)';
                 
-                let numberEnglish = lastSubmission.number.includes('ইনবক্সে') ? 'Inbox Payment' : lastSubmission.number;
+                if (paymentMethodEnglish.includes('ইনবক্স')) {
+                    paymentMethodEnglish = 'Inbox Payment';
+                } else if (paymentMethodEnglish.includes('বিকাশ+নগদ')) {
+                    paymentMethodEnglish = 'bKash + Nagad (Same Number)';  // সম্পূর্ণ টেক্সট
+                } else if (paymentMethodEnglish.includes('বিকাশ')) {
+                    paymentMethodEnglish = 'bKash';
+                } else if (paymentMethodEnglish.includes('নগদ')) {
+                    paymentMethodEnglish = 'Nagad';
+                } else if (paymentMethodEnglish.includes('রকেট')) {
+                    paymentMethodEnglish = 'Rocket';
+                } else if (paymentMethodEnglish.includes('মোবাইল রিচার্জ')) {
+                    paymentMethodEnglish = 'Mobile Recharge';
+                } else if (paymentMethodEnglish.includes('বাইন্যান্স')) {
+                    paymentMethodEnglish = 'Binance';
+                }
                 
+                // ===== নাম্বার ইংরেজিতে =====
+                let numberEnglish = lastSubmission.number;
+                if (numberEnglish.includes('ইনবক্সে')) {
+                    numberEnglish = 'Inbox Payment';
+                }
+                
+                // ===== ডিটেইলস =====
                 doc.setFontSize(14);
+                
                 let y = 70;
                 const lineHeight = 10;
                 
-                doc.setTextColor(255, 215, 0); doc.text("TELEGRAM:", 25, y); doc.setTextColor(255,255,255); doc.text(lastSubmission.telegram, 80, y); y += lineHeight;
-                doc.setTextColor(255,215,0); doc.text("ACCOUNT TYPE:", 25, y); doc.setTextColor(255,255,255); doc.text(accountTypeEnglish, 80, y); y += lineHeight;
-                doc.setTextColor(255,215,0); doc.text("SUCCESSFUL:", 25, y); doc.setTextColor(76,175,80); doc.text(lastSubmission.uniqueCount + " Accounts", 80, y); y += lineHeight;
+                // Telegram
+                doc.setTextColor(255, 215, 0);
+                doc.text("TELEGRAM:", 25, y);
+                doc.setTextColor(255, 255, 255);
+                doc.text(lastSubmission.telegram, 80, y);
+                y += lineHeight;
+                
+                // Account Type
+                doc.setTextColor(255, 215, 0);
+                doc.text("ACCOUNT TYPE:", 25, y);
+                doc.setTextColor(255, 255, 255);
+                doc.text(accountTypeEnglish, 80, y);
+                y += lineHeight;
+                
+                // Successful
+                doc.setTextColor(255, 215, 0);
+                doc.text("SUCCESSFUL:", 25, y);
+                doc.setTextColor(76, 175, 80);
+                doc.text(lastSubmission.uniqueCount + " Accounts", 80, y);
+                y += lineHeight;
+                
+                // Duplicate
                 if (lastSubmission.duplicateCount > 0) {
-                    doc.setTextColor(255,215,0); doc.text("DUPLICATE:", 25, y); doc.setTextColor(255,215,0); doc.text(lastSubmission.duplicateCount + " Accounts", 80, y); y += lineHeight;
+                    doc.setTextColor(255, 215, 0);
+                    doc.text("DUPLICATE:", 25, y);
+                    doc.setTextColor(255, 215, 0);
+                    doc.text(lastSubmission.duplicateCount + " Accounts", 80, y);
+                    y += lineHeight;
                 }
-                doc.setTextColor(255,215,0); doc.text("PAYMENT:", 25, y); doc.setTextColor(255,255,255); doc.text(paymentMethodEnglish, 80, y); y += lineHeight;
-                doc.setTextColor(255,215,0); doc.text("NUMBER:", 25, y); doc.setTextColor(255,255,255); doc.text(numberEnglish, 80, y); y += lineHeight;
                 
-                const timeStr = new Date(lastSubmission.timestamp).toLocaleString('en-US', { timeZone:'Asia/Dhaka', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true });
-                doc.setTextColor(255,215,0); doc.text("TIME:", 25, y); doc.setTextColor(255,255,255); doc.text(timeStr + " (BDT)", 80, y); y += lineHeight + 5;
+                // Payment Method (এখন বিকাশ+নগদ সম্পূর্ণ দেখাবে)
+                doc.setTextColor(255, 215, 0);
+                doc.text("PAYMENT:", 25, y);
+                doc.setTextColor(255, 255, 255);
+                doc.text(paymentMethodEnglish, 80, y);
+                y += lineHeight;
                 
-                doc.setDrawColor(255,215,0); doc.line(30, y-2, 180, y-2);
+                // Number
+                doc.setTextColor(255, 215, 0);
+                doc.text("NUMBER:", 25, y);
+                doc.setTextColor(255, 255, 255);
+                doc.text(numberEnglish, 80, y);
+                y += lineHeight;
                 
-                doc.setFontSize(14); doc.setTextColor(255,215,0); doc.text("USERNAMES:", 25, y+5); y += 12;
-                doc.setFontSize(10); doc.setTextColor(200,200,200);
+                // Time
+                const timeStr = new Date(lastSubmission.timestamp).toLocaleString('en-US', { 
+                    timeZone: 'Asia/Dhaka',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                });
+                doc.setTextColor(255, 215, 0);
+                doc.text("TIME:", 25, y);
+                doc.setTextColor(255, 255, 255);
+                doc.text(timeStr + " (BDT)", 80, y);
+                y += lineHeight + 5;
+                
+                // Decorative Line
+                doc.setDrawColor(255, 215, 0);
+                doc.line(30, y-2, 180, y-2);
+                
+                // Username List
+                doc.setFontSize(14);
+                doc.setTextColor(255, 215, 0);
+                doc.text("USERNAMES:", 25, y+5);
+                y += 12;
+                
+                doc.setFontSize(10);
+                doc.setTextColor(200, 200, 200);
+                
                 let usernameList = lastSubmission.usernames;
-                for (let i = 0; i < Math.min(usernameList.length, 20); i++) { doc.text("• " + usernameList[i], 30, y); y += 6; }
-                if (usernameList.length > 20) { doc.setTextColor(255,215,0); doc.text("... and " + (usernameList.length - 20) + " more", 30, y); }
+                let maxPerPage = 20;
                 
+                for (let i = 0; i < Math.min(usernameList.length, maxPerPage); i++) {
+                    doc.text("• " + usernameList[i], 30, y);
+                    y += 6;
+                }
+                
+                if (usernameList.length > maxPerPage) {
+                    doc.setTextColor(255, 215, 0);
+                    doc.text("... and " + (usernameList.length - maxPerPage) + " more", 30, y);
+                }
+                
+                // ===== ফুটার =====
                 y = 250;
-                doc.setDrawColor(255,215,0); doc.line(30, y, 180, y); y += 8;
-                doc.setFontSize(16); doc.setTextColor(255,215,0); doc.text("Thank You!", 105, y, { align: "center" }); y += 8;
-                doc.setFontSize(12); doc.setTextColor(255,255,255); doc.text("For working with us", 105, y, { align: "center" }); y += 8;
-                doc.setFontSize(10); doc.setTextColor(150,150,150); doc.text("EBH TEAM - EARNING BY HABIB", 105, y, { align: "center" });
                 
+                doc.setDrawColor(255, 215, 0);
+                doc.line(30, y, 180, y);
+                y += 8;
+                
+                doc.setFontSize(16);
+                doc.setTextColor(255, 215, 0);
+                doc.text("Thank You!", 105, y, { align: "center" });
+                y += 8;
+                
+                doc.setFontSize(12);
+                doc.setTextColor(255, 255, 255);
+                doc.text("For working with us", 105, y, { align: "center" });
+                y += 8;
+                
+                doc.setFontSize(10);
+                doc.setTextColor(150, 150, 150);
+                doc.text("EBH TEAM - EARNING BY HABIB", 105, y, { align: "center" });
+                
+                // PDF সেভ
                 const fileName = `EBH_Receipt_${lastSubmission.telegram.replace('@', '')}_${Date.now()}.pdf`;
                 doc.save(fileName);
+                
                 showToast('PDF ডাউনলোড শুরু হয়েছে', 'success');
                 
             } catch (error) {
@@ -866,16 +963,25 @@
         async function checkBulkDuplicates(usernames) {
             const uniqueSet = new Set();
             const duplicates = new Set();
-            usernames.forEach(u => { if (uniqueSet.has(u)) duplicates.add(u); else uniqueSet.add(u); });
+            
+            usernames.forEach(u => {
+                if (uniqueSet.has(u)) duplicates.add(u);
+                else uniqueSet.add(u);
+            });
+
             const uniqueUsernames = Array.from(uniqueSet);
+            
             const dbDuplicates = new Set();
             const batchChecks = uniqueUsernames.map(username => 
                 get(query(ref(db, 'submits'), orderByChild('username'), equalTo(username)))
                     .then(snapshot => snapshot.exists() ? username : null)
             );
+            
             const results = await Promise.all(batchChecks);
             results.forEach(u => { if (u) dbDuplicates.add(u); });
+
             const finalUnique = uniqueUsernames.filter(u => !dbDuplicates.has(u));
+            
             return {
                 duplicates: Array.from(new Set([...duplicates, ...dbDuplicates])),
                 uniqueUsernames: finalUnique
@@ -902,7 +1008,7 @@
 
         // ========== মেইন সাবমিট ==========
         window.submitData = async function() {
-            // সিস্টেম চেক - প্রথমেই
+            // সিস্টেম চেক
             if (!systemEnabled) {
                 showToast('সিস্টেম বন্ধ আছে: ' + maintenanceMessage, 'warning');
                 return;
@@ -917,7 +1023,9 @@
             let telegram = document.getElementById('telegram').value.trim();
             let number = document.getElementById('number').value.trim();
 
-            if (telegram && !telegram.startsWith('@')) telegram = '@' + telegram;
+            if (telegram && !telegram.startsWith('@')) {
+                telegram = '@' + telegram;
+            }
 
             if (!selectedPayment || !usernamesText || !telegram) {
                 showToast('সব ফিল্ড পূরণ করুন', 'warning');
@@ -1004,6 +1112,7 @@
                 if (uniqueUsernames.length > 0) {
                     showToast(`${uniqueUsernames.length} টি একাউন্ট সেভ হয়েছে`, 'success');
                     
+                    // ফর্ম ক্লিয়ার
                     document.getElementById('usernames').value = '';
                     document.getElementById('accountCount').textContent = '০';
                     document.getElementById('telegram').value = '@';
