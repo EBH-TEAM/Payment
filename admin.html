@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EBH Team - অ্যাডমিন প্যানেল</title>
+    <title>EBH Team - অ্যাডমিন প্যানেল ⚡</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
 
@@ -38,6 +38,7 @@
                 inset 2px 2px 5px rgba(255,255,255,0.1),
                 inset -3px -3px 8px rgba(0,0,0,0.5);
             border: 1px solid rgba(255,215,0,0.2);
+            flex-wrap: wrap;
         }
 
         .logo h1 {
@@ -56,6 +57,8 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         .stat-box {
@@ -80,6 +83,34 @@
             font-size: 14px;
         }
 
+        .money-stats {
+            display: flex;
+            gap: 15px;
+            background: rgba(255,215,0,0.15);
+            padding: 8px 25px;
+            border-radius: 40px;
+            border: 1px solid #ffd700;
+            font-weight: bold;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .money-pending {
+            color: #ffa502;
+            font-size: 18px;
+        }
+
+        .money-approved {
+            color: #26de81;
+            font-size: 18px;
+        }
+
+        .money-pending strong, .money-approved strong {
+            color: #ffd700;
+            font-size: 22px;
+            margin-left: 5px;
+        }
+
         .refresh-btn {
             background: linear-gradient(145deg, #ffd700, #ffa500);
             color: #1a1e2b;
@@ -93,6 +124,13 @@
                 5px 5px 10px rgba(0,0,0,0.4),
                 inset -2px -2px 5px rgba(0,0,0,0.2),
                 inset 2px 2px 5px rgba(255,255,255,0.3);
+            transition: 0.2s;
+            height: 48px;
+            min-width: 100px;
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.95);
         }
 
         .main-tabs {
@@ -688,7 +726,6 @@
             box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
         }
 
-        /* ফোন কপি বাটন - ইউনিক কালার */
         .action-btn.phone-btn {
             background: linear-gradient(145deg, #00b894, #00a884);
             color: white;
@@ -702,7 +739,6 @@
             box-shadow: 0 0 15px #00b894;
         }
 
-        /* টেলিগ্রাম বাটন - টেলিগ্রামের অফিসিয়াল কালার */
         .action-btn.telegram-btn {
             background: linear-gradient(145deg, #0088cc, #0077b5);
             color: white;
@@ -716,7 +752,6 @@
             box-shadow: 0 0 15px #0088cc;
         }
 
-        /* কপি ইউজারনেম বাটন */
         .copy-usernames-btn {
             flex: 2;
             padding: 8px;
@@ -748,6 +783,7 @@
             font-weight: bold;
             font-size: 12px;
             box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
+            transition: 0.2s;
         }
 
         .approve-btn:hover {
@@ -806,7 +842,7 @@
             
             .stats-row {
                 width: 100%;
-                justify-content: space-between;
+                justify-content: center;
             }
             
             .action-bar {
@@ -828,12 +864,17 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo"><h1>EBH TEAM</h1></div>
+            <div class="logo"><h1>EBH TEAM ⚡</h1></div>
             <div class="stats-row">
                 <div class="stat-box"><span id="totalUsers">0</span><label>গ্রুপ</label></div>
                 <div class="stat-box"><span id="totalAccounts">0</span><label>একাউন্ট</label></div>
-                <button class="refresh-btn" onclick="loadData()">🔄</button>
+                <button class="refresh-btn" onclick="fullPageRefresh()">🔄 ফুল রিলোড</button>
             </div>
+        </div>
+
+        <div class="money-stats">
+            <span class="money-pending">⏳ পেন্ডিং টাকা: <strong id="totalPendingMoney">০.০০</strong> টাকা</span>
+            <span class="money-approved">✅ অ্যাপ্রুভড টাকা: <strong id="totalApprovedMoney">০.০০</strong> টাকা</span>
         </div>
 
         <div class="main-tabs">
@@ -889,7 +930,7 @@
             </div>
         </div>
 
-        <div id="usersGrid" class="users-grid"><div class="empty-state">ডাটা লোড হচ্ছে...</div></div>
+        <div id="usersGrid" class="users-grid"><div class="empty-state">ডাটা লোড হচ্ছে... ⚡</div></div>
     </div>
     <div id="toast" class="toast"></div>
 
@@ -897,7 +938,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, remove, update, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // প্রথম ডাটাবেস কনফিগারেশন
+        // Firebase কনফিগারেশন
         const firebaseConfig = {
             apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
             authDomain: "saprahik-kaj.firebaseapp.com",
@@ -933,11 +974,23 @@
 
         const userRatesRef = ref(db, 'userRates');
 
-        // রেট অপশন জেনারেট করা
-        function generateRateOptions() {
+        // ডিফল্ট রেট
+        const DEFAULT_RATES = {
+            'cookies': 3.50,
+            '2fa': 2.00
+        };
+
+        // রেট অপশন জেনারেট করা (টাইপ অনুযায়ী)
+        function generateRateOptions(type) {
             const options = [];
-            for (let rate = 3.50; rate <= 4.50; rate += 0.10) {
-                options.push(rate.toFixed(2));
+            if (type === '2fa') {
+                for (let rate = 2.00; rate <= 3.00; rate += 0.10) {
+                    options.push(rate.toFixed(2));
+                }
+            } else {
+                for (let rate = 3.50; rate <= 4.50; rate += 0.10) {
+                    options.push(rate.toFixed(2));
+                }
             }
             return options;
         }
@@ -1010,16 +1063,38 @@
             }
         }
 
-        window.saveUserRate = function(telegram, value) {
+        // ইউজারের রেট পাওয়ার ফাংশন (আগের সেট করা রেট থাকলে সেটা দেখাবে)
+        function getUserRate(userRates, telegram, type) {
+            if (!telegram || telegram === 'unknown') return DEFAULT_RATES[type];
+            
+            const formattedTelegram = formatTelegramUsername(telegram);
+            
+            // আগের সেট করা রেট থাকলে সেটা দেখাবে
+            if (userRates && userRates[formattedTelegram] && userRates[formattedTelegram][type] !== undefined) {
+                return userRates[formattedTelegram][type];
+            }
+            
+            // না থাকলে ডিফল্ট রেট দেখাবে
+            return DEFAULT_RATES[type];
+        }
+
+        window.saveUserRate = function(telegram, value, type) {
             const formattedTelegram = formatTelegramUsername(telegram);
             if (formattedTelegram === 'unknown') {
                 showToast('টেলিগ্রাম ইউজারনেম নেই', 'error');
                 return;
             }
+            
+            // ইউজারের টাইপ অনুযায়ী আলাদা রেট সংরক্ষণ
             const updates = {};
-            updates[`userRates/${formattedTelegram}`] = value;
+            updates[`userRates/${formattedTelegram}/${type}`] = parseFloat(value);
+            
             update(ref(db), updates)
-                .then(() => showToast(`@${formattedTelegram} এর রেট ${value} সেট হয়েছে`, 'success'))
+                .then(() => {
+                    showToast(`@${formattedTelegram} (${type}) এর রেট ${value} টাকা সেট হয়েছে`, 'success');
+                    // ডাটা রিলোড
+                    loadData();
+                })
                 .catch(() => showToast('রেট সেভ করতে সমস্যা', 'error'));
         };
 
@@ -1084,18 +1159,35 @@
             const message = document.getElementById('maintenanceMessage').value;
             set(systemRef, { enabled, message }).then(() => showToast(`সিস্টেম ${enabled ? 'চালু' : 'বন্ধ'} করা হয়েছে`, 'success'));
         };
+        
         window.updateSystemStatus = function() {
             const message = document.getElementById('maintenanceMessage').value;
             set(systemRef, { enabled: true, message }).then(() => showToast('সিস্টেম স্ট্যাটাস আপডেট হয়েছে', 'success'));
         };
 
-        // ================== ডাটা লোড - টেলিগ্রাম ভিত্তিক গ্রুপিং ==================
+        // ফুল পেজ রিফ্রেশ ফাংশন
+        window.fullPageRefresh = function() {
+            showToast('পৃষ্ঠা রিফ্রেশ হচ্ছে... 🔄', 'warning');
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+        };
+
+        // ================== ডাটা লোডিং ==================
         window.loadData = function() {
             const submitsRef = ref(db, 'submits');
             
-            onValue(submitsRef, (snapshot) => {
-                const data = snapshot.val();
+            Promise.all([
+                get(submitsRef),
+                get(userRatesRef)
+            ]).then(([submitsSnapshot, ratesSnapshot]) => {
+                const data = submitsSnapshot.val();
+                const userRates = ratesSnapshot.val() || {};
+                
                 let totalPendingCookies = 0, totalPending2fa = 0, totalApprovedCookies = 0, totalApproved2fa = 0;
+                let totalPendingMoneyCalc = 0;
+                let totalApprovedMoneyCalc = 0;
+                
                 const groupsMap = new Map();
 
                 if (data) {
@@ -1113,7 +1205,7 @@
                             else totalApproved2fa++;
                         }
 
-                        // গ্রুপিং টেলিগ্রাম, টাইপ ও স্ট্যাটাসের উপর
+                        // গ্রুপিং
                         const groupKey = `${telegram}_${type}_${status}`;
 
                         if (!groupsMap.has(groupKey)) {
@@ -1140,19 +1232,38 @@
 
                     allGroups = Array.from(groupsMap.values());
 
-                    // ডুপ্লিকেট কাউন্ট গণনা করা হচ্ছে (প্রতিটি গ্রুপের জন্য)
+                    // ডুপ্লিকেট কাউন্ট ও টাকার হিসাব
                     allGroups.forEach(group => {
                         group.duplicateCount = checkDuplicates(group.accounts);
+                        
+                        // ইউজারের রেট পাওয়া (আগের সেট করা রেট থাকলে সেটা আসবে)
+                        const rate = getUserRate(userRates, group.telegram, group.type);
+                        const amount = (group.duplicateCount || 0) * rate;
+                        
+                        if (group.status === 'pending') {
+                            totalPendingMoneyCalc += amount;
+                        } else {
+                            totalApprovedMoneyCalc += amount;
+                        }
                     });
 
                 } else {
                     allGroups = [];
                 }
 
+                // UI আপডেট
                 document.getElementById('pendingCount').textContent = totalPendingCookies + totalPending2fa;
                 document.getElementById('approvedCount').textContent = totalApprovedCookies + totalApproved2fa;
+                
+                document.getElementById('totalPendingMoney').textContent = totalPendingMoneyCalc.toFixed(2);
+                document.getElementById('totalApprovedMoney').textContent = totalApprovedMoneyCalc.toFixed(2);
+                
                 updateCountersByCurrentView(totalPendingCookies, totalPending2fa, totalApprovedCookies, totalApproved2fa);
                 filterData();
+                
+            }).catch(error => {
+                console.error('ডাটা লোড করতে সমস্যা:', error);
+                showToast('ডাটা লোড করতে সমস্যা!', 'error');
             });
         };
 
@@ -1179,11 +1290,25 @@
             displayGroups(filtered);
         };
 
+        // অ্যাপ্রুভ ফাংশন - কনফার্মেশন সহ
         window.approveUser = function(idsStr) {
+            if (!confirm('আপনি কি এই গ্রুপের সব একাউন্ট অ্যাপ্রুভ করতে চান?')) return;
+            
             const ids = idsStr.split(',');
             const approvedAt = Date.now();
-            const promises = ids.map(id => update(ref(db, 'submits/' + id), { status: 'approved', approvedAt: approvedAt }));
-            Promise.all(promises).then(() => showToast('✅ ইউজার অ্যাপ্রুভ করা হয়েছে', 'success')).catch(() => showToast('অ্যাপ্রুভ করতে সমস্যা', 'error'));
+            
+            const updates = {};
+            ids.forEach(id => {
+                updates[`submits/${id}/status`] = 'approved';
+                updates[`submits/${id}/approvedAt`] = approvedAt;
+            });
+            
+            update(ref(db), updates)
+                .then(() => {
+                    showToast(`✅ ${ids.length} টি গ্রুপ অ্যাপ্রুভ করা হয়েছে`, 'success');
+                    loadData();
+                })
+                .catch(() => showToast('অ্যাপ্রুভ করতে সমস্যা', 'error'));
         };
 
         async function displayGroups(groups) {
@@ -1195,66 +1320,76 @@
 
             groups.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-            onValue(userRatesRef, (snapshot) => {
-                const userRates = snapshot.val() || {};
-                const groupsHtml = groups.map(group => {
-                    const date = new Date(group.timestamp || Date.now());
-                    const timeString = date.toLocaleString('bn-BD');
-                    const telegramLink = `https://t.me/${group.telegram}`;
-                    const formattedTelegram = formatTelegramUsername(group.telegram);
-                    const savedRate = userRates[formattedTelegram] || '3.50';
-                    
-                    const totalAmount = (group.duplicateCount || 0) * parseFloat(savedRate);
+            // রেট ডাটা লোড
+            const rateSnapshot = await get(userRatesRef);
+            const userRates = rateSnapshot.val() || {};
+            
+            let groupsHtml = '';
+            let totalAccountsCount = 0;
+            let totalDuplicatesCount = 0;
+            
+            groups.forEach(group => {
+                totalAccountsCount += group.accounts.length;
+                totalDuplicatesCount += group.duplicateCount || 0;
+                
+                const date = new Date(group.timestamp || Date.now());
+                const timeString = date.toLocaleString('bn-BD');
+                const telegramLink = `https://t.me/${group.telegram}`;
+                
+                // ইউজারের রেট পাওয়া (আগের সেট করা রেট থাকলে সেটা আসবে)
+                const rate = getUserRate(userRates, group.telegram, group.type);
+                const savedRate = rate.toFixed(2);
+                
+                const totalAmount = (group.duplicateCount || 0) * rate;
 
-                    let expiryInfo = '';
-                    if (group.status === 'approved' && group.approvedAt) {
-                        const daysPassed = Math.floor((Date.now() - group.approvedAt) / (24 * 60 * 60 * 1000));
-                        const daysLeft = 15 - daysPassed;
-                        if (daysLeft > 0) expiryInfo = `<div class="expiry-info">⏳ আরো ${daysLeft} দিন বাকি</div>`;
-                    }
+                let expiryInfo = '';
+                if (group.status === 'approved' && group.approvedAt) {
+                    const daysPassed = Math.floor((Date.now() - group.approvedAt) / (24 * 60 * 60 * 1000));
+                    const daysLeft = 15 - daysPassed;
+                    if (daysLeft > 0) expiryInfo = `<div class="expiry-info">⏳ আরো ${daysLeft} দিন বাকি</div>`;
+                }
 
-                    return `
-                        <div class="user-card" id="card-${group.id}">
-                            <div class="card-header">
-                                <span class="phone-number">📞 ${group.number}</span>
-                                <div style="display: flex; gap: 5px;">
-                                    <span class="type-badge ${group.type === 'cookies' ? 'cookies' : 'twofa'}">${group.type === 'cookies' ? '🍪 কুকিজ' : '🔐 2FA'}</span>
-                                    <span class="status-badge ${group.status}">${group.status === 'pending' ? '⏳ পেন্ডিং' : '✅ অ্যাপ্রুভড'}</span>
-                                </div>
-                            </div>
-                            <div class="info-row"><span>📱</span><span>@${group.telegram}</span></div>
-                            <div class="info-row"><span>💰</span><span class="payment-badge">${group.paymentMethod || 'N/A'}</span></div>
-                            <div class="stats-row-compact">
-                                <div class="stats-top">
-                                    <div class="total-accounts">📊 মোট একাউন্ট: <strong>${group.accounts.length}</strong></div>
-                                    ${group.duplicateCount > 0 ? `<div class="duplicate-badge">✅ Okay ID: <strong>${group.duplicateCount}</strong></div>` : ''}
-                                </div>
-                                <div class="rate-section">
-                                    <select class="rate-select-small" onchange="saveUserRate('${group.telegram}', this.value)">
-                                        ${generateRateOptions().map(rate => `<option value="${rate}" ${rate === savedRate ? 'selected' : ''}>${rate}</option>`).join('')}
-                                    </select>
-                                    <span class="amount-display" id="amount-${group.id}">${totalAmount.toFixed(2)} টাকা</span>
-                                </div>
-                            </div>
-                            <div class="timestamp">⏰ ${timeString}</div>
-                            ${expiryInfo}
-                            <div class="action-buttons">
-                                <button class="copy-usernames-btn" onclick='copyUsernames(${JSON.stringify(group.accounts)})'><i class="fas fa-copy" style="margin-right: 5px;"></i>সব কপি (${group.accounts.length})</button>
-                                <button class="action-btn phone-btn" onclick="copyText('${group.number}')" title="কপি নাম্বার"><i class="fas fa-phone-alt"></i></button>
-                                <a href="${telegramLink}" target="_blank" class="action-btn telegram-btn" title="টেলিগ্রাম"><i class="fab fa-telegram-plane"></i></a>
-                                ${group.status === 'pending' ? `<button class="approve-btn" onclick="approveUser('${group.ids.join(',')}')"><i class="fas fa-check-circle" style="margin-right: 5px;"></i>অ্যাপ্রুভ</button>` : ''}
-                                <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}', '${group.id}')" title="ডিলিট"><i class="fas fa-trash-alt"></i></button>
+                groupsHtml += `
+                    <div class="user-card" id="card-${group.id}">
+                        <div class="card-header">
+                            <span class="phone-number">📞 ${group.number}</span>
+                            <div style="display: flex; gap: 5px;">
+                                <span class="type-badge ${group.type === 'cookies' ? 'cookies' : 'twofa'}">${group.type === 'cookies' ? '🍪 কুকিজ' : '🔐 2FA'}</span>
+                                <span class="status-badge ${group.status}">${group.status === 'pending' ? '⏳ পেন্ডিং' : '✅ অ্যাপ্রুভড'}</span>
                             </div>
                         </div>
-                    `;
-                }).join('');
-                container.innerHTML = groupsHtml;
+                        <div class="info-row"><span>📱</span><span>@${group.telegram}</span></div>
+                        <div class="info-row"><span>💰</span><span class="payment-badge">${group.paymentMethod || 'N/A'}</span></div>
+                        <div class="stats-row-compact">
+                            <div class="stats-top">
+                                <div class="total-accounts">📊 মোট একাউন্ট: <strong>${group.accounts.length}</strong></div>
+                                ${group.duplicateCount > 0 ? `<div class="duplicate-badge">✅ Okay ID: <strong>${group.duplicateCount}</strong></div>` : ''}
+                            </div>
+                            <div class="rate-section">
+                                <select class="rate-select-small" onchange="saveUserRate('${group.telegram}', this.value, '${group.type}')">
+                                    ${generateRateOptions(group.type).map(rate => `<option value="${rate}" ${rate === savedRate ? 'selected' : ''}>${rate}</option>`).join('')}
+                                </select>
+                                <span class="amount-display" id="amount-${group.id}">${totalAmount.toFixed(2)} টাকা</span>
+                            </div>
+                        </div>
+                        <div class="timestamp">⏰ ${timeString}</div>
+                        ${expiryInfo}
+                        <div class="action-buttons">
+                            <button class="copy-usernames-btn" onclick='copyUsernames(${JSON.stringify(group.accounts)})'><i class="fas fa-copy" style="margin-right: 5px;"></i>সব কপি (${group.accounts.length})</button>
+                            <button class="action-btn phone-btn" onclick="copyText('${group.number}')" title="কপি নাম্বার"><i class="fas fa-phone-alt"></i></button>
+                            <a href="${telegramLink}" target="_blank" class="action-btn telegram-btn" title="টেলিগ্রাম"><i class="fab fa-telegram-plane"></i></a>
+                            ${group.status === 'pending' ? `<button class="approve-btn" onclick="approveUser('${group.ids.join(',')}')"><i class="fas fa-check-circle" style="margin-right: 5px;"></i>অ্যাপ্রুভ</button>` : ''}
+                            <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}', '${group.id}')" title="ডিলিট"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = groupsHtml;
 
-                document.getElementById('totalUsers').textContent = groups.length;
-                document.getElementById('totalAccounts').textContent = groups.reduce((sum, g) => sum + g.accounts.length, 0);
-                const totalDup = groups.reduce((sum, g) => sum + (g.duplicateCount || 0), 0);
-                document.getElementById('totalDuplicates').textContent = totalDup;
-            }, { onlyOnce: false });
+            document.getElementById('totalUsers').textContent = groups.length;
+            document.getElementById('totalAccounts').textContent = totalAccountsCount;
+            document.getElementById('totalDuplicates').textContent = totalDuplicatesCount;
         }
 
         window.copyUsernames = function(usernames) {
@@ -1264,12 +1399,14 @@
                 const textarea = document.createElement('textarea'); textarea.value = text; document.body.appendChild(textarea); textarea.select(); document.execCommand('copy'); document.body.removeChild(textarea); showToast(`✅ ${usernames.length} টি একাউন্ট কপি হয়েছে`, 'success');
             });
         };
+        
         window.copyText = function(text) {
             if (!text) return showToast('❌ কপি করার মতো টেক্সট নেই', 'error');
             navigator.clipboard.writeText(text).then(() => showToast('✅ কপি হয়েছে!', 'success')).catch(() => {
                 const textarea = document.createElement('textarea'); textarea.value = text; document.body.appendChild(textarea); textarea.select(); document.execCommand('copy'); document.body.removeChild(textarea); showToast('✅ কপি হয়েছে!', 'success');
             });
         };
+        
         window.copyAllUsernames = function() {
             const filtered = allGroups.filter(g => g.type === currentType && g.status === currentMainTab);
             const allUsernames = filtered.flatMap(g => g.accounts);
@@ -1279,17 +1416,35 @@
 
         window.deleteGroup = function(idsStr, groupId) {
             if (!confirm('আপনি কি এই গ্রুপের সব একাউন্ট ডিলিট করতে চান?')) return;
+            
             const card = document.getElementById(`card-${groupId}`);
             if (card) card.classList.add('deleting');
+            
             const ids = idsStr.split(',');
-            Promise.all(ids.map(id => remove(ref(db, 'submits/' + id))))
-                .then(() => showToast('গ্রুপ ডিলিট করা হয়েছে', 'success'))
-                .catch((error) => { console.error('Delete error:', error); showToast('ডিলিট করতে সমস্যা', 'error'); if (card) card.classList.remove('deleting'); });
+            
+            const updates = {};
+            ids.forEach(id => {
+                updates[`submits/${id}`] = null;
+            });
+            
+            update(ref(db), updates)
+                .then(() => {
+                    showToast('গ্রুপ ডিলিট করা হয়েছে', 'success');
+                    loadData();
+                })
+                .catch((error) => { 
+                    console.error('Delete error:', error); 
+                    showToast('ডিলিট করতে সমস্যা', 'error'); 
+                    if (card) card.classList.remove('deleting'); 
+                });
         };
 
         window.clearAllDatabase = function() {
             if (confirm('⚠️ আপনি কি সম্পূর্ণ ডাটাবেজ ডিলিট করতে চান?') && confirm('আপনি কি নিশ্চিত? এই কাজ অপরিবর্তনীয়!')) {
-                remove(ref(db, 'submits')).then(() => showToast('সমস্ত ডাটা ডিলিট করা হয়েছে', 'success')).catch(() => showToast('ডিলিট করতে সমস্যা', 'error'));
+                remove(ref(db, 'submits')).then(() => {
+                    showToast('সমস্ত ডাটা ডিলিট করা হয়েছে', 'success');
+                    loadData();
+                }).catch(() => showToast('ডিলিট করতে সমস্যা', 'error'));
             }
         };
 
@@ -1306,19 +1461,27 @@
                 if (!snapshot.exists()) return;
                 const data = snapshot.val();
                 const fifteenDaysAgo = Date.now() - (15 * 24 * 60 * 60 * 1000);
-                const promises = Object.keys(data).filter(key => data[key].status === 'approved' && data[key].approvedAt && data[key].approvedAt < fifteenDaysAgo).map(key => remove(ref(db, 'submits/' + key)));
-                if (promises.length) { await Promise.all(promises); console.log(`${promises.length} টি পুরনো ডাটা ডিলিট হয়েছে`); }
+                const updates = {};
+                
+                Object.keys(data).forEach(key => {
+                    if (data[key].status === 'approved' && data[key].approvedAt && data[key].approvedAt < fifteenDaysAgo) {
+                        updates[`submits/${key}`] = null;
+                    }
+                });
+                
+                if (Object.keys(updates).length) {
+                    await update(ref(db), updates);
+                    console.log(`${Object.keys(updates).length} টি পুরনো ডাটা ডিলিট হয়েছে`);
+                }
             } catch (error) { console.error('পুরনো ডাটা ডিলিট করতে সমস্যা:', error); }
         }
 
-        // প্রথমে দ্বিতীয় ডাটাবেস লোড হবে, তারপর প্রথম ডাটাবেস
+        // শুরু করা
         loadSecondDatabase().then(() => {
             loadData();
         });
         
         setInterval(deleteOldData, 60 * 60 * 1000);
     </script>
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </body>
 </html>
