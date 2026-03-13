@@ -83,6 +83,49 @@
             font-size: 14px;
         }
 
+        /* দুইটি রিফ্রেশ বাটন পাশাপাশি */
+        .refresh-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            color: #1a1e2b;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 
+                5px 5px 10px rgba(0,0,0,0.4),
+                inset -2px -2px 5px rgba(0,0,0,0.2),
+                inset 2px 2px 5px rgba(255,255,255,0.3);
+            transition: 0.2s;
+            height: 48px;
+            min-width: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .refresh-btn.small {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            color: white;
+            min-width: 80px;
+            padding: 8px 15px;
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.95);
+        }
+
+        .refresh-btn i {
+            font-size: 16px;
+        }
+
         .money-stats {
             display: flex;
             gap: 15px;
@@ -109,28 +152,6 @@
             color: #ffd700;
             font-size: 22px;
             margin-left: 5px;
-        }
-
-        .refresh-btn {
-            background: linear-gradient(145deg, #ffd700, #ffa500);
-            color: #1a1e2b;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 
-                5px 5px 10px rgba(0,0,0,0.4),
-                inset -2px -2px 5px rgba(0,0,0,0.2),
-                inset 2px 2px 5px rgba(255,255,255,0.3);
-            transition: 0.2s;
-            height: 48px;
-            min-width: 100px;
-        }
-
-        .refresh-btn:active {
-            transform: scale(0.95);
         }
 
         .main-tabs {
@@ -868,7 +889,10 @@
             <div class="stats-row">
                 <div class="stat-box"><span id="totalUsers">0</span><label>গ্রুপ</label></div>
                 <div class="stat-box"><span id="totalAccounts">0</span><label>একাউন্ট</label></div>
-                <button class="refresh-btn" onclick="fullPageRefresh()">🔄 ফুল রিলোড</button>
+                <div class="refresh-buttons">
+                    <button class="refresh-btn small" onclick="softRefresh()" title="শুধু ডাটা রিফ্রেশ"><i class="fas fa-sync-alt"></i> রিফ্রেশ</button>
+                    <button class="refresh-btn" onclick="fullPageRefresh()"><i class="fas fa-redo-alt"></i> ফুল রিলোড</button>
+                </div>
             </div>
         </div>
 
@@ -1092,8 +1116,6 @@
             update(ref(db), updates)
                 .then(() => {
                     showToast(`@${formattedTelegram} (${type}) এর রেট ${value} টাকা সেট হয়েছে`, 'success');
-                    // ডাটা রিলোড
-                    loadData();
                 })
                 .catch(() => showToast('রেট সেভ করতে সমস্যা', 'error'));
         };
@@ -1173,15 +1195,27 @@
             }, 500);
         };
 
-        // ================== ডাটা লোডিং ==================
-        window.loadData = function() {
+        // সফট রিফ্রেশ ফাংশন (শুধু ডাটা রিফ্রেশ)
+        window.softRefresh = function() {
+            showToast('ডাটা রিফ্রেশ হচ্ছে... 🔄', 'warning');
+            
+            // দ্বিতীয় ডাটাবেস আবার লোড
+            loadSecondDatabase().then(() => {
+                filterData();
+                showToast('ডাটা রিফ্রেশ সম্পন্ন ✅', 'success');
+            });
+        };
+
+        // ================== রিয়েল-টাইম ডাটা লোডিং ==================
+        function loadData() {
             const submitsRef = ref(db, 'submits');
             
-            Promise.all([
-                get(submitsRef),
-                get(userRatesRef)
-            ]).then(([submitsSnapshot, ratesSnapshot]) => {
-                const data = submitsSnapshot.val();
+            // onValue লিসেনার ব্যবহার করে রিয়েল-টাইম আপডেট
+            onValue(submitsRef, async (snapshot) => {
+                const data = snapshot.val();
+                
+                // ইউজার রেট লোড
+                const ratesSnapshot = await get(userRatesRef);
                 const userRates = ratesSnapshot.val() || {};
                 
                 let totalPendingCookies = 0, totalPending2fa = 0, totalApprovedCookies = 0, totalApproved2fa = 0;
@@ -1261,11 +1295,11 @@
                 updateCountersByCurrentView(totalPendingCookies, totalPending2fa, totalApprovedCookies, totalApproved2fa);
                 filterData();
                 
-            }).catch(error => {
+            }, (error) => {
                 console.error('ডাটা লোড করতে সমস্যা:', error);
                 showToast('ডাটা লোড করতে সমস্যা!', 'error');
             });
-        };
+        }
 
         function updateCountersByCurrentView(pendingCookies, pending2fa, approvedCookies, approved2fa) {
             if (currentMainTab === 'pending') {
@@ -1306,7 +1340,7 @@
             update(ref(db), updates)
                 .then(() => {
                     showToast(`✅ ${ids.length} টি গ্রুপ অ্যাপ্রুভ করা হয়েছে`, 'success');
-                    loadData();
+                    // onValue অটো আপডেট করবে
                 })
                 .catch(() => showToast('অ্যাপ্রুভ করতে সমস্যা', 'error'));
         };
@@ -1387,6 +1421,7 @@
             
             container.innerHTML = groupsHtml;
 
+            // আপডেট কাউন্টার
             document.getElementById('totalUsers').textContent = groups.length;
             document.getElementById('totalAccounts').textContent = totalAccountsCount;
             document.getElementById('totalDuplicates').textContent = totalDuplicatesCount;
@@ -1430,7 +1465,7 @@
             update(ref(db), updates)
                 .then(() => {
                     showToast('গ্রুপ ডিলিট করা হয়েছে', 'success');
-                    loadData();
+                    // onValue অটো আপডেট করবে
                 })
                 .catch((error) => { 
                     console.error('Delete error:', error); 
@@ -1443,7 +1478,7 @@
             if (confirm('⚠️ আপনি কি সম্পূর্ণ ডাটাবেজ ডিলিট করতে চান?') && confirm('আপনি কি নিশ্চিত? এই কাজ অপরিবর্তনীয়!')) {
                 remove(ref(db, 'submits')).then(() => {
                     showToast('সমস্ত ডাটা ডিলিট করা হয়েছে', 'success');
-                    loadData();
+                    // onValue অটো আপডেট করবে
                 }).catch(() => showToast('ডিলিট করতে সমস্যা', 'error'));
             }
         };
@@ -1478,7 +1513,7 @@
 
         // শুরু করা
         loadSecondDatabase().then(() => {
-            loadData();
+            loadData(); // এখন onValue ব্যবহার করছে
         });
         
         setInterval(deleteOldData, 60 * 60 * 1000);
