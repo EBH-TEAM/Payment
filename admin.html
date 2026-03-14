@@ -897,8 +897,8 @@
         </div>
 
         <div class="money-stats">
-            <span class="money-pending">⏳ পেন্ডিং টাকা: <strong id="totalPendingMoney">০.০০</strong> টাকা</span>
-            <span class="money-approved">✅ অ্যাপ্রুভড টাকা: <strong id="totalApprovedMoney">০.০০</strong> টাকা</span>
+            <span class="money-pending">⏳ পেন্ডিং টাকা (<span id="pendingDays">০</span> দিন): <strong id="totalPendingMoney">০.০০</strong> টাকা</span>
+            <span class="money-approved">✅ অ্যাপ্রুভড টাকা (<span id="approvedDays">০</span> দিন): <strong id="totalApprovedMoney">০.০০</strong> টাকা</span>
         </div>
 
         <div class="main-tabs">
@@ -1222,6 +1222,10 @@
                 let totalPendingMoneyCalc = 0;
                 let totalApprovedMoneyCalc = 0;
                 
+                // দিন ক্যালকুলেশনের জন্য ভেরিয়েবল
+                let oldestPendingTimestamp = Infinity;
+                let oldestApprovedTimestamp = Infinity;
+                
                 const groupsMap = new Map();
 
                 if (data) {
@@ -1276,13 +1280,38 @@
                         
                         if (group.status === 'pending') {
                             totalPendingMoneyCalc += amount;
+                            
+                            // সবচেয়ে পুরনো pending গ্রুপের টাইমস্ট্যাম্প খুঁজি
+                            if (group.timestamp && group.timestamp < oldestPendingTimestamp) {
+                                oldestPendingTimestamp = group.timestamp;
+                            }
                         } else {
                             totalApprovedMoneyCalc += amount;
+                            
+                            // সবচেয়ে পুরনো approved গ্রুপের টাইমস্ট্যাম্প খুঁজি
+                            if (group.timestamp && group.timestamp < oldestApprovedTimestamp) {
+                                oldestApprovedTimestamp = group.timestamp;
+                            }
                         }
                     });
 
                 } else {
                     allGroups = [];
+                }
+
+                // দিন ক্যালকুলেশন
+                const now = Date.now();
+                const oneDay = 24 * 60 * 60 * 1000;
+                
+                let pendingDays = 0;
+                let approvedDays = 0;
+                
+                if (oldestPendingTimestamp !== Infinity) {
+                    pendingDays = Math.ceil((now - oldestPendingTimestamp) / oneDay);
+                }
+                
+                if (oldestApprovedTimestamp !== Infinity) {
+                    approvedDays = Math.ceil((now - oldestApprovedTimestamp) / oneDay);
                 }
 
                 // UI আপডেট
@@ -1291,6 +1320,9 @@
                 
                 document.getElementById('totalPendingMoney').textContent = totalPendingMoneyCalc.toFixed(2);
                 document.getElementById('totalApprovedMoney').textContent = totalApprovedMoneyCalc.toFixed(2);
+                
+                document.getElementById('pendingDays').textContent = pendingDays;
+                document.getElementById('approvedDays').textContent = approvedDays;
                 
                 updateCountersByCurrentView(totalPendingCookies, totalPending2fa, totalApprovedCookies, totalApproved2fa);
                 filterData();
