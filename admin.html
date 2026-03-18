@@ -154,7 +154,6 @@
             margin-left: 5px;
         }
 
-        /* টাকা ও প্রফিট ডিসপ্লে - পাশাপাশি */
         .finance-row {
             display: flex;
             gap: 15px;
@@ -562,7 +561,6 @@
             border: 1px solid #f44336;
         }
 
-        /* Accounting Section */
         .accounting-section {
             margin-top: 20px;
             background: rgba(255,215,0,0.05);
@@ -1104,7 +1102,6 @@
             <span class="money-approved">✅ অ্যাপ্রুভড টাকা (<span id="approvedDays">০</span> দিন): <strong id="totalApprovedMoney">০.০০</strong> টাকা</span>
         </div>
 
-        <!-- টাকা ও প্রফিট ডিসপ্লে - পাশাপাশি -->
         <div class="finance-row">
             <div class="finance-box received">
                 <span class="label"><i class="fas fa-arrow-down"></i> ক্লায়েন্ট থেকে</span>
@@ -1170,7 +1167,6 @@
                     <button class="save-settings-btn" onclick="updateSystemStatus()" style="margin-top: 10px;">📢 সিস্টেম স্ট্যাটাস আপডেট</button>
                 </div>
 
-                <!-- অ্যাকাউন্টিং সেকশন -->
                 <div class="accounting-section">
                     <h3 style="color: #ffd700; margin-bottom: 15px;">💰 ইনকাম ম্যানেজমেন্ট</h3>
                     
@@ -1189,7 +1185,6 @@
                     </div>
 
                     <div class="income-history" id="incomeHistory">
-                        <!-- ইনকাম হিস্টোরি এখানে দেখাবে -->
                     </div>
                 </div>
 
@@ -1236,7 +1231,7 @@
         let currentType = 'cookies';
         let currentMainTab = 'pending';
         let searchTerm = '';
-        let currentFilterDate = null; // ফিল্টার তারিখ
+        let currentFilterDate = null;
 
         const userRatesRef = ref(db, 'userRates');
         const incomeRef = ref(db, 'income');
@@ -1437,7 +1432,6 @@
             });
         };
 
-        // ================== রিয়েল-টাইম ডাটা লোডিং ==================
         function loadData() {
             const submitsRef = ref(db, 'submits');
             
@@ -1547,7 +1541,6 @@
                 
                 updateCountersByCurrentView(totalPendingCookies, totalPending2fa, totalApprovedCookies, totalApproved2fa);
                 
-                // ফিল্টার অনুযায়ী ডাটা দেখান
                 filterData();
                 updateProfitAndReceived();
                 
@@ -1567,7 +1560,6 @@
             }
         }
 
-        // ================== ইনকাম ফাংশন ==================
         window.addOrUpdateIncome = function() {
             const amount = parseFloat(document.getElementById('incomeAmount').value);
             const note = document.getElementById('incomeNote').value;
@@ -1594,7 +1586,6 @@
             };
             
             if (editingId) {
-                // আপডেট
                 set(ref(db, `income/${editingId}`), incomeData)
                     .then(() => {
                         showToast('ইনকাম আপডেট হয়েছে', 'success');
@@ -1602,7 +1593,6 @@
                     })
                     .catch(() => showToast('আপডেট করতে সমস্যা', 'error'));
             } else {
-                // নতুন
                 push(incomeRef, incomeData)
                     .then(() => {
                         showToast('ইনকাম যোগ হয়েছে', 'success');
@@ -1636,7 +1626,6 @@
             document.getElementById('incomeBtn').innerHTML = '<i class="fas fa-plus-circle"></i> ইনকাম অ্যাড';
         }
 
-        // ================== ফিল্টার ফাংশন ==================
         window.applyDateFilter = function() {
             const filterDate = document.getElementById('filterDate').value;
             if (!filterDate) {
@@ -1646,11 +1635,9 @@
             
             currentFilterDate = filterDate;
             
-            // ফিল্টার ইন্ডিকেটর দেখান
             document.getElementById('filterIndicator').style.display = 'flex';
             document.getElementById('filterDateText').textContent = new Date(filterDate).toLocaleDateString('bn-BD');
             
-            // সব ডাটা রিলোড
             filterData();
             updateProfitAndReceived();
         };
@@ -1683,7 +1670,6 @@
                 Object.keys(incomeData).forEach(key => {
                     const item = incomeData[key];
                     
-                    // ফিল্টার চেক
                     if (!currentFilterDate || isDateInRange(item.timestamp || new Date(item.date).getTime())) {
                         totalReceived += item.amount || 0;
                     }
@@ -1691,10 +1677,8 @@
                     incomeList.push({ id: key, ...item });
                 });
                 
-                // ফিল্টার অনুযায়ী অ্যাপ্রুভড টাকা
                 let approvedMoney = 0;
                 if (currentFilterDate) {
-                    // ফিল্টার করা গ্রুপ থেকে অ্যাপ্রুভড টাকা বের করি
                     const filteredGroups = allGroups.filter(group => 
                         group.type === currentType && 
                         group.status === 'approved' &&
@@ -1714,7 +1698,6 @@
                 document.getElementById('totalReceivedAmount').textContent = totalReceived.toFixed(2);
                 document.getElementById('totalProfitAmount').textContent = profit.toFixed(2);
                 
-                // ইনকাম হিস্টোরি দেখান
                 displayIncomeHistory(incomeList);
             }).catch(error => {
                 console.error('ইনকাম লোড করতে সমস্যা:', error);
@@ -1724,7 +1707,6 @@
         function displayIncomeHistory(incomeList) {
             const container = document.getElementById('incomeHistory');
             
-            // সর্ট বাই তারিখ (নতুন প্রথমে)
             incomeList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
             
             if (incomeList.length === 0) {
@@ -1753,7 +1735,6 @@
             container.innerHTML = html;
         }
 
-        // ================== ৩০ দিনের পুরনো ডাটা ডিলিট ==================
         window.deleteOldDataManually = async function() {
             if (!confirm('⚠️ আজকে থেকে ৩০ দিনের আগের সব ডাটা ডিলিট হবে? (submits + ইনকাম)')) return;
             if (!confirm('আপনি কি নিশ্চিত? এই কাজ অপরিবর্তনীয়!')) return;
@@ -1763,7 +1744,6 @@
             const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
             
             try {
-                // submits থেকে পুরনো ডাটা ডিলিট
                 const submitsSnapshot = await get(ref(db, 'submits'));
                 if (submitsSnapshot.exists()) {
                     const submitsData = submitsSnapshot.val();
@@ -1785,7 +1765,6 @@
                     }
                 }
                 
-                // ইনকাম থেকে পুরনো ডাটা ডিলিট
                 const incomeSnapshot = await get(ref(db, 'income'));
                 if (incomeSnapshot.exists()) {
                     const incomeData = incomeSnapshot.val();
@@ -1808,7 +1787,7 @@
                 }
                 
                 showToast('পুরনো ডাটা ডিলিট সম্পন্ন ✅', 'success');
-                clearFilter(); // ফিল্টার ক্লিয়ার করে রিলোড
+                clearFilter();
                 
             } catch (error) {
                 console.error('ডাটা ডিলিট করতে সমস্যা:', error);
@@ -1819,10 +1798,8 @@
         window.filterData = function() {
             searchTerm = document.getElementById('searchInput').value.toLowerCase();
             
-            // প্রথমে টাইপ ও স্ট্যাটাস অনুযায়ী ফিল্টার
             let filtered = allGroups.filter(group => group.type === currentType && group.status === currentMainTab);
             
-            // তারপর ডেট ফিল্টার (যদি সেট করা থাকে)
             if (currentFilterDate) {
                 filtered = filtered.filter(group => {
                     const groupTime = group.approvedAt || group.timestamp;
@@ -1830,7 +1807,6 @@
                 });
             }
             
-            // তারপর সার্চ টার্ম
             if (searchTerm) {
                 filtered = filtered.filter(group =>
                     group.telegram?.toLowerCase().includes(searchTerm) ||
@@ -1840,7 +1816,6 @@
             
             displayGroups(filtered);
             
-            // টাকার হিসাব আপডেট
             updateProfitAndReceived();
         };
 
@@ -1886,7 +1861,9 @@
                 
                 const date = new Date(group.timestamp || Date.now());
                 const timeString = date.toLocaleString('bn-BD');
-                const telegramLink = `https://t.me/${group.telegram}`;
+                
+                const cleanTelegram = formatTelegramUsername(group.telegram);
+                const telegramLink = `https://t.me/${cleanTelegram}`;
                 
                 const rate = getUserRate(userRates, group.telegram, group.type);
                 const savedRate = rate.toFixed(2);
@@ -2005,7 +1982,6 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // শুরু করা
         loadSecondDatabase().then(() => {
             loadData();
             updateProfitAndReceived();
