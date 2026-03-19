@@ -17,62 +17,14 @@
             background: #0a0f1e;
             min-height: 100vh;
             padding: 12px;
-            transition: background 0.3s;
         }
 
-        /* লাইট মোড */
-        body.light-mode {
-            background: #f0f4fa;
-        }
-        body.light-mode .main-card {
-            background: rgba(255,255,255,0.95);
-            border-color: rgba(0,0,0,0.1);
-        }
-        body.light-mode .input-field {
-            background: #f5f7fb;
-            border-color: #ddd;
-            color: #333;
-        }
-        body.light-mode .rule-item {
-            background: #f8f9ff;
-            color: #333;
-        }
-        body.light-mode .maintenance-notice {
-            background: #ffebee;
-            color: #c62828;
-            border-color: #ef5350;
-        }
-
-        /* থিম টগল */
-        .theme-toggle {
-            position: fixed;
-            top: 12px;
-            right: 12px;
-            z-index: 1000;
-        }
-        .theme-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 30px;
-            background: rgba(255,215,0,0.2);
-            border: 1px solid #ffd700;
-            font-size: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            color: #ffd700;
-        }
-
-        /* মেইন কন্টেইনার */
         .container {
             max-width: 480px;
             margin: 0 auto;
-            padding-top: 20px;
+            padding-top: 10px;
         }
 
-        /* মেইন কার্ড */
         .main-card {
             background: rgba(20, 25, 40, 0.95);
             backdrop-filter: blur(10px);
@@ -82,7 +34,32 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
-        /* মেইনটেন্যান্স নোটিশ */
+        .logo-area {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .gold-logo {
+            font-size: 32px;
+            font-weight: 900;
+            font-family: 'Orbitron', 'Rajdhani', sans-serif;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 2px 2px 0 #000;
+        }
+        
+        .logo-badge {
+            display: inline-block;
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            color: #000;
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
         .maintenance-notice {
             background: rgba(244, 67, 54, 0.2);
             border: 2px solid #f44336;
@@ -93,64 +70,19 @@
             font-weight: bold;
             font-size: 15px;
             margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 5px 15px rgba(244,67,54,0.3);
             display: none;
         }
+        
         .maintenance-notice.show {
             display: block;
         }
-        .maintenance-notice i {
-            margin-right: 8px;
-            color: #f44336;
-        }
 
-        /* স্টাইলিশ গোল্ড লোগো */
-        .logo-area {
-            text-align: center;
-            margin-bottom: 25px;
-            position: relative;
-        }
-        .gold-logo {
-            font-size: 48px;
-            font-weight: 900;
-            font-family: 'Orbitron', 'Rajdhani', sans-serif;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: #ffd700;
-            text-shadow: 
-                0 0 10px #ffd700,
-                0 0 20px #ffd700,
-                2px 2px 0 #000,
-                -2px -2px 0 #000,
-                2px -2px 0 #000,
-                -2px 2px 0 #000;
-            line-height: 1.2;
-            animation: glowPulse 2s ease-in-out infinite;
-        }
-        @keyframes glowPulse {
-            0%, 100% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000; }
-            50% { text-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700, 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000; }
-        }
-        .logo-badge {
-            display: inline-block;
-            background: linear-gradient(145deg, #ffd700, #ffa500);
-            color: #000;
-            padding: 6px 20px;
-            border-radius: 40px;
-            font-size: 14px;
-            font-weight: bold;
-            margin-top: 8px;
-            box-shadow: 0 5px 15px rgba(255,215,0,0.3);
-            letter-spacing: 1px;
-        }
-
-        /* টাইপ সিলেক্টর */
         .type-row {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
         }
+        
         .type-btn {
             flex: 1;
             padding: 16px 8px;
@@ -162,32 +94,35 @@
             background: #2d3349;
             color: white;
             box-shadow: 0 8px 0 #1a1e2b;
-            transition: 0.1s;
             cursor: pointer;
+            transition: 0.1s;
         }
+        
         .type-btn:active {
             transform: translateY(5px);
             box-shadow: 0 3px 0 #1a1e2b;
         }
+        
         .type-btn.cookies.active {
             background: #ff4757;
         }
+        
         .type-btn.twofa.active {
             background: #4834d4;
         }
+        
         .type-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
             box-shadow: 0 8px 0 #1a1e2b;
-            pointer-events: none;
         }
 
-        /* ইউজারনেম ইনপুট */
         .username-container {
             position: relative;
             margin-bottom: 18px;
         }
+        
         .username-label {
             display: block;
             color: #ffd700;
@@ -195,6 +130,7 @@
             font-size: 14px;
             margin-bottom: 8px;
         }
+        
         .username-input {
             width: 100%;
             padding: 16px 20px;
@@ -203,17 +139,16 @@
             border-radius: 40px;
             font-size: 15px;
             color: white;
-            box-shadow: inset 0 5px 8px rgba(0,0,0,0.3);
+            resize: vertical;
+            min-height: 100px;
             padding-right: 70px;
         }
+        
         .username-input:focus {
             outline: none;
             border-color: #ffd700;
         }
-        .username-input:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        
         .username-counter {
             position: absolute;
             right: 15px;
@@ -228,10 +163,10 @@
             pointer-events: none;
         }
 
-        /* টেলিগ্রাম ইনপুট */
         .input-group {
             margin-bottom: 18px;
         }
+        
         .input-label {
             display: block;
             color: #ffd700;
@@ -239,6 +174,7 @@
             font-size: 14px;
             margin-bottom: 6px;
         }
+        
         .input-field {
             width: 100%;
             padding: 16px 20px;
@@ -247,16 +183,11 @@
             border-radius: 40px;
             font-size: 15px;
             color: white;
-            box-shadow: inset 0 5px 8px rgba(0,0,0,0.3);
         }
+        
         .input-field:focus {
             outline: none;
             border-color: #ffd700;
-        }
-        .input-field:disabled {
-            opacity: 0.5;
-            background: #2a2f40;
-            cursor: not-allowed;
         }
 
         /* পেমেন্ট ড্রপডাউন */
@@ -264,6 +195,7 @@
             position: relative;
             margin-bottom: 18px;
         }
+        
         .payment-selected {
             width: 100%;
             padding: 16px 20px;
@@ -276,11 +208,12 @@
             color: white;
             cursor: pointer;
         }
+        
         .payment-selected.disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            pointer-events: none;
         }
+        
         .payment-dropdown {
             position: absolute;
             top: 100%;
@@ -293,41 +226,36 @@
             z-index: 100;
             display: none;
             border: 2px solid #ffd700;
-            max-height: none;
+            max-height: none; /* স্ক্রোল বন্ধ */
         }
+        
         .payment-dropdown.show {
             display: block;
         }
+        
         .payment-option {
             padding: 14px 18px;
             color: white;
             border-bottom: 1px solid #333;
             cursor: pointer;
             font-size: 14px;
+            transition: 0.2s;
         }
+        
         .payment-option:last-child {
             border-bottom: none;
         }
-        .payment-option:active {
+        
+        .payment-option:hover, .payment-option:active {
             background: #ffd700;
             color: #000;
         }
-        .payment-option.inbox {
-            background: rgba(76, 175, 80, 0.3);
-            border-left: 6px solid #4CAF50;
-            font-weight: bold;
-        }
-        .payment-option.both-payment {
-            background: rgba(255, 215, 0, 0.2);
-            border-left: 6px solid #ffd700;
-            font-weight: bold;
-        }
+        
         .payment-option.disabled-option {
             opacity: 0.4;
             pointer-events: none;
         }
 
-        /* সাবমিট বাটন */
         .submit-btn {
             width: 100%;
             padding: 18px;
@@ -342,19 +270,19 @@
             transition: 0.1s;
             margin: 8px 0 16px 0;
         }
+        
         .submit-btn:active {
             transform: translateY(6px);
             box-shadow: 0 6px 0 #b27d00;
         }
+        
         .submit-btn:disabled {
             opacity: 0.5;
             transform: none;
             box-shadow: 0 8px 0 #b27d00;
             cursor: not-allowed;
-            pointer-events: none;
         }
 
-        /* প্রোগ্রেস বার */
         .progress-bar {
             height: 8px;
             background: #333;
@@ -363,6 +291,7 @@
             margin: 15px 0;
             display: none;
         }
+        
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #ffd700, #ffa500);
@@ -370,7 +299,6 @@
             transition: width 0.3s;
         }
 
-        /* রেজাল্ট বক্স */
         .result-box {
             background: rgba(255,215,0,0.1);
             border-radius: 20px;
@@ -379,20 +307,22 @@
             border-left: 4px solid #ffd700;
             display: none;
         }
+        
         .result-box.show {
             display: block;
         }
+        
         .success-text {
             color: #4CAF50;
             font-weight: bold;
             font-size: 16px;
             margin-bottom: 10px;
         }
+        
         .duplicate-text {
             color: #ffd700;
         }
 
-        /* ===== PNG ডাউনলোড বাটন (নতুন) ===== */
         .receipt-btn {
             width: 100%;
             padding: 14px;
@@ -411,10 +341,12 @@
             box-shadow: 0 8px 0 #006b54;
             transition: 0.1s;
         }
+        
         .receipt-btn:active {
             transform: translateY(4px);
             box-shadow: 0 4px 0 #006b54;
         }
+        
         .receipt-details {
             background: rgba(0,0,0,0.2);
             border-radius: 16px;
@@ -425,34 +357,38 @@
             line-height: 2;
             border: 1px solid rgba(255,215,0,0.2);
         }
+        
         .receipt-details div {
             display: flex;
             border-bottom: 1px dashed rgba(255,215,0,0.2);
             padding: 5px 0;
         }
+        
         .receipt-details span.label {
             color: #ffd700;
             font-weight: bold;
             width: 100px;
         }
+        
         .receipt-details span.value {
             color: #fff;
             flex: 1;
         }
 
-        /* রুলস */
         .rules-card {
             background: rgba(20, 25, 40, 0.95);
             border-radius: 24px;
             padding: 16px;
             margin-top: 10px;
         }
+        
         .rules-title {
             color: #ffd700;
             font-size: 16px;
             font-weight: bold;
             margin-bottom: 12px;
         }
+        
         .rule-item {
             background: rgba(255,255,255,0.03);
             padding: 10px 12px;
@@ -464,6 +400,7 @@
             font-size: 13px;
             color: #fff;
         }
+        
         .rule-icon {
             width: 22px;
             height: 22px;
@@ -477,7 +414,6 @@
             font-size: 12px;
         }
 
-        /* টোস্ট */
         .toast {
             position: fixed;
             top: 20px;
@@ -494,10 +430,14 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             text-align: center;
             font-size: 14px;
+            max-width: 400px;
+            margin: 0 auto;
         }
+        
         .toast.show {
             transform: translateY(0);
         }
+        
         .toast.success { border-left-color: #4CAF50; }
         .toast.error { border-left-color: #f44336; }
         .toast.warning { border-left-color: #ffd700; }
@@ -507,46 +447,35 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
-    <div class="theme-toggle">
-        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
-    </div>
-
     <div class="container">
-        <!-- মেইন কার্ড -->
         <div class="main-card">
-            <!-- স্টাইলিশ গোল্ড লোগো -->
             <div class="logo-area">
-                <div class="gold-logo"> </div>
-                <div class="gold-logo" style="font-size: 32px; margin-top: -5px;">EBH TEAM</div>
+                <div class="gold-logo">EBH TEAM</div>
                 <div class="logo-badge">✦ Earning By Habib ✦</div>
             </div>
 
-            <!-- মেইনটেন্যান্স নোটিশ -->
             <div id="maintenanceNotice" class="maintenance-notice">
                 <i class="fas fa-exclamation-triangle"></i>
                 <span id="maintenanceMessageText">সিস্টেম বন্ধ আছে</span>
             </div>
 
-            <!-- টাইপ সিলেক্টর -->
             <div class="type-row">
                 <button class="type-btn cookies" onclick="selectType('cookies')" id="typeCookies">🍪 কুকিজ</button>
                 <button class="type-btn twofa" onclick="selectType('2fa')" id="type2fa">🔐 2FA</button>
             </div>
 
-            <!-- ইউজারনেম ইনপুট -->
             <div class="username-container">
-                <label class="username-label">📝 ইউজারনেম (প্রতি লাইনে)</label>
+                <label class="username-label">📝 ইউজারনেম (প্রতি লাইনে একটি)</label>
                 <textarea class="username-input" id="usernames" placeholder="username1&#10;username2" oninput="countAccounts()" rows="4"></textarea>
                 <div class="username-counter" id="accountCount">০</div>
             </div>
 
-            <!-- টেলিগ্রাম ইউজারনেম -->
             <div class="input-group">
                 <label class="input-label">📱 টেলিগ্রাম ইউজারনেম</label>
                 <input class="input-field" type="text" id="telegram" placeholder="@username" value="@">
             </div>
 
-            <!-- পেমেন্ট মেথড -->
+            <!-- পেমেন্ট ড্রপডাউন -->
             <div class="input-group">
                 <label class="input-label">💰 পেমেন্ট মেথড</label>
                 <div class="payment-selector">
@@ -558,24 +487,20 @@
                 </div>
             </div>
 
-            <!-- পেমেন্ট নাম্বার -->
-            <div class="input-group">
+            <div class="input-group" id="numberGroup">
                 <label class="input-label">📞 পেমেন্ট নম্বর</label>
                 <input class="input-field" type="text" id="number" placeholder="017xxxxxxxx">
             </div>
 
-            <!-- প্রোগ্রেস বার -->
             <div class="progress-bar" id="progressBar">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
 
-            <!-- সাবমিট বাটন -->
             <button class="submit-btn" onclick="submitData()" id="submitBtn">
                 <i class="fas fa-paper-plane" style="margin-right: 8px;"></i>
                 সাবমিট করুন
             </button>
 
-            <!-- রেজাল্ট বক্স - PNG ইমেজ ডাউনলোড -->
             <div class="result-box" id="resultBox">
                 <div id="resultMessage"></div>
                 <div class="receipt-details" id="receiptDetails"></div>
@@ -586,7 +511,6 @@
             </div>
         </div>
 
-        <!-- রুলস -->
         <div class="rules-card">
             <div class="rules-title"><i class="fas fa-shield-alt"></i> নিয়মাবলী</div>
             <div class="rule-item"><div class="rule-icon">১</div>১০০ টাকার নিচে = মোবাইল রিচার্জ/বাইনান্স</div>
@@ -596,19 +520,17 @@
         </div>
     </div>
 
-    <!-- লুকানো ক্যানভাস (PNG জেনারেশনের জন্য) -->
     <div style="position: absolute; left: -9999px; top: -9999px;">
         <div id="receiptCanvas" style="width: 600px; background: #0a0f1e; padding: 30px; border-radius: 20px; border: 2px solid #ffd700;"></div>
     </div>
 
-    <!-- টোস্ট -->
     <div id="toast" class="toast"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, onValue, push, query, orderByChild, equalTo, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getDatabase, ref, onValue, push, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // ফায়ারবেস কনফিগার
+        // Firebase কনফিগারেশন
         const firebaseConfig = {
             apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
             authDomain: "saprahik-kaj.firebaseapp.com",
@@ -622,11 +544,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let selectedPayment = '';
+        // স্টেট ভেরিয়েবল
         let selectedType = '';
-        let lastSubmission = null;
+        let selectedPayment = '';
+        let selectedPaymentId = '';
         let systemEnabled = true;
         let maintenanceMessage = '';
+        let lastSubmission = null;
 
         // ========== সিস্টেম স্ট্যাটাস চেক ==========
         const systemRef = ref(db, 'settings/system');
@@ -634,51 +558,111 @@
             const data = snapshot.val() || {};
             systemEnabled = data.enabled !== false;
             maintenanceMessage = data.message || 'সিস্টেম মেইনটেন্যান্স মোডে আছে';
-            
             updateUIBasedOnSystemStatus();
         });
 
-        // ========== UI আপডেট ফাংশন ==========
         function updateUIBasedOnSystemStatus() {
             const notice = document.getElementById('maintenanceNotice');
             const noticeText = document.getElementById('maintenanceMessageText');
             const submitBtn = document.getElementById('submitBtn');
             const typeBtns = document.querySelectorAll('.type-btn');
             const paymentSelected = document.getElementById('paymentSelected');
-            const usernamesInput = document.getElementById('usernames');
-            const telegramInput = document.getElementById('telegram');
-            const numberInput = document.getElementById('number');
+            const inputs = document.querySelectorAll('input, textarea');
             
             if (!systemEnabled) {
                 notice.classList.add('show');
                 noticeText.textContent = '⛔ ' + maintenanceMessage;
-                
                 submitBtn.disabled = true;
                 typeBtns.forEach(btn => btn.disabled = true);
                 if (paymentSelected) paymentSelected.classList.add('disabled');
-                usernamesInput.disabled = true;
-                telegramInput.disabled = true;
-                numberInput.disabled = true;
-                
+                inputs.forEach(input => input.disabled = true);
                 document.getElementById('paymentDropdown').classList.remove('show');
-                
             } else {
                 notice.classList.remove('show');
-                
                 submitBtn.disabled = false;
                 typeBtns.forEach(btn => btn.disabled = false);
                 if (paymentSelected) paymentSelected.classList.remove('disabled');
-                usernamesInput.disabled = false;
-                telegramInput.disabled = false;
+                inputs.forEach(input => input.disabled = false);
             }
         }
 
-        // ========== থিম ==========
-        window.toggleTheme = function() {
-            document.body.classList.toggle('light-mode');
-            document.getElementById('themeBtn').textContent = 
-                document.body.classList.contains('light-mode') ? '☀️' : '🌙';
+        // ========== পেমেন্ট ড্রপডাউন লোড ==========
+        const paymentMethodsRef = ref(db, 'settings/paymentMethods');
+        
+        onValue(paymentMethodsRef, (snapshot) => {
+            const settings = snapshot.val() || {};
+            renderPaymentDropdown(settings);
+        });
+
+        function renderPaymentDropdown(settings) {
+            const dropdown = document.getElementById('paymentDropdown');
+            dropdown.innerHTML = '';
+
+            // পেমেন্ট অপশন লিস্ট - ইনবক্স প্রথমে, কোনো আলাদা কালার নেই
+            const methodList = [
+                { id: 'inbox', name: '📨 টাকা পরে নেব (ইনবক্সে হিসাব দিন)' },
+                { id: 'bkash', name: '💳 বিকাশ' },
+                { id: 'nagad', name: '💵 নগদ' },
+                { id: 'rocket', name: '🚀 রকেট' },
+                { id: 'bkashNagad', name: '💳+💵 বিকাশ+নগদ (একই নাম্বার)' },
+                { id: 'mobileRecharge', name: '📱 মোবাইল রিচার্জ' },
+                { id: 'binance', name: '₿ বাইন্যান্স' }
+            ];
+
+            methodList.forEach(method => {
+                const div = document.createElement('div');
+                div.className = 'payment-option';
+                div.textContent = method.name;
+                
+                if (settings[method.id] === false) {
+                    div.classList.add('disabled-option');
+                } else {
+                    div.onclick = () => {
+                        if (!systemEnabled) {
+                            showToast('সিস্টেম বন্ধ আছে', 'warning');
+                            return;
+                        }
+                        
+                        // পেমেন্ট সিলেক্ট
+                        selectedPayment = method.name;
+                        selectedPaymentId = method.id;
+                        document.getElementById('selectedPaymentText').textContent = method.name;
+                        document.getElementById('paymentDropdown').classList.remove('show');
+                        
+                        // ইনবক্স চেক
+                        const numberField = document.getElementById('number');
+                        
+                        if (method.id === 'inbox') {
+                            numberField.disabled = true;
+                            numberField.value = '';
+                            numberField.placeholder = 'নাম্বার লাগবে না';
+                            numberField.style.background = '#2a2f40';
+                            showToast('📨 ইনবক্স পেমেন্ট সিলেক্ট করা হয়েছে', 'success');
+                        } else {
+                            numberField.disabled = false;
+                            numberField.placeholder = '017xxxxxxxx';
+                            numberField.style.background = '';
+                        }
+                    };
+                }
+                dropdown.appendChild(div);
+            });
+        }
+
+        window.togglePaymentDropdown = function() {
+            if (!systemEnabled) {
+                showToast('সিস্টেম বন্ধ আছে', 'warning');
+                return;
+            }
+            document.getElementById('paymentDropdown').classList.toggle('show');
         };
+
+        // বাইরে ক্লিক করলে ড্রপডাউন বন্ধ
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.payment-selector')) {
+                document.getElementById('paymentDropdown').classList.remove('show');
+            }
+        });
 
         // ========== টাইপ সিলেক্ট ==========
         window.selectType = function(type) {
@@ -692,297 +676,118 @@
             document.getElementById('type' + (type === 'cookies' ? 'Cookies' : '2fa')).classList.add('active');
         };
 
-        // ========== পেমেন্ট মেথড লোড ==========
-        const paymentMethodsRef = ref(db, 'settings/paymentMethods');
-        
-        get(paymentMethodsRef).then((snapshot) => {
-            if (!snapshot.exists()) {
-                set(paymentMethodsRef, {
-                    bkash: true, nagad: true, rocket: true,
-                    mobileRecharge: true, binance: true,
-                    bkashNagad: true, inbox: true
-                });
-            }
-        });
-
-        onValue(paymentMethodsRef, (snapshot) => {
-            const methods = snapshot.val() || {};
-            renderPaymentDropdown(methods);
-        });
-
-        function renderPaymentDropdown(methods) {
-            const dropdown = document.getElementById('paymentDropdown');
-            dropdown.innerHTML = '';
-
-            const methodList = [
-                { id: 'inbox', name: '📨 টাকা পরে নেব (ইনবক্সে হিসাব দিন)', class: 'inbox' },
-                { id: 'bkash', name: '💳 বিকাশ', class: '' },
-                { id: 'nagad', name: '💵 নগদ', class: '' },
-                { id: 'bkashNagad', name: '💳+💵 বিকাশ+নগদ একই নাম্বার', class: 'both-payment' },
-                { id: 'rocket', name: '🚀 রকেট', class: '' },
-                { id: 'mobileRecharge', name: '📱 মোবাইল রিচার্জ', class: '' },
-                { id: 'binance', name: '₿ বাইন্যান্স', class: '' }
-            ];
-
-            methodList.forEach(method => {
-                const div = document.createElement('div');
-                div.className = 'payment-option' + (method.class ? ' ' + method.class : '');
-                
-                if (methods[method.id] === false) {
-                    div.classList.add('disabled-option');
-                } else {
-                    div.onclick = () => {
-                        if (!systemEnabled) {
-                            showToast('সিস্টেম বন্ধ আছে', 'warning');
-                            return;
-                        }
-                        selectedPayment = method.name;
-                        document.getElementById('selectedPaymentText').textContent = method.name;
-                        document.getElementById('paymentDropdown').classList.remove('show');
-                        
-                        const numberField = document.getElementById('number');
-                        if (method.id === 'inbox') {
-                            numberField.disabled = true;
-                            numberField.value = 'ইনবক্সে দেওয়া হবে';
-                            numberField.placeholder = 'নাম্বার লাগবে না';
-                        } else {
-                            numberField.disabled = false;
-                            numberField.value = '';
-                            numberField.placeholder = '017xxxxxxxx';
-                        }
-                    };
-                }
-                div.textContent = method.name;
-                dropdown.appendChild(div);
-            });
-        }
-
-        window.togglePaymentDropdown = function() {
-            if (!systemEnabled) {
-                showToast('সিস্টেম বন্ধ আছে', 'warning');
-                return;
-            }
-            document.getElementById('paymentDropdown').classList.toggle('show');
-        };
-
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.payment-selector')) {
-                document.getElementById('paymentDropdown').classList.remove('show');
-            }
-        });
-
+        // ========== একাউন্ট কাউন্ট ==========
         window.countAccounts = function() {
             const text = document.getElementById('usernames').value;
             const count = text.split('\n').filter(line => line.trim() !== '').length;
             document.getElementById('accountCount').textContent = count;
         };
 
-        // ========== PNG ইমেজ জেনারেট ও ডাউনলোড ফাংশন ==========
-        window.downloadPNG = function() {
-            if (!lastSubmission) {
-                showToast('কোন রিসিট নেই', 'warning');
-                return;
-            }
-
-            try {
-                // পেমেন্ট মেথড ইংরেজিতে কনভার্ট
-                let paymentMethodEnglish = lastSubmission.paymentMethod;
-                if (paymentMethodEnglish.includes('ইনবক্স')) {
-                    paymentMethodEnglish = 'Inbox Payment';
-                } else if (paymentMethodEnglish.includes('বিকাশ+নগদ')) {
-                    paymentMethodEnglish = 'bKash + Nagad (Same Number)';
-                } else if (paymentMethodEnglish.includes('বিকাশ')) {
-                    paymentMethodEnglish = 'bKash';
-                } else if (paymentMethodEnglish.includes('নগদ')) {
-                    paymentMethodEnglish = 'Nagad';
-                } else if (paymentMethodEnglish.includes('রকেট')) {
-                    paymentMethodEnglish = 'Rocket';
-                } else if (paymentMethodEnglish.includes('মোবাইল রিচার্জ')) {
-                    paymentMethodEnglish = 'Mobile Recharge';
-                } else if (paymentMethodEnglish.includes('বাইন্যান্স')) {
-                    paymentMethodEnglish = 'Binance';
-                }
-                
-                let numberEnglish = lastSubmission.number.includes('ইনবক্সে') ? 'Inbox Payment' : lastSubmission.number;
-                let accountTypeEnglish = lastSubmission.typeName === 'কুকিজ' ? 'COOKIES' : '2FA';
-                
-                // ক্যানভাসের HTML তৈরি
-                const canvasDiv = document.getElementById('receiptCanvas');
-                const timeStr = new Date(lastSubmission.timestamp).toLocaleString('en-US', { 
-                    timeZone: 'Asia/Dhaka',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: true
-                });
-                
-                let usernamesHTML = '';
-                lastSubmission.usernames.slice(0, 15).forEach(u => {
-                    usernamesHTML += `<div style="color: #ccc; font-size: 12px; margin-bottom: 3px;">• ${u}</div>`;
-                });
-                if (lastSubmission.usernames.length > 15) {
-                    usernamesHTML += `<div style="color: #ffd700; font-size: 12px;">... and ${lastSubmission.usernames.length - 15} more</div>`;
-                }
-                
-                canvasDiv.innerHTML = `
-                    <div style="font-family: Arial, sans-serif; background: #0a0f1e; color: white; padding: 25px;">
-                        <div style="text-align: center; margin-bottom: 20px;">
-                            <div style="font-size: 36px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px #ffd700;">EARNING BY HABIB</div>
-                            <div style="font-size: 24px; color: white; margin-top: -5px;">EBH TEAM</div>
-                            <div style="height: 2px; background: #ffd700; margin: 15px 0;"></div>
-                        </div>
-                        
-                        <div style="margin: 15px 0;">
-                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">TELEGRAM:</span><span>${lastSubmission.telegram}</span></div>
-                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">ACCOUNT TYPE:</span><span>${accountTypeEnglish}</span></div>
-                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">SUCCESSFUL:</span><span style="color: #4CAF50;">${lastSubmission.uniqueCount} Accounts</span></div>
-                            ${lastSubmission.duplicateCount > 0 ? `<div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">DUPLICATE:</span><span style="color: #ffd700;">${lastSubmission.duplicateCount} Accounts</span></div>` : ''}
-                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">PAYMENT:</span><span>${paymentMethodEnglish}</span></div>
-                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">NUMBER:</span><span>${numberEnglish}</span></div>
-                            <div style="display: flex; margin-bottom: 15px;"><span style="color: #ffd700; width: 120px;">TIME:</span><span>${timeStr} (BDT)</span></div>
-                        </div>
-                        
-                        <div style="height: 2px; background: #ffd700; margin: 15px 0;"></div>
-                        
-                        <div style="margin-top: 15px;">
-                            <div style="color: #ffd700; font-size: 16px; margin-bottom: 10px;">USERNAMES:</div>
-                            ${usernamesHTML}
-                        </div>
-                        
-                        <div style="height: 2px; background: #ffd700; margin: 20px 0;"></div>
-                        
-                        <div style="text-align: center;">
-                            <div style="color: #ffd700; font-size: 18px; margin-bottom: 5px;">Thank You!</div>
-                            <div style="color: white; font-size: 14px;">For working with us</div>
-                            <div style="color: #666; font-size: 12px; margin-top: 10px;">EBH TEAM - EARNING BY HABIB</div>
-                        </div>
-                    </div>
-                `;
-                
-                // html2canvas দিয়ে PNG ইমেজ তৈরি
-                html2canvas(canvasDiv, {
-                    scale: 2,
-                    backgroundColor: '#0a0f1e',
-                    logging: false,
-                    allowTaint: false,
-                    useCORS: true
-                }).then(canvas => {
-                    // Canvas থেকে PNG ডেটা URL তৈরি
-                    const imgData = canvas.toDataURL('image/png');
-                    
-                    // ডাউনলোড লিঙ্ক তৈরি
-                    const link = document.createElement('a');
-                    link.download = `EBH_Receipt_${lastSubmission.telegram.replace('@', '')}_${Date.now()}.png`;
-                    link.href = imgData;
-                    link.click();
-                    
-                    showToast('PNG ইমেজ ডাউনলোড শুরু হয়েছে', 'success');
-                }).catch(error => {
-                    console.error('PNG generation error:', error);
-                    showToast('PNG তৈরি করতে সমস্যা', 'error');
-                });
-                
-            } catch (error) {
-                console.error('PNG error:', error);
-                showToast('PNG তৈরি করতে সমস্যা', 'error');
-            }
-        };
-
         // ========== ডুপ্লিকেট চেক ==========
-        async function checkBulkDuplicates(usernames) {
-            const uniqueSet = new Set();
-            const duplicates = new Set();
-            
-            usernames.forEach(u => {
-                if (uniqueSet.has(u)) duplicates.add(u);
-                else uniqueSet.add(u);
-            });
+        async function checkExistingUsernames(usernames) {
+            try {
+                // লোকাল ডুপ্লিকেট চেক
+                const uniqueSet = new Set();
+                const localDuplicates = new Set();
+                
+                usernames.forEach(u => {
+                    const trimmed = u.trim();
+                    if (uniqueSet.has(trimmed)) localDuplicates.add(trimmed);
+                    else uniqueSet.add(trimmed);
+                });
 
-            const uniqueUsernames = Array.from(uniqueSet);
-            
-            const dbDuplicates = new Set();
-            const batchChecks = uniqueUsernames.map(username => 
-                get(query(ref(db, 'submits'), orderByChild('username'), equalTo(username)))
-                    .then(snapshot => snapshot.exists() ? username : null)
-            );
-            
-            const results = await Promise.all(batchChecks);
-            results.forEach(u => { if (u) dbDuplicates.add(u); });
+                const uniqueUsernames = Array.from(uniqueSet);
+                
+                // ফায়ারবেস থেকে সব ডাটা নিয়ে আসি
+                const snapshot = await get(ref(db, 'submits'));
+                const existingUsernames = new Set();
+                
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    Object.values(data).forEach(item => {
+                        if (item.username) {
+                            existingUsernames.add(item.username);
+                        }
+                    });
+                }
 
-            const finalUnique = uniqueUsernames.filter(u => !dbDuplicates.has(u));
-            
-            return {
-                duplicates: Array.from(new Set([...duplicates, ...dbDuplicates])),
-                uniqueUsernames: finalUnique
-            };
+                // ফাইনাল ইউনিক
+                const finalUnique = uniqueUsernames.filter(u => !existingUsernames.has(u));
+                const dbDuplicates = uniqueUsernames.filter(u => existingUsernames.has(u));
+
+                return {
+                    duplicates: Array.from(new Set([...localDuplicates, ...dbDuplicates])),
+                    uniqueUsernames: finalUnique
+                };
+
+            } catch (error) {
+                console.error('ডুপ্লিকেট চেক করতে সমস্যা:', error);
+                return {
+                    duplicates: [],
+                    uniqueUsernames: usernames
+                };
+            }
         }
 
-        // ========== সাবমিট ==========
-        async function batchSubmit(usernames, telegram, paymentMethod, number) {
-            const timestamp = Date.now();
-            const promises = usernames.map(username => 
-                push(ref(db, 'submits'), {
-                    username,
-                    telegram: telegram.replace('@', ''),
-                    paymentMethod,
-                    number,
-                    timestamp,
-                    status: 'pending',
-                    type: selectedType
-                })
-            );
-            await Promise.all(promises);
-            return timestamp;
-        }
-
-        // ========== মেইন সাবমিট ==========
+        // ========== সাবমিট ডাটা ==========
         window.submitData = async function() {
             if (!systemEnabled) {
                 showToast('সিস্টেম বন্ধ আছে: ' + maintenanceMessage, 'warning');
                 return;
             }
 
+            // টাইপ চেক
             if (!selectedType) {
                 showToast('কুকিজ বা 2FA সিলেক্ট করুন', 'warning');
                 return;
             }
 
+            // ইউজারনেম চেক
             const usernamesText = document.getElementById('usernames').value;
-            let telegram = document.getElementById('telegram').value.trim();
-            let number = document.getElementById('number').value.trim();
-
-            if (telegram && !telegram.startsWith('@')) {
-                telegram = '@' + telegram;
-            }
-
-            if (!selectedPayment || !usernamesText || !telegram) {
-                showToast('সব ফিল্ড পূরণ করুন', 'warning');
-                return;
-            }
-
-            if (telegram === '@' || telegram.length < 2) {
-                showToast('সঠিক টেলিগ্রাম দিন', 'warning');
-                return;
-            }
-
-            const isInboxPayment = selectedPayment.includes('ইনবক্স');
-            
-            if (!isInboxPayment && !number) {
-                showToast('পেমেন্ট নাম্বার দিন', 'warning');
-                return;
-            }
-
-            if (isInboxPayment) number = 'ইনবক্সে দেওয়া হবে';
-
-            const usernames = usernamesText.split('\n').map(u => u.trim()).filter(u => u);
-            if (usernames.length === 0) {
+            if (!usernamesText.trim()) {
                 showToast('কমপক্ষে একটি ইউজারনেম দিন', 'warning');
                 return;
             }
 
+            // টেলিগ্রাম চেক
+            let telegram = document.getElementById('telegram').value.trim();
+            if (!telegram || telegram === '@' || telegram.length < 2) {
+                showToast('সঠিক টেলিগ্রাম ইউজারনেম দিন', 'warning');
+                return;
+            }
+            if (telegram && !telegram.startsWith('@')) {
+                telegram = '@' + telegram;
+            }
+
+            // পেমেন্ট চেক
+            if (!selectedPayment) {
+                showToast('পেমেন্ট মেথড সিলেক্ট করুন', 'warning');
+                return;
+            }
+
+            // নাম্বার চেক - ইনবক্স ছাড়া
+            let number = document.getElementById('number').value.trim();
+            const isInbox = selectedPaymentId === 'inbox';
+            
+            if (!isInbox) {
+                if (!number) {
+                    showToast('পেমেন্ট নাম্বার দিন', 'warning');
+                    return;
+                }
+                if (number.length < 11) {
+                    showToast('সঠিক নাম্বার দিন (১১ ডিজিট)', 'warning');
+                    return;
+                }
+            } else {
+                number = 'ইনবক্সে দেওয়া হবে';
+            }
+
+            // ইউজারনেম প্রসেস
+            const usernames = usernamesText.split('\n')
+                .map(u => u.trim())
+                .filter(u => u.length > 0);
+
+            // UI আপডেট
             const submitBtn = document.getElementById('submitBtn');
             const progressBar = document.getElementById('progressBar');
             const progressFill = document.getElementById('progressFill');
@@ -990,17 +795,32 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং...';
             progressBar.style.display = 'block';
-            progressFill.style.width = '0%';
+            progressFill.style.width = '30%';
 
             try {
-                const { duplicates, uniqueUsernames } = await checkBulkDuplicates(usernames);
+                // ডুপ্লিকেট চেক
+                const { duplicates, uniqueUsernames } = await checkExistingUsernames(usernames);
                 progressFill.style.width = '70%';
 
-                let timestamp = null;
-                if (uniqueUsernames.length > 0) {
-                    timestamp = await batchSubmit(uniqueUsernames, telegram, selectedPayment, number);
-                }
+                // ডাটাবেসে সেভ
+                const timestamp = Date.now();
+                const promises = uniqueUsernames.map(username => 
+                    push(ref(db, 'submits'), {
+                        username,
+                        telegram: telegram.replace('@', ''),
+                        paymentMethod: selectedPayment,
+                        paymentId: selectedPaymentId,
+                        number,
+                        timestamp,
+                        status: 'pending',
+                        type: selectedType
+                    })
+                );
 
+                await Promise.all(promises);
+                progressFill.style.width = '100%';
+
+                // রেজাল্ট সেভ
                 const typeName = selectedType === 'cookies' ? 'কুকিজ' : '2FA';
                 
                 lastSubmission = {
@@ -1009,11 +829,13 @@
                     uniqueCount: uniqueUsernames.length,
                     duplicateCount: duplicates.length,
                     paymentMethod: selectedPayment,
+                    paymentId: selectedPaymentId,
                     number,
-                    timestamp: timestamp || Date.now(),
+                    timestamp,
                     usernames: uniqueUsernames
                 };
 
+                // রেজাল্ট দেখাও
                 const resultBox = document.getElementById('resultBox');
                 const resultMessage = document.getElementById('resultMessage');
                 const receiptDetails = document.getElementById('receiptDetails');
@@ -1024,7 +846,7 @@
                 } else {
                     resultMessage.innerHTML = `
                         <span class="success-text">✅ ${uniqueUsernames.length} টি ${typeName} সেভ হয়েছে</span>
-                        ${duplicates.length > 0 ? `<br><span class="duplicate-text">⚠️ ${duplicates.length} টি ডুপ্লিকেট</span>` : ''}
+                        ${duplicates.length > 0 ? `<br><span class="duplicate-text">⚠️ ${duplicates.length} টি ডুপ্লিকেট বাদ দেওয়া হয়েছে</span>` : ''}
                     `;
                     
                     receiptDetails.innerHTML = `
@@ -1049,7 +871,11 @@
                     document.getElementById('telegram').value = '@';
                     document.getElementById('number').value = '';
                     document.getElementById('number').disabled = false;
+                    document.getElementById('number').style.background = '';
+                    
+                    // সিলেকশন ক্লিয়ার
                     selectedPayment = '';
+                    selectedPaymentId = '';
                     selectedType = '';
                     document.getElementById('typeCookies').classList.remove('active');
                     document.getElementById('type2fa').classList.remove('active');
@@ -1066,6 +892,87 @@
             }
         };
 
+        // ========== PNG ডাউনলোড ==========
+        window.downloadPNG = function() {
+            if (!lastSubmission) {
+                showToast('কোন রিসিট নেই', 'warning');
+                return;
+            }
+
+            try {
+                const canvasDiv = document.getElementById('receiptCanvas');
+                
+                let numberDisplay = lastSubmission.number;
+                if (lastSubmission.paymentId === 'inbox') {
+                    numberDisplay = 'ইনবক্স পেমেন্ট (নাম্বার লাগবে না)';
+                }
+
+                const timeStr = new Date(lastSubmission.timestamp).toLocaleString('bn-BD', { 
+                    timeZone: 'Asia/Dhaka'
+                });
+                
+                let usernamesHTML = '';
+                lastSubmission.usernames.slice(0, 15).forEach(u => {
+                    usernamesHTML += `<div style="color: #ccc; font-size: 12px; margin-bottom: 3px;">• ${u}</div>`;
+                });
+                if (lastSubmission.usernames.length > 15) {
+                    usernamesHTML += `<div style="color: #ffd700; font-size: 12px;">... এবং আরও ${lastSubmission.usernames.length - 15} টি</div>`;
+                }
+                
+                canvasDiv.innerHTML = `
+                    <div style="font-family: Arial, sans-serif; background: #0a0f1e; color: white; padding: 25px;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 36px; font-weight: bold; color: #ffd700;">EBH TEAM</div>
+                            <div style="font-size: 18px; color: #ffd700;">Earning By Habib</div>
+                            <div style="height: 2px; background: #ffd700; margin: 15px 0;"></div>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">টেলিগ্রাম:</span><span>${lastSubmission.telegram}</span></div>
+                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">একাউন্ট টাইপ:</span><span>${lastSubmission.typeName}</span></div>
+                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">সফল:</span><span style="color: #4CAF50;">${lastSubmission.uniqueCount} টি</span></div>
+                            ${lastSubmission.duplicateCount > 0 ? `<div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">ডুপ্লিকেট:</span><span style="color: #ffd700;">${lastSubmission.duplicateCount} টি</span></div>` : ''}
+                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">পেমেন্ট:</span><span>${lastSubmission.paymentMethod}</span></div>
+                            <div style="display: flex; margin-bottom: 8px;"><span style="color: #ffd700; width: 120px;">নাম্বার:</span><span>${numberDisplay}</span></div>
+                            <div style="display: flex; margin-bottom: 15px;"><span style="color: #ffd700; width: 120px;">সময়:</span><span>${timeStr}</span></div>
+                        </div>
+                        
+                        <div style="height: 2px; background: #ffd700; margin: 15px 0;"></div>
+                        
+                        <div style="margin-top: 15px;">
+                            <div style="color: #ffd700; font-size: 16px; margin-bottom: 10px;">ইউজারনেম সমূহ:</div>
+                            ${usernamesHTML}
+                        </div>
+                        
+                        <div style="height: 2px; background: #ffd700; margin: 20px 0;"></div>
+                        
+                        <div style="text-align: center;">
+                            <div style="color: #ffd700; font-size: 18px;">ধন্যবাদ!</div>
+                            <div style="color: #666; font-size: 12px; margin-top: 10px;">EBH TEAM - EARNING BY HABIB</div>
+                        </div>
+                    </div>
+                `;
+                
+                html2canvas(canvasDiv, {
+                    scale: 2,
+                    backgroundColor: '#0a0f1e',
+                    logging: false
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = `EBH_Receipt_${lastSubmission.telegram.replace('@', '')}_${Date.now()}.png`;
+                    link.href = imgData;
+                    link.click();
+                    showToast('PNG ডাউনলোড শুরু হয়েছে', 'success');
+                });
+                
+            } catch (error) {
+                console.error('PNG error:', error);
+                showToast('PNG তৈরি করতে সমস্যা', 'error');
+            }
+        };
+
+        // ========== টোস্ট ==========
         function showToast(message, type) {
             const toast = document.getElementById('toast');
             toast.className = `toast ${type} show`;
@@ -1073,7 +980,8 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        countAccounts();
+        // ========== ইনিশিয়ালাইজ ==========
+        window.countAccounts();
     </script>
 </body>
 </html>
