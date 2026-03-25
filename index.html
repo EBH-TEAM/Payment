@@ -190,7 +190,6 @@
             border-color: #ffd700;
         }
 
-        /* পেমেন্ট ড্রপডাউন */
         .payment-selector {
             position: relative;
             margin-bottom: 18px;
@@ -482,7 +481,6 @@
                 <input class="input-field" type="text" id="telegram" placeholder="@username" value="@">
             </div>
 
-            <!-- পেমেন্ট ড্রপডাউন -->
             <div class="input-group">
                 <label class="input-label">💰 পেমেন্ট মেথড</label>
                 <div class="payment-selector">
@@ -538,7 +536,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, push, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // Firebase কনফিগারেশন
         const firebaseConfig = {
             apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
             authDomain: "saprahik-kaj.firebaseapp.com",
@@ -552,41 +549,73 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Telegram Bot Token
         const TELEGRAM_BOT_TOKEN = '8250221796:AAHdKid6RAoIeEnjHhrYdHNGkmc38wfs5d4';
-
-        // স্টেট ভেরিয়েবল
+        
         let selectedType = '';
         let selectedPayment = '';
         let selectedPaymentId = '';
         let systemEnabled = true;
         let maintenanceMessage = '';
         let lastSubmission = null;
+        let lastUpdateId = 0;
+        let pollingActive = true;
 
-        // ========== টেলিগ্রাম ইউজার রেজিস্ট্রেশন চেক এবং Chat ID পাওয়া ==========
-        async function getUserChatId(telegramUsername) {
-            if (!telegramUsername || telegramUsername === '@' || telegramUsername === '') {
-                return null;
-            }
+        // ========== ওয়েলকাম মেসেজ (আপডেটেড লিংক সহ) ==========
+        const WELCOME_MESSAGE = `🎉 বটটি চালু করার জন্য ধন্যবাদ! 🎉
+
+✨ <b>EBH TEAM - Habib</b> ✨
+
+📌 <b>কীভাবে কাজ করবে:</b>
+━━━━━━━━━━━━━━━━━━━━
+1️⃣ আমাদের ওয়েবসাইটে গিয়ে একাউন্ট সাবমিট করুন
+2️⃣ সাবমিট করার পর এখানেই কনফার্মেশন পাবেন
+3️⃣ অ্যাডমিন অ্যাপ্রুভ করলে পেমেন্ট পাবেন
+
+💡 <b>গুরুত্বপূর্ণ:</b>
+• ডুপ্লিকেট একাউন্ট অটো বাদ যাবে
+• সঠিক ইউজারনেম দিন
+• পেমেন্ট নিয়ম মেনে চলুন
+
+📱 <b>সাপোর্ট:</b>
+প্রয়োজনে অ্যাডমিনের সাথে যোগাযোগ করুন
+👤 অ্যাডমিন: @EBH_5
+📢 চ্যানেল: t.me/earningbyhabib
+
+━━━━━━━━━━━━━━━━━━━━
+আমাদের সাথে থাকার জন্য ধন্যবাদ! ❤️
+<b>EBH TEAM - Habib</b>`;
+
+        // ========== টেলিগ্রাম ইউজার রেজিস্টার ==========
+        async function registerTelegramUser(chatId, username, firstName) {
+            const cleanUsername = (username || firstName || 'user_' + chatId).toString().toLowerCase().replace(/[^a-z0-9_]/g, '');
+            const userRef = ref(db, `telegramUsers/${cleanUsername}`);
             
-            const cleanUsername = telegramUsername.replace('@', '').toLowerCase().trim();
-            if (cleanUsername === '') return null;
+            const snapshot = await get(userRef);
             
-            try {
-                const userRef = ref(db, `telegramUsers/${cleanUsername}/chatId`);
-                const snapshot = await get(userRef);
-                
-                if (snapshot.exists()) {
-                    return snapshot.val();
-                }
-                return null;
-            } catch (error) {
-                console.error('Chat ID পাওয়ার সময় সমস্যা:', error);
-                return null;
+            if (!snapshot.exists()) {
+                await set(userRef, {
+                    chatId: chatId,
+                    username: cleanUsername,
+                    fullName: firstName || '',
+                    registeredAt: Date.now(),
+                    lastActive: Date.now()
+                });
+                console.log(`✅ নতুন নিবন্ধন: @${cleanUsername} (${chatId})`);
+                return true;
+            } else if (snapshot.val().chatId !== chatId) {
+                await update(userRef, {
+                    chatId: chatId,
+                    lastActive: Date.now()
+                });
+                console.log(`🔄 আপডেট: @${cleanUsername} -> ${chatId}`);
+                return false;
+            } else {
+                await update(userRef, { lastActive: Date.now() });
+                return false;
             }
         }
 
-        // ========== টেলিগ্রাম মেসেজ পাঠানোর ফাংশন ==========
+        // ========== টেলিগ্রাম মেসেজ পাঠানো ==========
         async function sendTelegramMessage(chatId, message) {
             if (!chatId) return false;
             
@@ -609,6 +638,80 @@
             }
         }
 
+        // ========== বটের ইনকামিং মেসেজ চেক করা (Long Polling) ==========
+        async function checkTelegramUpdates() {
+            if (!pollingActive) return;
+            
+            try {
+                let url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates`;
+                if (lastUpdateId > 0) {
+                    url += `?offset=${lastUpdateId + 1}`;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.ok && data.result && data.result.length > 0) {
+                    for (const update of data.result) {
+                        if (update.update_id > lastUpdateId) {
+                            lastUpdateId = update.update_id;
+                        }
+                        
+                        if (update.message) {
+                            const chatId = update.message.chat.id;
+                            const messageText = update.message.text;
+                            const username = update.message.chat.username;
+                            const firstName = update.message.chat.first_name;
+                            
+                            if (messageText === '/start') {
+                                console.log(`📨 /start পেয়েছি from ${chatId}`);
+                                
+                                const isNew = await registerTelegramUser(chatId, username, firstName);
+                                
+                                const sent = await sendTelegramMessage(chatId, WELCOME_MESSAGE);
+                                
+                                if (sent) {
+                                    console.log(`✅ ওয়েলকাম মেসেজ পাঠানো হয়েছে ${chatId} এ`);
+                                    if (isNew) {
+                                        console.log(`🎉 নতুন ইউজার নিবন্ধিত: ${chatId}`);
+                                    }
+                                } else {
+                                    console.log(`❌ ওয়েলকাম মেসেজ পাঠাতে ব্যর্থ: ${chatId}`);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('টেলিগ্রাম আপডেট চেক করতে সমস্যা:', error);
+            }
+            
+            setTimeout(checkTelegramUpdates, 5000);
+        }
+
+        // ========== Chat ID পাওয়া ==========
+        async function getUserChatId(telegramUsername) {
+            if (!telegramUsername || telegramUsername === '@' || telegramUsername === '') {
+                return null;
+            }
+            
+            const cleanUsername = telegramUsername.replace('@', '').toLowerCase().trim();
+            if (cleanUsername === '') return null;
+            
+            try {
+                const userRef = ref(db, `telegramUsers/${cleanUsername}/chatId`);
+                const snapshot = await get(userRef);
+                
+                if (snapshot.exists()) {
+                    return snapshot.val();
+                }
+                return null;
+            } catch (error) {
+                console.error('Chat ID পাওয়ার সময় সমস্যা:', error);
+                return null;
+            }
+        }
+
         // ========== কনফার্মেশন মেসেজ তৈরি ==========
         function createConfirmationMessage(typeName, uniqueCount, duplicateCount, paymentMethod, number, timestamp) {
             const timeStr = new Date(timestamp).toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' });
@@ -628,8 +731,7 @@ ${typeEmoji} একাউন্ট টাইপ: ${typeName}
 ⏰ সময়: ${timeStr}
 
 আমাদের সাথে থাকার জন্য ধন্যবাদ! 🙏
-EBH TEAM - Earning By Habib
-t.me/earningbyhabib`;
+EBH TEAM - Habib`;
 
             if (duplicateCount > 0) {
                 message = `⚠️ সতর্কতা: ${duplicateCount} টি একাউন্ট আগে থেকে আছে বলে বাদ দেওয়া হয়েছে ⚠️\n\n` + message;
@@ -638,7 +740,7 @@ t.me/earningbyhabib`;
             return message;
         }
 
-        // ========== সিস্টেম স্ট্যাটাস চেক ==========
+        // ========== সিস্টেম স্ট্যাটাস ==========
         const systemRef = ref(db, 'settings/system');
         onValue(systemRef, (snapshot) => {
             const data = snapshot.val() || {};
@@ -672,7 +774,7 @@ t.me/earningbyhabib`;
             }
         }
 
-        // ========== পেমেন্ট ড্রপডাউন লোড ==========
+        // ========== পেমেন্ট ড্রপডাউন ==========
         const paymentMethodsRef = ref(db, 'settings/paymentMethods');
         
         onValue(paymentMethodsRef, (snapshot) => {
@@ -928,9 +1030,7 @@ t.me/earningbyhabib`;
                 
                 resultBox.classList.add('show');
 
-                // ========== টেলিগ্রাম মেসেজ পাঠানো ==========
                 if (uniqueUsernames.length > 0) {
-                    // Chat ID পাওয়ার চেষ্টা
                     const chatId = await getUserChatId(telegram);
                     
                     if (chatId) {
@@ -959,7 +1059,6 @@ t.me/earningbyhabib`;
                     
                     showToast(`${uniqueUsernames.length} টি একাউন্ট সেভ হয়েছে`, 'success');
                     
-                    // ফর্ম ক্লিয়ার
                     document.getElementById('usernames').value = '';
                     document.getElementById('accountCount').textContent = '০';
                     document.getElementById('telegram').value = '@';
@@ -1072,6 +1171,10 @@ t.me/earningbyhabib`;
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
+        // ========== বট মনিটরিং শুরু ==========
+        console.log('🚀 বট মনিটরিং শুরু হচ্ছে...');
+        checkTelegramUpdates();
+        
         window.countAccounts();
     </script>
 </body>
