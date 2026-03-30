@@ -81,6 +81,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         
         .type-btn {
@@ -89,13 +90,14 @@
             border-radius: 40px;
             text-align: center;
             font-weight: 700;
-            font-size: 15px;
+            font-size: 14px;
             border: none;
             background: #2d3349;
             color: white;
             box-shadow: 0 8px 0 #1a1e2b;
             cursor: pointer;
             transition: 0.1s;
+            min-width: 100px;
         }
         
         .type-btn:active {
@@ -109,6 +111,10 @@
         
         .type-btn.twofa.active {
             background: #4834d4;
+        }
+        
+        .type-btn.nolink.active {
+            background: #00b894;
         }
         
         .type-btn:disabled {
@@ -556,6 +562,7 @@
             <div class="type-row">
                 <button class="type-btn cookies" onclick="selectType('cookies')" id="typeCookies">🍪 কুকিজ</button>
                 <button class="type-btn twofa" onclick="selectType('2fa')" id="type2fa">🔐 2FA</button>
+                <button class="type-btn nolink" onclick="selectType('nolink')" id="typeNolink">🔗 নো লিঙ্ক কুকিজ</button>
             </div>
 
             <div class="username-container">
@@ -607,8 +614,8 @@
 
         <div class="rules-card">
             <div class="rules-title"><i class="fas fa-shield-alt"></i> নিয়মাবলী</div>
-            <div class="rule-item"><div class="rule-icon">১</div>১০০ টাকার নিচে = মোবাইল রিচার্জ/বাইনান্স</div>
-            <div class="rule-item"><div class="rule-icon">২</div>১০০ টাকার উপরে = বিকাশ/নগদ/রকেট</div>
+            <div class="rule-item"><div class="rule-icon">১</div>১১০ টাকার নিচে = মোবাইল রিচার্জ/বাইনান্স</div>
+            <div class="rule-item"><div class="rule-icon">২</div>১১০ টাকার উপরে = বিকাশ/নগদ/রকেট</div>
             <div class="rule-item"><div class="rule-icon">৩</div>ডুপ্লিকেট অটো বাদ যাবে</div>
             <div class="rule-item"><div class="rule-icon">৪</div>টাকা পরে নিলে নাম্বার লাগবে না</div>
         </div>
@@ -665,25 +672,21 @@
         let lastUpdateId = 0;
         let pollingActive = true;
 
-        // ========== POPUP LOGIC - Fixed ==========
+        // ========== POPUP LOGIC ==========
         function initPopup() {
             const popupElement = document.getElementById('startPopup');
             if (!popupElement) return;
             
-            // Always show popup when page loads
             popupElement.classList.remove('hide');
             
-            // Get buttons
             const yesBtn = document.getElementById('popupYesBtn');
             const noBtn = document.getElementById('popupNoBtn');
             
-            // Remove old listeners by replacing with clones
             const newYesBtn = yesBtn.cloneNode(true);
             const newNoBtn = noBtn.cloneNode(true);
             yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
             noBtn.parentNode.replaceChild(newNoBtn, noBtn);
             
-            // YES button: close popup, show toast
             newYesBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -691,7 +694,6 @@
                 showToast('👍 ধন্যবাদ! বটে স্টার্ট করুন এবং সাবমিট করুন।', 'success');
             };
             
-            // NO button: open bot link and close popup
             newNoBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -829,7 +831,11 @@
 
         function createConfirmationMessage(typeName, uniqueCount, duplicateCount, paymentMethod, number, timestamp) {
             const timeStr = new Date(timestamp).toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' });
-            const typeEmoji = typeName === 'কুকিজ' ? '🍪' : '🔐';
+            let typeEmoji = '';
+            if (typeName === 'কুকিজ') typeEmoji = '🍪';
+            else if (typeName === '2FA') typeEmoji = '🔐';
+            else typeEmoji = '🔗';
+            
             let message = `✅ আপনার সাবমিশন সফল হয়েছে! ✅
 
 ━━━━━━━━━━━━━━━━━━━━
@@ -846,7 +852,7 @@ ${typeEmoji} একাউন্ট টাইপ: ${typeName}
 আমাদের সাথে থাকার জন্য ধন্যবাদ! 🙏
 EBH TEAM - Earning By Habib
 t.me/earningbyhabib`;
-            if (duplicateCount > 0) message = `⚠️ সতর্কতা: ${duplicateCount} টি একাউন্ট আগে থেকে আছে বলে বাদ দেওয়া হয়েছে ⚠️\n\n` + message;
+            if (duplicateCount > 0) message = `⚠️ সতর্কতা: ${duplicateCount} টি একাউন্ট ডুপ্লিকেট আছে বলে বাদ দেওয়া হয়েছে ⚠️\n\n` + message;
             return message;
         }
 
@@ -857,6 +863,25 @@ t.me/earningbyhabib`;
             maintenanceMessage = data.message || 'সিস্টেম মেইনটেন্যান্স মোডে আছে';
             updateUIBasedOnSystemStatus();
         });
+
+        // Check if specific type is enabled
+        const typeSettingsRef = ref(db, 'settings/typeSettings');
+        let typeSettings = { cookies: true, twofa: true, nolink: true };
+        
+        onValue(typeSettingsRef, (snapshot) => {
+            typeSettings = snapshot.val() || { cookies: true, twofa: true, nolink: true };
+            updateTypeButtons();
+        });
+        
+        function updateTypeButtons() {
+            const cookiesBtn = document.getElementById('typeCookies');
+            const twofaBtn = document.getElementById('type2fa');
+            const nolinkBtn = document.getElementById('typeNolink');
+            
+            if (cookiesBtn) cookiesBtn.style.display = typeSettings.cookies !== false ? 'block' : 'none';
+            if (twofaBtn) twofaBtn.style.display = typeSettings.twofa !== false ? 'block' : 'none';
+            if (nolinkBtn) nolinkBtn.style.display = typeSettings.nolink !== false ? 'block' : 'none';
+        }
 
         function updateUIBasedOnSystemStatus() {
             const notice = document.getElementById('maintenanceNotice');
@@ -943,10 +968,15 @@ t.me/earningbyhabib`;
 
         window.selectType = function(type) {
             if (!systemEnabled) { showToast('সিস্টেম বন্ধ আছে', 'warning'); return; }
+            if (typeSettings[type] === false) {
+                showToast('এই অপশনটি বর্তমানে বন্ধ আছে', 'warning');
+                return;
+            }
             selectedType = type;
             document.getElementById('typeCookies').classList.remove('active');
             document.getElementById('type2fa').classList.remove('active');
-            document.getElementById('type' + (type === 'cookies' ? 'Cookies' : '2fa')).classList.add('active');
+            document.getElementById('typeNolink').classList.remove('active');
+            document.getElementById('type' + (type === 'cookies' ? 'Cookies' : type === '2fa' ? '2fa' : 'Nolink')).classList.add('active');
         };
 
         window.countAccounts = function() {
@@ -982,7 +1012,9 @@ t.me/earningbyhabib`;
 
         window.submitData = async function() {
             if (!systemEnabled) { showToast('সিস্টেম বন্ধ আছে: ' + maintenanceMessage, 'warning'); return; }
-            if (!selectedType) { showToast('কুকিজ বা 2FA সিলেক্ট করুন', 'warning'); return; }
+            if (!selectedType) { showToast('কুকিজ, 2FA বা নো লিঙ্ক সিলেক্ট করুন', 'warning'); return; }
+            if (typeSettings[selectedType] === false) { showToast('এই অপশনটি বর্তমানে বন্ধ আছে', 'warning'); return; }
+            
             const usernamesText = document.getElementById('usernames').value;
             if (!usernamesText.trim()) { showToast('কমপক্ষে একটি ইউজারনেম দিন', 'warning'); return; }
             let telegram = document.getElementById('telegram').value.trim();
@@ -1016,7 +1048,11 @@ t.me/earningbyhabib`;
                 }));
                 await Promise.all(promises);
                 progressFill.style.width = '100%';
-                const typeName = selectedType === 'cookies' ? 'কুকিজ' : '2FA';
+                let typeName = '';
+                if (selectedType === 'cookies') typeName = 'কুকিজ';
+                else if (selectedType === '2fa') typeName = '2FA';
+                else typeName = 'নো লিঙ্ক';
+                
                 lastSubmission = { telegram, typeName, uniqueCount: uniqueUsernames.length, duplicateCount: duplicates.length, paymentMethod: selectedPayment, paymentId: selectedPaymentId, number, timestamp, usernames: uniqueUsernames };
                 const resultBox = document.getElementById('resultBox');
                 const resultMessage = document.getElementById('resultMessage');
@@ -1049,6 +1085,7 @@ t.me/earningbyhabib`;
                     selectedPayment = ''; selectedPaymentId = ''; selectedType = '';
                     document.getElementById('typeCookies').classList.remove('active');
                     document.getElementById('type2fa').classList.remove('active');
+                    document.getElementById('typeNolink').classList.remove('active');
                     document.getElementById('selectedPaymentText').textContent = 'সিলেক্ট করুন';
                 }
             } catch (error) {
