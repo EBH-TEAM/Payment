@@ -929,13 +929,16 @@
             color: #fff;
         }
 
+        /* NEW RATE SECTION - STABLE LAYOUT */
         .rate-section {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
-            padding-top: 5px;
+            gap: 12px;
+            padding-top: 8px;
             border-top: 1px solid rgba(255,215,0,0.2);
+            flex-wrap: nowrap;
+            width: 100%;
         }
 
         .rate-select-small {
@@ -943,29 +946,54 @@
             background: #3a4055;
             border: 1px solid #ffd700;
             border-radius: 20px;
-            padding: 4px 4px;
+            padding: 5px 4px;
             color: #ffd700;
             font-weight: bold;
             font-size: 12px;
             outline: none;
             cursor: pointer;
             text-align: center;
+            flex-shrink: 0;
         }
 
-        .rate-select-small option {
-            background: #2d3349;
-            color: #ffd700;
-            text-align: center;
+        /* Middle Section - Stable empty state and filled state */
+        .ok-type-middle {
+            flex: 1;
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .ok-type-middle:empty {
+            display: none;
+        }
+        
+        .ok-type-middle:empty + .amount-display {
+            margin-left: auto;
+        }
+        
+        .ok-badge {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid #4CAF50;
+            white-space: nowrap;
         }
 
         .amount-display {
             background: linear-gradient(145deg, #ffd700, #ffa500);
             color: #1a1e2b;
-            padding: 4px 15px;
+            padding: 5px 15px;
             border-radius: 20px;
             font-weight: bold;
             font-size: 14px;
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .timestamp {
@@ -1134,6 +1162,20 @@
             .system-message {
                 width: 100%;
             }
+            
+            .rate-section {
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            
+            .ok-type-middle {
+                order: 1;
+                width: 100%;
+                justify-content: center;
+                margin: 5px 0;
+            }
+            .rate-select-small { order: 0; }
+            .amount-display { order: 2; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -1313,7 +1355,7 @@
         const secondApp = initializeApp(secondDatabaseConfig, 'secondary');
         const secondDB = getDatabase(secondApp);
 
-        let allSecondDBUsernames = new Set();
+        let allSecondDBUsernames = new Map();
         let secondDBLoaded = false;
         let allGroups = [];
         let currentType = 'cookies';
@@ -1334,7 +1376,14 @@
         const TELEGRAM_BOT_TOKEN = '8250221796:AAHdKid6RAoIeEnjHhrYdHNGkmc38wfs5d4';
         let lastUpdateId = 0;
 
-        // Hide loading overlay after data loads
+        const reportTypeDisplayNames = {
+            'instagram_cookies': '🍪 IG Cookies',
+            'instagram_2fa': '🔐 IG 2FA',
+            'cookies_no_link': '🔗 No Link',
+            'facebook_cookies': '🍪 FB Cookies',
+            'facebook_2fa': '🔐 FB 2FA'
+        };
+
         function hideLoading() {
             const overlay = document.getElementById('loadingOverlay');
             if (overlay) {
@@ -1345,7 +1394,6 @@
             isLoading = false;
         }
 
-        // Settings default closed
         function initSettings() {
             const paymentContent = document.getElementById('paymentSettings');
             const systemContent = document.getElementById('systemSettings');
@@ -1398,14 +1446,19 @@
             return encoded;
         }
 
-        function checkDuplicates(usernames) {
-            if (!secondDBLoaded || !usernames || usernames.length === 0) return 0;
+        function checkDuplicatesAndGetType(usernames) {
+            if (!secondDBLoaded || !usernames || usernames.length === 0) return { count: 0, types: [] };
             let duplicateCount = 0;
+            let foundTypes = new Set();
             usernames.forEach(username => {
                 const encoded = encodeUsername(username);
-                if (allSecondDBUsernames.has(encoded)) duplicateCount++;
+                if (allSecondDBUsernames.has(encoded)) {
+                    duplicateCount++;
+                    const type = allSecondDBUsernames.get(encoded);
+                    if (type) foundTypes.add(type);
+                }
             });
-            return duplicateCount;
+            return { count: duplicateCount, types: Array.from(foundTypes) };
         }
 
         async function loadSecondDatabase() {
@@ -1423,13 +1476,14 @@
                             Object.keys(dateData.users).forEach(type => {
                                 const typeUsers = dateData.users[type];
                                 Object.keys(typeUsers).forEach(encodedUsername => {
-                                    allSecondDBUsernames.add(encodedUsername);
+                                    allSecondDBUsernames.set(encodedUsername, type);
                                 });
                             });
                         }
                     });
                     
                     secondDBLoaded = true;
+                    console.log(`✅ দ্বিতীয় ডাটাবেস থেকে ${allSecondDBUsernames.size} টি ইউজারনেম লোড হয়েছে`);
                 }
             } catch (error) {
                 console.error('দ্বিতীয় ডাটাবেস লোড করতে সমস্যা:', error);
@@ -1622,7 +1676,8 @@
                                 type: type,
                                 accounts: [],
                                 ids: [],
-                                duplicateCount: 0
+                                duplicateCount: 0,
+                                duplicateTypes: []
                             });
                         }
                         const group = groupsMap.get(groupKey);
@@ -1633,7 +1688,9 @@
                     allGroups = Array.from(groupsMap.values());
 
                     allGroups.forEach(group => {
-                        group.duplicateCount = checkDuplicates(group.accounts);
+                        const result = checkDuplicatesAndGetType(group.accounts);
+                        group.duplicateCount = result.count;
+                        group.duplicateTypes = result.types;
                         const rate = getUserRate(userRates, group.telegram, group.type);
                         const amount = (group.duplicateCount || 0) * rate;
                         
@@ -1826,7 +1883,7 @@
                             <div class="date">${dateStr}</div>
                         </div>
                         <div class="income-actions">
-                            <button class="edit-income" onclick='editIncome("${item.id}", ${item.amount}, "${item.note || ''}", "${item.date}")'><i class="fas fa-edit"></i></button>
+                            <button class="edit-income" onclick='editIncome("${item.id}", ${item.amount}, "${item.note || ""}", "${item.date}")'><i class="fas fa-edit"></i></button>
                             <button class="delete-income" onclick='deleteIncome("${item.id}")'><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
@@ -2007,6 +2064,15 @@ t.me/earningbyhabib`;
                 
                 let typeClass = group.type === 'cookies' ? 'cookies' : group.type === '2fa' ? 'twofa' : 'nolink';
                 let typeDisplay = group.type === 'cookies' ? '🍪 কুকিজ' : group.type === '2fa' ? '🔐 2FA' : '🔗 নো লিঙ্ক';
+                
+                // Generate OK type badges ONLY if duplicates exist
+                let okTypeBadgesHtml = '';
+                if (group.duplicateCount > 0 && group.duplicateTypes && group.duplicateTypes.length > 0) {
+                    group.duplicateTypes.forEach(type => {
+                        const displayName = reportTypeDisplayNames[type] || type;
+                        okTypeBadgesHtml += `<span class="ok-badge">✅ ${displayName}</span>`;
+                    });
+                }
 
                 let expiryInfo = '';
                 if (group.status === 'approved' && group.approvedAt) {
@@ -2033,8 +2099,9 @@ t.me/earningbyhabib`;
                             </div>
                             <div class="rate-section">
                                 <select class="rate-select-small" onchange="saveUserRate('${group.telegram}', this.value, '${group.type}')">
-                                    ${generateRateOptions(group.type).map(rate => `<option value="${rate}" ${rate === savedRate ? 'selected' : ''}>${rate}</option>`).join('')}
+                                    ${generateRateOptions(group.type).map(rateOpt => `<option value="${rateOpt}" ${rateOpt === savedRate ? 'selected' : ''}>${rateOpt}</option>`).join('')}
                                 </select>
+                                <div class="ok-type-middle">${okTypeBadgesHtml}</div>
                                 <span class="amount-display" id="amount-${group.id}">${totalAmount.toFixed(2)} টাকা</span>
                             </div>
                         </div>
@@ -2121,10 +2188,8 @@ t.me/earningbyhabib`;
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // Initialize - Settings closed by default
         initSettings();
         
-        // Load data fast
         Promise.all([loadSecondDatabase(), loadData()]).then(() => {
             updateProfitAndReceived();
         });
