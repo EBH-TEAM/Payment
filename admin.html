@@ -25,6 +25,50 @@
             margin: 0 auto;
         }
 
+        /* Fast Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        
+        .loading-overlay.hide {
+            display: none;
+        }
+        
+        .loader {
+            text-align: center;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,215,0,0.3);
+            border-top: 3px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loader-text {
+            color: #ffd700;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -119,10 +163,6 @@
 
         .refresh-btn:active {
             transform: scale(0.95);
-        }
-
-        .refresh-btn i {
-            font-size: 16px;
         }
 
         .money-stats {
@@ -290,6 +330,11 @@
             color: white;
         }
 
+        .type-tab.nolink {
+            background: linear-gradient(145deg, #00b894, #00a884);
+            color: white;
+        }
+
         .type-tab:hover {
             transform: translateY(-3px);
             filter: brightness(1.1);
@@ -331,6 +376,12 @@
 
         .type-stat-box.twofa .stat-value {
             color: #686de0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .type-stat-box.nolink .stat-value {
+            color: #00b894;
             font-size: 28px;
             font-weight: bold;
         }
@@ -412,10 +463,6 @@
             transition: transform 0.3s ease;
         }
 
-        .settings-header.active .arrow {
-            transform: rotate(180deg);
-        }
-
         .settings-content {
             display: none;
             padding-top: 20px;
@@ -430,6 +477,13 @@
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             margin-bottom: 15px;
+        }
+
+        .type-toggles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .toggle-item {
@@ -488,20 +542,21 @@
             font-weight: bold;
             width: 100%;
             font-size: 16px;
+            margin-top: 10px;
         }
 
         .system-control {
             background: rgba(255,215,0,0.05);
             border-radius: 30px;
             padding: 20px;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .system-toggle {
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
@@ -623,11 +678,6 @@
             padding: 10px 20px;
             border-radius: 20px;
             cursor: pointer;
-        }
-
-        .filter-active {
-            background: rgba(255,215,0,0.2) !important;
-            border: 1px solid #ffd700 !important;
         }
 
         .income-history {
@@ -780,6 +830,11 @@
 
         .type-badge.twofa {
             background: #686de0;
+            color: white;
+        }
+
+        .type-badge.nolink {
+            background: #00b894;
             color: white;
         }
 
@@ -1084,6 +1139,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loader">
+            <div class="loader-spinner"></div>
+            <div class="loader-text">ডাটা লোড হচ্ছে... ⚡</div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <div class="logo"><h1>EBH TEAM ⚡</h1></div>
@@ -1091,7 +1153,7 @@
                 <div class="stat-box"><span id="totalUsers">0</span><label>গ্রুপ</label></div>
                 <div class="stat-box"><span id="totalAccounts">0</span><label>একাউন্ট</label></div>
                 <div class="refresh-buttons">
-                    <button class="refresh-btn small" onclick="softRefresh()" title="শুধু ডাটা রিফ্রেশ"><i class="fas fa-sync-alt"></i> রিফ্রেশ</button>
+                    <button class="refresh-btn small" onclick="softRefresh()"><i class="fas fa-sync-alt"></i> রিফ্রেশ</button>
                     <button class="refresh-btn" onclick="fullPageRefresh()"><i class="fas fa-redo-alt"></i> ফুল রিলোড</button>
                 </div>
             </div>
@@ -1125,11 +1187,13 @@
         <div class="type-tabs">
             <button class="type-tab cookies active" onclick="switchType('cookies')" id="tabCookies">🍪 কুকিজ একাউন্ট</button>
             <button class="type-tab twofa" onclick="switchType('2fa')" id="tab2fa">🔐 2FA একাউন্ট</button>
+            <button class="type-tab nolink" onclick="switchType('nolink')" id="tabNolink">🔗 নো লিঙ্ক</button>
         </div>
 
         <div class="type-stats">
             <div class="type-stat-box cookies" onclick="switchType('cookies')"><div class="stat-value" id="cookiesCount">0</div><div class="stat-label">🍪 কুকিজ একাউন্ট</div></div>
             <div class="type-stat-box twofa" onclick="switchType('2fa')"><div class="stat-value" id="twofaCount">0</div><div class="stat-label">🔐 2FA একাউন্ট</div></div>
+            <div class="type-stat-box nolink" onclick="switchType('nolink')"><div class="stat-value" id="nolinkCount">0</div><div class="stat-label">🔗 নো লিঙ্ক একাউন্ট</div></div>
             <div class="type-stat-box duplicate"><div class="stat-value" id="totalDuplicates">0</div><div class="stat-label" id="duplicateLabel">✅ পেন্ডিং ওকে আইডি</div></div>
         </div>
 
@@ -1139,7 +1203,10 @@
         </div>
 
         <div class="settings-section">
-            <div class="settings-header" onclick="toggleSettings('payment')"><h3>⚙️ পেমেন্ট মেথড সেটিংস</h3><span class="arrow" id="paymentArrow">▼</span></div>
+            <div class="settings-header" onclick="toggleSettings('payment')">
+                <h3><i class="fas fa-credit-card"></i> 💳 পেমেন্ট মেথড সেটিংস</h3>
+                <span class="arrow" id="paymentArrow">▼</span>
+            </div>
             <div class="settings-content" id="paymentSettings">
                 <div class="payment-toggles">
                     <div class="toggle-item"><label>💳 বিকাশ</label><input type="checkbox" id="toggleBkash" checked></div>
@@ -1150,21 +1217,43 @@
                     <div class="toggle-item"><label>₿ বাইন্যান্স</label><input type="checkbox" id="toggleBinance" checked></div>
                     <div class="toggle-item"><label>📨 ইনবক্স (টাকা পরে)</label><input type="checkbox" id="toggleInbox" checked></div>
                 </div>
-                <button class="save-settings-btn" onclick="savePaymentSettings()">💾 সেটিংস সেভ করুন</button>
+                <button class="save-settings-btn" onclick="savePaymentSettings()">💾 পেমেন্ট সেটিংস সেভ করুন</button>
             </div>
         </div>
 
         <div class="settings-section">
-            <div class="settings-header" onclick="toggleSettings('system')"><h3>🔧 সিস্টেম কন্ট্রোল</h3><span class="arrow" id="systemArrow">▼</span></div>
+            <div class="settings-header" onclick="toggleSettings('system')">
+                <h3><i class="fas fa-cogs"></i> 🔧 সিস্টেম কন্ট্রোল</h3>
+                <span class="arrow" id="systemArrow">▼</span>
+            </div>
             <div class="settings-content" id="systemSettings">
                 <div class="system-control">
-                    <div style="display: flex; align-items: center; margin-bottom: 15px;"><span style="color: #ffd700;">বর্তমান স্ট্যাটাস:</span><span id="systemStatus" class="current-status status-on">চালু</span></div>
+                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <span style="color: #ffd700;">বর্তমান স্ট্যাটাস:</span>
+                        <span id="systemStatus" class="current-status status-on">চালু</span>
+                    </div>
+                    
                     <div class="system-toggle">
                         <button class="btn-enable" onclick="toggleSystem(true)">✅ সিস্টেম চালু</button>
                         <button class="btn-disable" onclick="toggleSystem(false)">⛔ সিস্টেম বন্ধ</button>
-                        <div class="system-message"><input type="text" id="maintenanceMessage" placeholder="মেইনটেন্যান্স মেসেজ..." value="সিস্টেম আপডেট চলছে, পরে আবার চেষ্টা করুন"></div>
+                        <div class="system-message">
+                            <input type="text" id="maintenanceMessage" placeholder="মেইনটেন্যান্স মেসেজ..." value="সিস্টেম আপডেট চলছে, পরে আবার চেষ্টা করুন">
+                        </div>
                     </div>
-                    <button class="save-settings-btn" onclick="updateSystemStatus()" style="margin-top: 10px;">📢 সিস্টেম স্ট্যাটাস আপডেট</button>
+                    
+                    <div style="margin: 20px 0; border-top: 1px solid rgba(255,215,0,0.2);"></div>
+                    
+                    <h4 style="color: #ffd700; margin-bottom: 15px;"><i class="fas fa-toggle-on"></i> একাউন্ট টাইপ সেটিংস</h4>
+                    <div class="type-toggles">
+                        <div class="toggle-item"><label>🍪 কুকিজ একাউন্ট</label><input type="checkbox" id="toggleCookies" checked></div>
+                        <div class="toggle-item"><label>🔐 2FA একাউন্ট</label><input type="checkbox" id="toggle2fa" checked></div>
+                        <div class="toggle-item"><label>🔗 নো লিঙ্ক একাউন্ট</label><input type="checkbox" id="toggleNolink" checked></div>
+                    </div>
+                    <button class="save-settings-btn" onclick="saveTypeSettings()">💾 একাউন্ট টাইপ সেটিংস সেভ করুন</button>
+                    
+                    <div style="margin: 20px 0; border-top: 1px solid rgba(255,215,0,0.2);"></div>
+                    
+                    <button class="save-settings-btn" onclick="updateSystemStatus()" style="background: linear-gradient(145deg, #3498db, #2980b9); color: white;">📢 সিস্টেম স্ট্যাটাস আপডেট</button>
                 </div>
 
                 <div class="accounting-section">
@@ -1226,28 +1315,57 @@
 
         let allSecondDBUsernames = new Set();
         let secondDBLoaded = false;
-
         let allGroups = [];
         let currentType = 'cookies';
         let currentMainTab = 'pending';
         let searchTerm = '';
         let currentFilterDate = null;
+        let isLoading = true;
 
         const userRatesRef = ref(db, 'userRates');
         const incomeRef = ref(db, 'income');
 
         const DEFAULT_RATES = {
             'cookies': 3.50,
-            '2fa': 2.00
+            '2fa': 2.00,
+            'nolink': 3.00
         };
         
         const TELEGRAM_BOT_TOKEN = '8250221796:AAHdKid6RAoIeEnjHhrYdHNGkmc38wfs5d4';
         let lastUpdateId = 0;
 
+        // Hide loading overlay after data loads
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                setTimeout(() => {
+                    overlay.classList.add('hide');
+                }, 500);
+            }
+            isLoading = false;
+        }
+
+        // Settings default closed
+        function initSettings() {
+            const paymentContent = document.getElementById('paymentSettings');
+            const systemContent = document.getElementById('systemSettings');
+            const paymentArrow = document.getElementById('paymentArrow');
+            const systemArrow = document.getElementById('systemArrow');
+            
+            if (paymentContent) paymentContent.classList.remove('show');
+            if (systemContent) systemContent.classList.remove('show');
+            if (paymentArrow) paymentArrow.style.transform = 'rotate(0deg)';
+            if (systemArrow) systemArrow.style.transform = 'rotate(0deg)';
+        }
+
         function generateRateOptions(type) {
             const options = [];
             if (type === '2fa') {
                 for (let rate = 2.00; rate <= 3.00; rate += 0.10) {
+                    options.push(rate.toFixed(2));
+                }
+            } else if (type === 'nolink') {
+                for (let rate = 3.00; rate <= 4.00; rate += 0.10) {
                     options.push(rate.toFixed(2));
                 }
             } else {
@@ -1282,20 +1400,16 @@
 
         function checkDuplicates(usernames) {
             if (!secondDBLoaded || !usernames || usernames.length === 0) return 0;
-            
             let duplicateCount = 0;
             usernames.forEach(username => {
                 const encoded = encodeUsername(username);
-                if (allSecondDBUsernames.has(encoded)) {
-                    duplicateCount++;
-                }
+                if (allSecondDBUsernames.has(encoded)) duplicateCount++;
             });
             return duplicateCount;
         }
 
         async function loadSecondDatabase() {
             try {
-                console.log('দ্বিতীয় ডাটাবেস লোড হচ্ছে...');
                 const reportsRef = ref(secondDB, 'reports');
                 const snapshot = await get(reportsRef);
                 
@@ -1316,7 +1430,6 @@
                     });
                     
                     secondDBLoaded = true;
-                    console.log(`✅ দ্বিতীয় ডাটাবেস থেকে ${allSecondDBUsernames.size} টি ইউজারনেম লোড হয়েছে`);
                 }
             } catch (error) {
                 console.error('দ্বিতীয় ডাটাবেস লোড করতে সমস্যা:', error);
@@ -1325,13 +1438,10 @@
 
         function getUserRate(userRates, telegram, type) {
             if (!telegram || telegram === 'unknown') return DEFAULT_RATES[type];
-            
             const formattedTelegram = formatTelegramUsername(telegram);
-            
             if (userRates && userRates[formattedTelegram] && userRates[formattedTelegram][type] !== undefined) {
                 return userRates[formattedTelegram][type];
             }
-            
             return DEFAULT_RATES[type];
         }
 
@@ -1346,17 +1456,19 @@
             updates[`userRates/${formattedTelegram}/${type}`] = parseFloat(value);
             
             update(ref(db), updates)
-                .then(() => {
-                    showToast(`@${formattedTelegram} (${type}) এর রেট ${value} টাকা সেট হয়েছে`, 'success');
-                })
+                .then(() => showToast(`@${formattedTelegram} (${type}) এর রেট ${value} টাকা সেট হয়েছে`, 'success'))
                 .catch(() => showToast('রেট সেভ করতে সমস্যা', 'error'));
         };
 
         window.toggleSettings = function(type) {
             const content = document.getElementById(type + 'Settings');
             const arrow = document.getElementById(type + 'Arrow');
-            content.classList.toggle('show');
-            arrow.style.transform = content.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0)';
+            if (content) {
+                content.classList.toggle('show');
+                if (arrow) {
+                    arrow.style.transform = content.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0)';
+                }
+            }
         };
 
         window.switchMainTab = function(tab) {
@@ -1372,29 +1484,52 @@
             currentType = type;
             document.getElementById('tabCookies').classList.remove('active');
             document.getElementById('tab2fa').classList.remove('active');
-            document.getElementById('tab' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+            document.getElementById('tabNolink').classList.remove('active');
+            document.getElementById('tab' + (type === 'cookies' ? 'Cookies' : type === '2fa' ? '2fa' : 'Nolink')).classList.add('active');
             filterData();
         };
 
         const systemRef = ref(db, 'settings/system');
         onValue(systemRef, (snapshot) => {
             const data = snapshot.val() || { enabled: true, message: '' };
-            document.getElementById('systemStatus').textContent = data.enabled ? 'চালু' : 'বন্ধ';
-            document.getElementById('systemStatus').className = `current-status ${data.enabled ? 'status-on' : 'status-off'}`;
-            document.getElementById('maintenanceMessage').value = data.message || '';
+            const statusEl = document.getElementById('systemStatus');
+            if (statusEl) {
+                statusEl.textContent = data.enabled ? 'চালু' : 'বন্ধ';
+                statusEl.className = `current-status ${data.enabled ? 'status-on' : 'status-off'}`;
+            }
+            const msgEl = document.getElementById('maintenanceMessage');
+            if (msgEl) msgEl.value = data.message || '';
+        });
+
+        const typeSettingsRef = ref(db, 'settings/typeSettings');
+        onValue(typeSettingsRef, (snapshot) => {
+            const settings = snapshot.val() || { cookies: true, twofa: true, nolink: true };
+            const toggleCookies = document.getElementById('toggleCookies');
+            const toggle2fa = document.getElementById('toggle2fa');
+            const toggleNolink = document.getElementById('toggleNolink');
+            if (toggleCookies) toggleCookies.checked = settings.cookies !== false;
+            if (toggle2fa) toggle2fa.checked = settings.twofa !== false;
+            if (toggleNolink) toggleNolink.checked = settings.nolink !== false;
         });
 
         const settingsRef = ref(db, 'settings/paymentMethods');
         onValue(settingsRef, (snapshot) => {
             const settings = snapshot.val() || {};
-            document.getElementById('toggleBkash').checked = settings.bkash !== false;
-            document.getElementById('toggleNagad').checked = settings.nagad !== false;
-            document.getElementById('toggleBkashNagad').checked = settings.bkashNagad !== false;
-            document.getElementById('toggleRocket').checked = settings.rocket !== false;
-            document.getElementById('toggleMobileRecharge').checked = settings.mobileRecharge !== false;
-            document.getElementById('toggleBinance').checked = settings.binance !== false;
-            document.getElementById('toggleInbox').checked = settings.inbox !== false;
+            const toggles = ['toggleBkash', 'toggleNagad', 'toggleBkashNagad', 'toggleRocket', 'toggleMobileRecharge', 'toggleBinance', 'toggleInbox'];
+            toggles.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.checked = settings[id.replace('toggle', '').toLowerCase()] !== false;
+            });
         });
+
+        window.saveTypeSettings = function() {
+            const settings = {
+                cookies: document.getElementById('toggleCookies').checked,
+                twofa: document.getElementById('toggle2fa').checked,
+                nolink: document.getElementById('toggleNolink').checked
+            };
+            set(typeSettingsRef, settings).then(() => showToast('একাউন্ট টাইপ সেটিংস সেভ হয়েছে', 'success')).catch(() => showToast('সেভ করতে সমস্যা', 'error'));
+        };
 
         window.savePaymentSettings = function() {
             const settings = {
@@ -1421,96 +1556,22 @@
 
         window.fullPageRefresh = function() {
             showToast('পৃষ্ঠা রিফ্রেশ হচ্ছে... 🔄', 'warning');
-            setTimeout(() => {
-                window.location.reload();
-            }, 500);
+            setTimeout(() => window.location.reload(), 300);
         };
 
         window.softRefresh = function() {
             showToast('ডাটা রিফ্রেশ হচ্ছে... 🔄', 'warning');
-            
             loadSecondDatabase().then(() => {
                 filterData();
                 showToast('ডাটা রিফ্রেশ সম্পন্ন ✅', 'success');
             });
         };
 
-        async function fetchAndSaveTelegramUsers() {
-            try {
-                let url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates`;
-                if (lastUpdateId > 0) {
-                    url += `?offset=${lastUpdateId + 1}`;
-                }
-                
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data.ok && data.result && data.result.length > 0) {
-                    for (const update of data.result) {
-                        if (update.update_id > lastUpdateId) {
-                            lastUpdateId = update.update_id;
-                        }
-                        
-                        if (update.message && update.message.text === '/start') {
-                            const chatId = update.message.chat.id;
-                            let username = update.message.chat.username;
-                            const firstName = update.message.chat.first_name || '';
-                            
-                            if (!username && firstName) {
-                                username = firstName.toLowerCase().replace(/\s/g, '');
-                            }
-                            
-                            if (username && chatId) {
-                                const cleanUsername = username.replace('@', '').toLowerCase();
-                                const userRef = ref(db, `telegramUsers/${cleanUsername}`);
-                                
-                                const snapshot = await get(userRef);
-                                
-                                if (!snapshot.exists()) {
-                                    await set(userRef, {
-                                        chatId: chatId,
-                                        username: cleanUsername,
-                                        fullName: firstName,
-                                        registeredAt: Date.now(),
-                                        lastActive: Date.now()
-                                    });
-                                    console.log(`✅ নিবন্ধন: @${cleanUsername} (Chat ID: ${chatId})`);
-                                } else if (snapshot.val().chatId !== chatId) {
-                                    await update(userRef, {
-                                        chatId: chatId,
-                                        lastActive: Date.now()
-                                    });
-                                    console.log(`🔄 আপডেট: @${cleanUsername} -> ${chatId}`);
-                                } else {
-                                    await update(userRef, { lastActive: Date.now() });
-                                }
-                            }
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Telegram fetch error:', error);
-            }
-        }
-
-        setInterval(() => {
-            fetchAndSaveTelegramUsers();
-        }, 60000);
-        
-        fetchAndSaveTelegramUsers();
-
         async function getUserChatId(telegramUsername) {
-            if (!telegramUsername || telegramUsername === 'N/A' || telegramUsername === 'unknown') {
-                return null;
-            }
-            
+            if (!telegramUsername || telegramUsername === 'N/A' || telegramUsername === 'unknown') return null;
             const cleanUsername = telegramUsername.replace('@', '').toLowerCase();
             const snapshot = await get(ref(db, `telegramUsers/${cleanUsername}/chatId`));
-            
-            if (snapshot.exists()) {
-                return snapshot.val();
-            }
-            return null;
+            return snapshot.exists() ? snapshot.val() : null;
         }
 
         function loadData() {
@@ -1518,17 +1579,15 @@
             
             onValue(submitsRef, async (snapshot) => {
                 const data = snapshot.val();
-                
                 const ratesSnapshot = await get(userRatesRef);
                 const userRates = ratesSnapshot.val() || {};
                 
-                let totalPendingCookies = 0, totalPending2fa = 0, totalApprovedCookies = 0, totalApproved2fa = 0;
+                let totalPendingCookies = 0, totalPending2fa = 0, totalPendingNolink = 0;
+                let totalApprovedCookies = 0, totalApproved2fa = 0, totalApprovedNolink = 0;
                 let totalPendingMoneyCalc = 0;
                 let totalApprovedMoneyCalc = 0;
-                
                 let oldestPendingTimestamp = Infinity;
                 let oldestApprovedTimestamp = Infinity;
-                
                 const groupsMap = new Map();
 
                 if (data) {
@@ -1541,9 +1600,12 @@
                         if (type === 'cookies') {
                             if (status === 'pending') totalPendingCookies++;
                             else totalApprovedCookies++;
-                        } else {
+                        } else if (type === '2fa') {
                             if (status === 'pending') totalPending2fa++;
                             else totalApproved2fa++;
+                        } else if (type === 'nolink') {
+                            if (status === 'pending') totalPendingNolink++;
+                            else totalApprovedNolink++;
                         }
 
                         const groupKey = `${telegram}_${type}_${status}`;
@@ -1564,9 +1626,7 @@
                             });
                         }
                         const group = groupsMap.get(groupKey);
-                        if (item.username) {
-                            group.accounts.push(item.username);
-                        }
+                        if (item.username) group.accounts.push(item.username);
                         group.ids.push(key);
                     });
 
@@ -1574,70 +1634,67 @@
 
                     allGroups.forEach(group => {
                         group.duplicateCount = checkDuplicates(group.accounts);
-                        
                         const rate = getUserRate(userRates, group.telegram, group.type);
                         const amount = (group.duplicateCount || 0) * rate;
                         
                         if (group.status === 'pending') {
                             totalPendingMoneyCalc += amount;
-                            
-                            if (group.timestamp && group.timestamp < oldestPendingTimestamp) {
-                                oldestPendingTimestamp = group.timestamp;
-                            }
+                            if (group.timestamp && group.timestamp < oldestPendingTimestamp) oldestPendingTimestamp = group.timestamp;
                         } else {
                             totalApprovedMoneyCalc += amount;
-                            
-                            if (group.timestamp && group.timestamp < oldestApprovedTimestamp) {
-                                oldestApprovedTimestamp = group.timestamp;
-                            }
+                            if (group.timestamp && group.timestamp < oldestApprovedTimestamp) oldestApprovedTimestamp = group.timestamp;
                         }
                     });
-
                 } else {
                     allGroups = [];
                 }
 
                 const now = Date.now();
                 const oneDay = 24 * 60 * 60 * 1000;
-                
-                let pendingDays = 0;
-                let approvedDays = 0;
-                
-                if (oldestPendingTimestamp !== Infinity) {
-                    pendingDays = Math.ceil((now - oldestPendingTimestamp) / oneDay);
-                }
-                
-                if (oldestApprovedTimestamp !== Infinity) {
-                    approvedDays = Math.ceil((now - oldestApprovedTimestamp) / oneDay);
-                }
+                let pendingDays = oldestPendingTimestamp !== Infinity ? Math.ceil((now - oldestPendingTimestamp) / oneDay) : 0;
+                let approvedDays = oldestApprovedTimestamp !== Infinity ? Math.ceil((now - oldestApprovedTimestamp) / oneDay) : 0;
 
-                document.getElementById('pendingCount').textContent = totalPendingCookies + totalPending2fa;
-                document.getElementById('approvedCount').textContent = totalApprovedCookies + totalApproved2fa;
+                const pendingCountEl = document.getElementById('pendingCount');
+                const approvedCountEl = document.getElementById('approvedCount');
+                const totalPendingMoneyEl = document.getElementById('totalPendingMoney');
+                const totalApprovedMoneyEl = document.getElementById('totalApprovedMoney');
+                const pendingDaysEl = document.getElementById('pendingDays');
+                const approvedDaysEl = document.getElementById('approvedDays');
                 
-                document.getElementById('totalPendingMoney').textContent = totalPendingMoneyCalc.toFixed(2);
-                document.getElementById('totalApprovedMoney').textContent = totalApprovedMoneyCalc.toFixed(2);
+                if (pendingCountEl) pendingCountEl.textContent = totalPendingCookies + totalPending2fa + totalPendingNolink;
+                if (approvedCountEl) approvedCountEl.textContent = totalApprovedCookies + totalApproved2fa + totalApprovedNolink;
+                if (totalPendingMoneyEl) totalPendingMoneyEl.textContent = totalPendingMoneyCalc.toFixed(2);
+                if (totalApprovedMoneyEl) totalApprovedMoneyEl.textContent = totalApprovedMoneyCalc.toFixed(2);
+                if (pendingDaysEl) pendingDaysEl.textContent = pendingDays;
+                if (approvedDaysEl) approvedDaysEl.textContent = approvedDays;
                 
-                document.getElementById('pendingDays').textContent = pendingDays;
-                document.getElementById('approvedDays').textContent = approvedDays;
-                
-                updateCountersByCurrentView(totalPendingCookies, totalPending2fa, totalApprovedCookies, totalApproved2fa);
+                updateCountersByCurrentView(totalPendingCookies, totalPending2fa, totalPendingNolink, totalApprovedCookies, totalApproved2fa, totalApprovedNolink);
                 
                 filterData();
                 updateProfitAndReceived();
                 
+                if (isLoading) hideLoading();
+                
             }, (error) => {
                 console.error('ডাটা লোড করতে সমস্যা:', error);
+                if (isLoading) hideLoading();
                 showToast('ডাটা লোড করতে সমস্যা!', 'error');
             });
         }
 
-        function updateCountersByCurrentView(pendingCookies, pending2fa, approvedCookies, approved2fa) {
+        function updateCountersByCurrentView(pendingCookies, pending2fa, pendingNolink, approvedCookies, approved2fa, approvedNolink) {
+            const cookiesEl = document.getElementById('cookiesCount');
+            const twofaEl = document.getElementById('twofaCount');
+            const nolinkEl = document.getElementById('nolinkCount');
+            
             if (currentMainTab === 'pending') {
-                document.getElementById('cookiesCount').textContent = pendingCookies;
-                document.getElementById('twofaCount').textContent = pending2fa;
+                if (cookiesEl) cookiesEl.textContent = pendingCookies;
+                if (twofaEl) twofaEl.textContent = pending2fa;
+                if (nolinkEl) nolinkEl.textContent = pendingNolink;
             } else {
-                document.getElementById('cookiesCount').textContent = approvedCookies;
-                document.getElementById('twofaCount').textContent = approved2fa;
+                if (cookiesEl) cookiesEl.textContent = approvedCookies;
+                if (twofaEl) twofaEl.textContent = approved2fa;
+                if (nolinkEl) nolinkEl.textContent = approvedNolink;
             }
         }
 
@@ -1652,33 +1709,17 @@
                 return;
             }
             
-            if (!date) {
-                date = new Date().toISOString().split('T')[0];
-            }
-            
+            if (!date) date = new Date().toISOString().split('T')[0];
             const timestamp = new Date(date).setHours(0,0,0,0);
-            
-            const incomeData = {
-                amount: amount,
-                note: note || 'নতুন ইনকাম',
-                date: date,
-                timestamp: timestamp,
-                updatedAt: Date.now()
-            };
+            const incomeData = { amount, note: note || 'নতুন ইনকাম', date, timestamp, updatedAt: Date.now() };
             
             if (editingId) {
                 set(ref(db, `income/${editingId}`), incomeData)
-                    .then(() => {
-                        showToast('ইনকাম আপডেট হয়েছে', 'success');
-                        resetIncomeForm();
-                    })
+                    .then(() => { showToast('ইনকাম আপডেট হয়েছে', 'success'); resetIncomeForm(); })
                     .catch(() => showToast('আপডেট করতে সমস্যা', 'error'));
             } else {
                 push(incomeRef, incomeData)
-                    .then(() => {
-                        showToast('ইনকাম যোগ হয়েছে', 'success');
-                        resetIncomeForm();
-                    })
+                    .then(() => { showToast('ইনকাম যোগ হয়েছে', 'success'); resetIncomeForm(); })
                     .catch(() => showToast('ইনকাম যোগ করতে সমস্যা', 'error'));
             }
         };
@@ -1693,10 +1734,7 @@
 
         window.deleteIncome = function(id) {
             if (!confirm('এই ইনকাম এন্ট্রি ডিলিট করবেন?')) return;
-            
-            remove(ref(db, `income/${id}`))
-                .then(() => showToast('ইনকাম ডিলিট হয়েছে', 'success'))
-                .catch(() => showToast('ডিলিট করতে সমস্যা', 'error'));
+            remove(ref(db, `income/${id}`)).then(() => showToast('ইনকাম ডিলিট হয়েছে', 'success')).catch(() => showToast('ডিলিট করতে সমস্যা', 'error'));
         };
 
         function resetIncomeForm() {
@@ -1709,16 +1747,10 @@
 
         window.applyDateFilter = function() {
             const filterDate = document.getElementById('filterDate').value;
-            if (!filterDate) {
-                showToast('একটি তারিখ সিলেক্ট করুন', 'warning');
-                return;
-            }
-            
+            if (!filterDate) { showToast('একটি তারিখ সিলেক্ট করুন', 'warning'); return; }
             currentFilterDate = filterDate;
-            
             document.getElementById('filterIndicator').style.display = 'flex';
             document.getElementById('filterDateText').textContent = new Date(filterDate).toLocaleDateString('bn-BD');
-            
             filterData();
             updateProfitAndReceived();
         };
@@ -1727,22 +1759,18 @@
             currentFilterDate = null;
             document.getElementById('filterIndicator').style.display = 'none';
             document.getElementById('filterDate').value = '';
-            
             filterData();
             updateProfitAndReceived();
         };
 
         function isDateInRange(timestamp) {
             if (!currentFilterDate) return true;
-            
             const filterTime = new Date(currentFilterDate).setHours(0,0,0,0);
             const itemTime = new Date(timestamp).setHours(0,0,0,0);
-            
             return itemTime === filterTime;
         }
 
         function updateProfitAndReceived() {
-            const incomeRef = ref(db, 'income');
             get(incomeRef).then((snapshot) => {
                 const incomeData = snapshot.val() || {};
                 let totalReceived = 0;
@@ -1750,11 +1778,9 @@
                 
                 Object.keys(incomeData).forEach(key => {
                     const item = incomeData[key];
-                    
                     if (!currentFilterDate || isDateInRange(item.timestamp || new Date(item.date).getTime())) {
                         totalReceived += item.amount || 0;
                     }
-                    
                     incomeList.push({ id: key, ...item });
                 });
                 
@@ -1765,7 +1791,6 @@
                         group.status === 'approved' &&
                         isDateInRange(group.approvedAt || group.timestamp)
                     );
-                    
                     filteredGroups.forEach(group => {
                         const rate = getUserRate({}, group.telegram, group.type);
                         approvedMoney += (group.duplicateCount || 0) * rate;
@@ -1775,19 +1800,14 @@
                 }
                 
                 const profit = totalReceived - approvedMoney;
-                
                 document.getElementById('totalReceivedAmount').textContent = totalReceived.toFixed(2);
                 document.getElementById('totalProfitAmount').textContent = profit.toFixed(2);
-                
                 displayIncomeHistory(incomeList);
-            }).catch(error => {
-                console.error('ইনকাম লোড করতে সমস্যা:', error);
-            });
+            }).catch(error => console.error('ইনকাম লোড করতে সমস্যা:', error));
         }
 
         function displayIncomeHistory(incomeList) {
             const container = document.getElementById('incomeHistory');
-            
             incomeList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
             
             if (incomeList.length === 0) {
@@ -1806,22 +1826,18 @@
                             <div class="date">${dateStr}</div>
                         </div>
                         <div class="income-actions">
-                            <button class="edit-income" onclick='editIncome("${item.id}", ${item.amount}, "${item.note || ''}", "${item.date}")' title="এডিট"><i class="fas fa-edit"></i></button>
-                            <button class="delete-income" onclick='deleteIncome("${item.id}")' title="ডিলিট"><i class="fas fa-trash"></i></button>
+                            <button class="edit-income" onclick='editIncome("${item.id}", ${item.amount}, "${item.note || ''}", "${item.date}")'><i class="fas fa-edit"></i></button>
+                            <button class="delete-income" onclick='deleteIncome("${item.id}")'><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `;
             });
-            
             container.innerHTML = html;
         }
 
         window.deleteOldDataManually = async function() {
-            if (!confirm('⚠️ আজকে থেকে ৩০ দিনের আগের সব ডাটা ডিলিট হবে? (submits + ইনকাম)')) return;
-            if (!confirm('আপনি কি নিশ্চিত? এই কাজ অপরিবর্তনীয়!')) return;
-            
+            if (!confirm('⚠️ আজকে থেকে ৩০ দিনের আগের সব ডাটা ডিলিট হবে?') || !confirm('আপনি কি নিশ্চিত?')) return;
             showToast('ডাটা ডিলিট প্রক্রিয়া শুরু হয়েছে...', 'warning');
-            
             const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
             
             try {
@@ -1830,7 +1846,6 @@
                     const submitsData = submitsSnapshot.val();
                     const updates = {};
                     let deleteCount = 0;
-                    
                     Object.keys(submitsData).forEach(key => {
                         const item = submitsData[key];
                         const itemTime = item.approvedAt || item.timestamp;
@@ -1839,7 +1854,6 @@
                             deleteCount++;
                         }
                     });
-                    
                     if (deleteCount > 0) {
                         await update(ref(db), updates);
                         showToast(`${deleteCount} টি পুরনো submits ডাটা ডিলিট হয়েছে`, 'success');
@@ -1851,7 +1865,6 @@
                     const incomeData = incomeSnapshot.val();
                     const updates = {};
                     let deleteCount = 0;
-                    
                     Object.keys(incomeData).forEach(key => {
                         const item = incomeData[key];
                         const itemTime = item.timestamp || new Date(item.date).getTime();
@@ -1860,16 +1873,13 @@
                             deleteCount++;
                         }
                     });
-                    
                     if (deleteCount > 0) {
                         await update(ref(db), updates);
                         showToast(`${deleteCount} টি পুরনো ইনকাম ডাটা ডিলিট হয়েছে`, 'success');
                     }
                 }
-                
                 showToast('পুরনো ডাটা ডিলিট সম্পন্ন ✅', 'success');
                 clearFilter();
-                
             } catch (error) {
                 console.error('ডাটা ডিলিট করতে সমস্যা:', error);
                 showToast('ডাটা ডিলিট করতে সমস্যা', 'error');
@@ -1878,44 +1888,31 @@
 
         window.filterData = function() {
             searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
             let filtered = allGroups.filter(group => group.type === currentType && group.status === currentMainTab);
             
             if (currentFilterDate) {
-                filtered = filtered.filter(group => {
-                    const groupTime = group.approvedAt || group.timestamp;
-                    return isDateInRange(groupTime);
-                });
+                filtered = filtered.filter(group => isDateInRange(group.approvedAt || group.timestamp));
             }
-            
             if (searchTerm) {
                 filtered = filtered.filter(group =>
                     group.telegram?.toLowerCase().includes(searchTerm) ||
                     group.number?.toLowerCase().includes(searchTerm)
                 );
             }
-            
             displayGroups(filtered);
-            
             updateProfitAndReceived();
         };
 
         window.approveUser = async function(idsStr) {
             if (!confirm('আপনি কি এই গ্রুপের সব একাউন্ট অ্যাপ্রুভ করতে চান?')) return;
-            
             const ids = idsStr.split(',');
             const approvedAt = Date.now();
-            
             const group = allGroups.find(g => g.ids && g.ids.includes(ids[0]));
-            if (!group) {
-                showToast('গ্রুপ ডাটা পাওয়া যায়নি', 'error');
-                return;
-            }
+            if (!group) { showToast('গ্রুপ ডাটা পাওয়া যায়নি', 'error'); return; }
             
             const duplicateCount = group.duplicateCount || 0;
             const totalAccounts = group.accounts.length;
-            
-            let userRate = group.type === 'cookies' ? 3.50 : 2.00;
+            let userRate = DEFAULT_RATES[group.type] || 3.00;
             try {
                 const ratesSnapshot = await get(userRatesRef);
                 const userRates = ratesSnapshot.val() || {};
@@ -1926,13 +1923,15 @@
             } catch(e) {}
             
             const totalMoney = duplicateCount * userRate;
+            let typeEmoji = group.type === 'cookies' ? '🍪' : group.type === '2fa' ? '🔐' : '🔗';
+            let typeName = group.type === 'cookies' ? 'কুকিজ' : group.type === '2fa' ? '2FA' : 'নো লিঙ্ক';
             
             const message = `✅ পেমেন্ট অ্যাপ্রুভ হয়েছে! ✅
 
 📊 একাউন্ট ডিটেইলস:
 ━━━━━━━━━━━━━━━━
 📱 ফোন: ${group.number}
-🍪 টাইপ: ${group.type === 'cookies' ? 'কুকিজ' : '2FA'}
+${typeEmoji} টাইপ: ${typeName}
 🆔 মোট আইডি: ${totalAccounts}
 ✅ ওকে আইডি: ${duplicateCount}
 💰 রেট: ${userRate} টাকা/আইডি
@@ -1959,35 +1958,20 @@ t.me/earningbyhabib`;
                 const username = group.telegram.replace('@', '').toLowerCase().trim();
                 if (username && username !== 'N/A' && username !== 'unknown') {
                     const chatId = await getUserChatId(group.telegram);
-                    
                     if (chatId) {
                         const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                chat_id: chatId,
-                                text: message,
-                                parse_mode: 'HTML'
-                            })
+                            body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'HTML' })
                         });
-                        
                         const result = await response.json();
-                        
-                        if (result.ok) {
-                            showToast(`📨 @${username} -এ মেসেজ পাঠানো হয়েছে ✅`, 'success');
-                        } else {
-                            showToast(`❌ মেসেজ যায়নি: ${result.description}`, 'error');
-                        }
+                        if (result.ok) showToast(`📨 @${username} -এ মেসেজ পাঠানো হয়েছে ✅`, 'success');
+                        else showToast(`❌ মেসেজ যায়নি`, 'error');
                     } else {
                         showToast(`⚠️ @${username} এর Chat ID পাওয়া যায়নি`, 'warning');
-                        showToast(`💡 তাকে বলুন: https://t.me/ebh_payment_bot এ /start দিতে`, 'warning');
                     }
-                } else {
-                    showToast('⚠️ এই গ্রুপের টেলিগ্রাম ইউজারনেম নেই', 'warning');
                 }
-                
                 filterData();
-                
             } catch (error) {
                 console.error('Approve error:', error);
                 showToast('অ্যাপ্রুভ করতে সমস্যা', 'error');
@@ -1997,12 +1981,11 @@ t.me/earningbyhabib`;
         async function displayGroups(groups) {
             const container = document.getElementById('usersGrid');
             if (groups.length === 0) {
-                container.innerHTML = `<div class="empty-state">📭 কোন ${currentMainTab === 'pending' ? 'পেন্ডিং' : 'অ্যাপ্রুভড'} ${currentType === 'cookies' ? 'কুকিজ' : '2FA'} একাউন্ট নেই</div>`;
+                container.innerHTML = `<div class="empty-state">📭 কোন ${currentMainTab === 'pending' ? 'পেন্ডিং' : 'অ্যাপ্রুভড'} ${currentType === 'cookies' ? 'কুকিজ' : currentType === '2fa' ? '2FA' : 'নো লিঙ্ক'} একাউন্ট নেই</div>`;
                 return;
             }
 
             groups.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
             const rateSnapshot = await get(userRatesRef);
             const userRates = rateSnapshot.val() || {};
             
@@ -2016,14 +1999,14 @@ t.me/earningbyhabib`;
                 
                 const date = new Date(group.timestamp || Date.now());
                 const timeString = date.toLocaleString('bn-BD');
-                
                 const cleanTelegram = formatTelegramUsername(group.telegram);
                 const telegramLink = `https://t.me/${cleanTelegram}`;
-                
                 const rate = getUserRate(userRates, group.telegram, group.type);
                 const savedRate = rate.toFixed(2);
-                
                 const totalAmount = (group.duplicateCount || 0) * rate;
+                
+                let typeClass = group.type === 'cookies' ? 'cookies' : group.type === '2fa' ? 'twofa' : 'nolink';
+                let typeDisplay = group.type === 'cookies' ? '🍪 কুকিজ' : group.type === '2fa' ? '🔐 2FA' : '🔗 নো লিঙ্ক';
 
                 let expiryInfo = '';
                 if (group.status === 'approved' && group.approvedAt) {
@@ -2037,7 +2020,7 @@ t.me/earningbyhabib`;
                         <div class="card-header">
                             <span class="phone-number">📞 ${group.number}</span>
                             <div style="display: flex; gap: 5px;">
-                                <span class="type-badge ${group.type === 'cookies' ? 'cookies' : 'twofa'}">${group.type === 'cookies' ? '🍪 কুকিজ' : '🔐 2FA'}</span>
+                                <span class="type-badge ${typeClass}">${typeDisplay}</span>
                                 <span class="status-badge ${group.status}">${group.status === 'pending' ? '⏳ পেন্ডিং' : '✅ অ্যাপ্রুভড'}</span>
                             </div>
                         </div>
@@ -2058,18 +2041,17 @@ t.me/earningbyhabib`;
                         <div class="timestamp">⏰ ${timeString}</div>
                         ${expiryInfo}
                         <div class="action-buttons">
-                            <button class="copy-usernames-btn" onclick='copyUsernames(${JSON.stringify(group.accounts)})'><i class="fas fa-copy" style="margin-right: 5px;"></i>সব কপি (${group.accounts.length})</button>
-                            <button class="action-btn phone-btn" onclick="copyText('${group.number}')" title="কপি নাম্বার"><i class="fas fa-phone-alt"></i></button>
-                            <a href="${telegramLink}" target="_blank" class="action-btn telegram-btn" title="টেলিগ্রাম"><i class="fab fa-telegram-plane"></i></a>
-                            ${group.status === 'pending' ? `<button class="approve-btn" onclick="approveUser('${group.ids.join(',')}')"><i class="fas fa-check-circle" style="margin-right: 5px;"></i>অ্যাপ্রুভ</button>` : ''}
-                            <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}', '${group.id}')" title="ডিলিট"><i class="fas fa-trash-alt"></i></button>
+                            <button class="copy-usernames-btn" onclick='copyUsernames(${JSON.stringify(group.accounts)})'><i class="fas fa-copy"></i> কপি (${group.accounts.length})</button>
+                            <button class="action-btn phone-btn" onclick="copyText('${group.number}')"><i class="fas fa-phone-alt"></i></button>
+                            <a href="${telegramLink}" target="_blank" class="action-btn telegram-btn"><i class="fab fa-telegram-plane"></i></a>
+                            ${group.status === 'pending' ? `<button class="approve-btn" onclick="approveUser('${group.ids.join(',')}')"><i class="fas fa-check-circle"></i> অ্যাপ্রুভ</button>` : ''}
+                            <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}', '${group.id}')"><i class="fas fa-trash-alt"></i></button>
                         </div>
                     </div>
                 `;
             });
             
             container.innerHTML = groupsHtml;
-
             document.getElementById('totalUsers').textContent = groups.length;
             document.getElementById('totalAccounts').textContent = totalAccountsCount;
             document.getElementById('totalDuplicates').textContent = totalDuplicatesCount;
@@ -2079,14 +2061,26 @@ t.me/earningbyhabib`;
             if (!usernames?.length) return showToast('❌ কপি করার মতো একাউন্ট নেই', 'error');
             const text = usernames.join('\n');
             navigator.clipboard.writeText(text).then(() => showToast(`✅ ${usernames.length} টি একাউন্ট কপি হয়েছে`, 'success')).catch(() => {
-                const textarea = document.createElement('textarea'); textarea.value = text; document.body.appendChild(textarea); textarea.select(); document.execCommand('copy'); document.body.removeChild(textarea); showToast(`✅ ${usernames.length} টি একাউন্ট কপি হয়েছে`, 'success');
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast(`✅ ${usernames.length} টি একাউন্ট কপি হয়েছে`, 'success');
             });
         };
         
         window.copyText = function(text) {
             if (!text) return showToast('❌ কপি করার মতো টেক্সট নেই', 'error');
             navigator.clipboard.writeText(text).then(() => showToast('✅ কপি হয়েছে!', 'success')).catch(() => {
-                const textarea = document.createElement('textarea'); textarea.value = text; document.body.appendChild(textarea); textarea.select(); document.execCommand('copy'); document.body.removeChild(textarea); showToast('✅ কপি হয়েছে!', 'success');
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('✅ কপি হয়েছে!', 'success');
             });
         };
         
@@ -2099,34 +2093,24 @@ t.me/earningbyhabib`;
 
         window.deleteGroup = function(idsStr, groupId) {
             if (!confirm('আপনি কি এই গ্রুপের সব একাউন্ট ডিলিট করতে চান?')) return;
-            
             const card = document.getElementById(`card-${groupId}`);
             if (card) card.classList.add('deleting');
-            
             const ids = idsStr.split(',');
-            
             const updates = {};
-            ids.forEach(id => {
-                updates[`submits/${id}`] = null;
+            ids.forEach(id => { updates[`submits/${id}`] = null; });
+            update(ref(db), updates).then(() => {
+                showToast('গ্রুপ ডিলিট করা হয়েছে', 'success');
+                filterData();
+            }).catch((error) => {
+                console.error('Delete error:', error);
+                showToast('ডিলিট করতে সমস্যা', 'error');
+                if (card) card.classList.remove('deleting');
             });
-            
-            update(ref(db), updates)
-                .then(() => {
-                    showToast('গ্রুপ ডিলিট করা হয়েছে', 'success');
-                    filterData();
-                })
-                .catch((error) => { 
-                    console.error('Delete error:', error); 
-                    showToast('ডিলিট করতে সমস্যা', 'error'); 
-                    if (card) card.classList.remove('deleting'); 
-                });
         };
 
         window.clearAllDatabase = function() {
             if (confirm('⚠️ আপনি কি সম্পূর্ণ ডাটাবেজ ডিলিট করতে চান?') && confirm('আপনি কি নিশ্চিত? এই কাজ অপরিবর্তনীয়!')) {
-                remove(ref(db, 'submits')).then(() => {
-                    showToast('সমস্ত ডাটা ডিলিট করা হয়েছে', 'success');
-                }).catch(() => showToast('ডিলিট করতে সমস্যা', 'error'));
+                remove(ref(db, 'submits')).then(() => showToast('সমস্ত ডাটা ডিলিট করা হয়েছে', 'success')).catch(() => showToast('ডিলিট করতে সমস্যা', 'error'));
             }
         };
 
@@ -2137,8 +2121,11 @@ t.me/earningbyhabib`;
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        loadSecondDatabase().then(() => {
-            loadData();
+        // Initialize - Settings closed by default
+        initSettings();
+        
+        // Load data fast
+        Promise.all([loadSecondDatabase(), loadData()]).then(() => {
             updateProfitAndReceived();
         });
     </script>
