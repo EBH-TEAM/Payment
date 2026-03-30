@@ -929,7 +929,6 @@
             color: #fff;
         }
 
-        /* NEW RATE SECTION - STABLE LAYOUT */
         .rate-section {
             display: flex;
             justify-content: space-between;
@@ -956,7 +955,6 @@
             flex-shrink: 0;
         }
 
-        /* Middle Section - Stable empty state and filled state */
         .ok-type-middle {
             flex: 1;
             display: flex;
@@ -1463,6 +1461,7 @@
 
         async function loadSecondDatabase() {
             try {
+                console.log('দ্বিতীয় ডাটাবেস লোড হচ্ছে...');
                 const reportsRef = ref(secondDB, 'reports');
                 const snapshot = await get(reportsRef);
                 
@@ -1470,23 +1469,32 @@
                     const reports = snapshot.val();
                     allSecondDBUsernames.clear();
                     
-                    Object.keys(reports).forEach(date => {
+                    for (const date in reports) {
                         const dateData = reports[date];
-                        if (dateData.users) {
-                            Object.keys(dateData.users).forEach(type => {
+                        if (dateData && dateData.users) {
+                            for (const type in dateData.users) {
                                 const typeUsers = dateData.users[type];
-                                Object.keys(typeUsers).forEach(encodedUsername => {
-                                    allSecondDBUsernames.set(encodedUsername, type);
-                                });
-                            });
+                                if (typeUsers && typeof typeUsers === 'object') {
+                                    for (const encodedUsername in typeUsers) {
+                                        allSecondDBUsernames.set(encodedUsername, type);
+                                    }
+                                }
+                            }
                         }
-                    });
+                    }
                     
                     secondDBLoaded = true;
                     console.log(`✅ দ্বিতীয় ডাটাবেস থেকে ${allSecondDBUsernames.size} টি ইউজারনেম লোড হয়েছে`);
+                    showToast(`✅ দ্বিতীয় ডাটাবেস কানেক্টেড! ${allSecondDBUsernames.size} টি রিপোর্ট ফাউন্ড`, 'success');
+                } else {
+                    console.log('দ্বিতীয় ডাটাবেসে কোন ডাটা নেই');
+                    secondDBLoaded = true;
+                    showToast('⚠️ দ্বিতীয় ডাটাবেসে কোন রিপোর্ট নেই', 'warning');
                 }
             } catch (error) {
                 console.error('দ্বিতীয় ডাটাবেস লোড করতে সমস্যা:', error);
+                secondDBLoaded = true;
+                showToast('❌ দ্বিতীয় ডাটাবেস কানেক্ট করতে সমস্যা', 'error');
             }
         }
 
@@ -2065,7 +2073,6 @@ t.me/earningbyhabib`;
                 let typeClass = group.type === 'cookies' ? 'cookies' : group.type === '2fa' ? 'twofa' : 'nolink';
                 let typeDisplay = group.type === 'cookies' ? '🍪 কুকিজ' : group.type === '2fa' ? '🔐 2FA' : '🔗 নো লিঙ্ক';
                 
-                // Generate OK type badges ONLY if duplicates exist
                 let okTypeBadgesHtml = '';
                 if (group.duplicateCount > 0 && group.duplicateTypes && group.duplicateTypes.length > 0) {
                     group.duplicateTypes.forEach(type => {
