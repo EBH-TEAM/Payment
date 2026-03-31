@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EBH Team - অ্যাডমিন প্যানেল ⚡</title>
+    <title>EBH Team - অ্যাডমিন প্যানেল ⚡ | মাসিক অটো-রিসেট</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
 
@@ -25,7 +25,7 @@
             margin: 0 auto;
         }
 
-        /* Fast Loading Animation */
+        /* Loading Animation */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -790,6 +790,30 @@
                 inset 2px 2px 5px rgba(255,255,255,0.1),
                 inset -3px -3px 8px rgba(0,0,0,0.5);
             transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .user-card .date-filter-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #ffd700;
+            z-index: 10;
+        }
+        
+        .user-card .date-filter-icon input {
+            width: 0;
+            opacity: 0;
+            position: absolute;
+        }
+        
+        .user-card .date-filter-icon i {
+            pointer-events: none;
         }
 
         .user-card.deleting {
@@ -1361,6 +1385,7 @@
         let searchTerm = '';
         let currentFilterDate = null;
         let isLoading = true;
+        let resetInterval = null;
 
         const userRatesRef = ref(db, 'userRates');
         const incomeRef = ref(db, 'income');
@@ -1372,7 +1397,6 @@
         };
         
         const TELEGRAM_BOT_TOKEN = '8250221796:AAHdKid6RAoIeEnjHhrYdHNGkmc38wfs5d4';
-        let lastUpdateId = 0;
 
         const reportTypeDisplayNames = {
             'instagram_cookies': '🍪 IG Cookies',
@@ -1382,12 +1406,115 @@
             'facebook_2fa': '🔐 FB 2FA'
         };
 
+        // ==================== MONTHLY RESET LOGIC (FIXED) ====================
+        // This will reset at 11:59:59 PM on the last day of the month
+        async function performMonthlyReset() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+            const currentDate = now.getDate();
+            
+            // Get last day of current month
+            const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            // Check if today is the last day of the month AND time is between 23:59:00 and 00:00:01
+            const isLastDay = (currentDate === lastDayOfMonth);
+            const isResetTime = (now.getHours() === 23 && now.getMinutes() >= 59);
+            
+            if (!isLastDay || !isResetTime) {
+                return;
+            }
+            
+            // Check if reset already performed for this month
+            const resetLogRef = ref(db, 'system/monthlyResetLog');
+            const resetLogSnap = await get(resetLogRef);
+            const lastReset = resetLogSnap.val();
+            const currentMonthKey = `${currentYear}-${currentMonth}`;
+            
+            if (lastReset === currentMonthKey) {
+                console.log("Monthly reset already performed for this month");
+                return;
+            }
+            
+            console.log("Performing monthly reset at month end...");
+            showToast("📅 মাস শেষ! নতুন মাসের জন্য রিসেট শুরু হচ্ছে...", "warning");
+            
+            try {
+                // 1. Backup current month's data
+                const currentMonthData = {
+                    submits: {},
+                    income: {},
+                    userRates: {},
+                    timestamp: Date.now(),
+                    month: currentMonthKey,
+                    year: currentYear,
+                    monthNumber: currentMonth + 1
+                };
+                
+                const submitsSnapshot = await get(ref(db, 'submits'));
+                if (submitsSnapshot.exists()) currentMonthData.submits = submitsSnapshot.val();
+                
+                const incomeSnapshot = await get(ref(db, 'income'));
+                if (incomeSnapshot.exists()) currentMonthData.income = incomeSnapshot.val();
+                
+                const ratesSnapshot = await get(userRatesRef);
+                if (ratesSnapshot.exists()) currentMonthData.userRates = ratesSnapshot.val();
+                
+                const backupRef = ref(db, `monthlyBackups/${currentYear}/${currentMonth}`);
+                await set(backupRef, currentMonthData);
+                
+                // 2. Clear current month's data
+                await set(ref(db, 'submits'), {});
+                await set(ref(db, 'income'), {});
+                // Keep userRates for next month
+                
+                // 3. Log the reset
+                await set(resetLogRef, currentMonthKey);
+                
+                // 4. Clear local state
+                allGroups = [];
+                currentFilterDate = null;
+                if (document.getElementById('filterIndicator')) {
+                    document.getElementById('filterIndicator').style.display = 'none';
+                }
+                if (document.getElementById('filterDate')) {
+                    document.getElementById('filterDate').value = '';
+                }
+                
+                showToast(`✅ মাসিক রিসেট সম্পন্ন! নতুন মাস শুরু হয়েছে (${currentYear} সালের ${currentMonth+2} মাস)`, "success");
+                
+                // Reload everything
+                await loadSecondDatabase();
+                loadData();
+                
+            } catch (error) {
+                console.error("Reset error:", error);
+                showToast("❌ রিসেট করতে সমস্যা হয়েছে", "error");
+            }
+        }
+        
+        // Initialize monthly reset checker
+        function initMonthlyReset() {
+            // Check every 30 seconds for reset time
+            if (resetInterval) clearInterval(resetInterval);
+            
+            resetInterval = setInterval(() => {
+                performMonthlyReset();
+            }, 30000); // Check every 30 seconds
+            
+            // Also check on page load (if it's exactly at reset time)
+            performMonthlyReset();
+            
+            console.log("Monthly reset checker initialized - will reset on last day of month at 11:59 PM");
+        }
+        // ==================== END MONTHLY RESET LOGIC ====================
+
         function hideLoading() {
             const overlay = document.getElementById('loadingOverlay');
             if (overlay) {
                 setTimeout(() => {
                     overlay.classList.add('hide');
-                }, 500);
+                }, 300);
             }
             isLoading = false;
         }
@@ -1485,16 +1612,13 @@
                     
                     secondDBLoaded = true;
                     console.log(`✅ দ্বিতীয় ডাটাবেস থেকে ${allSecondDBUsernames.size} টি ইউজারনেম লোড হয়েছে`);
-                    showToast(`✅ দ্বিতীয় ডাটাবেস কানেক্টেড! ${allSecondDBUsernames.size} টি রিপোর্ট ফাউন্ড`, 'success');
                 } else {
                     console.log('দ্বিতীয় ডাটাবেসে কোন ডাটা নেই');
                     secondDBLoaded = true;
-                    showToast('⚠️ দ্বিতীয় ডাটাবেসে কোন রিপোর্ট নেই', 'warning');
                 }
             } catch (error) {
                 console.error('দ্বিতীয় ডাটাবেস লোড করতে সমস্যা:', error);
                 secondDBLoaded = true;
-                showToast('❌ দ্বিতীয় ডাটাবেস কানেক্ট করতে সমস্যা', 'error');
             }
         }
 
@@ -1828,12 +1952,24 @@
             updateProfitAndReceived();
         };
 
-        function isDateInRange(timestamp) {
-            if (!currentFilterDate) return true;
-            const filterTime = new Date(currentFilterDate).setHours(0,0,0,0);
+        function isDateInRange(timestamp, filterDate) {
+            if (!filterDate) return true;
+            const filterTime = new Date(filterDate).setHours(0,0,0,0);
             const itemTime = new Date(timestamp).setHours(0,0,0,0);
             return itemTime === filterTime;
         }
+        
+        window.filterUserByDate = function(groupId, filterDate) {
+            currentFilterDate = filterDate;
+            if (filterDate) {
+                document.getElementById('filterIndicator').style.display = 'flex';
+                document.getElementById('filterDateText').textContent = new Date(filterDate).toLocaleDateString('bn-BD');
+            } else {
+                document.getElementById('filterIndicator').style.display = 'none';
+            }
+            filterData();
+            updateProfitAndReceived();
+        };
 
         function updateProfitAndReceived() {
             get(incomeRef).then((snapshot) => {
@@ -1843,7 +1979,7 @@
                 
                 Object.keys(incomeData).forEach(key => {
                     const item = incomeData[key];
-                    if (!currentFilterDate || isDateInRange(item.timestamp || new Date(item.date).getTime())) {
+                    if (!currentFilterDate || isDateInRange(item.timestamp || new Date(item.date).getTime(), currentFilterDate)) {
                         totalReceived += item.amount || 0;
                     }
                     incomeList.push({ id: key, ...item });
@@ -1854,7 +1990,7 @@
                     const filteredGroups = allGroups.filter(group => 
                         group.type === currentType && 
                         group.status === 'approved' &&
-                        isDateInRange(group.approvedAt || group.timestamp)
+                        isDateInRange(group.approvedAt || group.timestamp, currentFilterDate)
                     );
                     filteredGroups.forEach(group => {
                         const rate = getUserRate({}, group.telegram, group.type);
@@ -1956,7 +2092,7 @@
             let filtered = allGroups.filter(group => group.type === currentType && group.status === currentMainTab);
             
             if (currentFilterDate) {
-                filtered = filtered.filter(group => isDateInRange(group.approvedAt || group.timestamp));
+                filtered = filtered.filter(group => isDateInRange(group.approvedAt || group.timestamp, currentFilterDate));
             }
             if (searchTerm) {
                 filtered = filtered.filter(group =>
@@ -2087,9 +2223,15 @@ t.me/earningbyhabib`;
                     const daysLeft = 15 - daysPassed;
                     if (daysLeft > 0) expiryInfo = `<div class="expiry-info">⏳ আরো ${daysLeft} দিন বাকি</div>`;
                 }
+                
+                const datePickerId = `datepicker-${group.id.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
                 groupsHtml += `
-                    <div class="user-card" id="card-${group.id}">
+                    <div class="user-card" id="card-${group.id.replace(/[^a-zA-Z0-9]/g, '_')}">
+                        <div class="date-filter-icon" onclick="document.getElementById('${datePickerId}').showPicker()">
+                            <i class="fas fa-calendar-alt"></i> 
+                            <input type="date" id="${datePickerId}" style="position:absolute; opacity:0; width:0;" onchange="filterUserByDate('${group.id}', this.value)">
+                        </div>
                         <div class="card-header">
                             <span class="phone-number">📞 ${group.number}</span>
                             <div style="display: flex; gap: 5px;">
@@ -2109,7 +2251,7 @@ t.me/earningbyhabib`;
                                     ${generateRateOptions(group.type).map(rateOpt => `<option value="${rateOpt}" ${rateOpt === savedRate ? 'selected' : ''}>${rateOpt}</option>`).join('')}
                                 </select>
                                 <div class="ok-type-middle">${okTypeBadgesHtml}</div>
-                                <span class="amount-display" id="amount-${group.id}">${totalAmount.toFixed(2)} টাকা</span>
+                                <span class="amount-display" id="amount-${group.id.replace(/[^a-zA-Z0-9]/g, '_')}">${totalAmount.toFixed(2)} টাকা</span>
                             </div>
                         </div>
                         <div class="timestamp">⏰ ${timeString}</div>
@@ -2119,7 +2261,7 @@ t.me/earningbyhabib`;
                             <button class="action-btn phone-btn" onclick="copyText('${group.number}')"><i class="fas fa-phone-alt"></i></button>
                             <a href="${telegramLink}" target="_blank" class="action-btn telegram-btn"><i class="fab fa-telegram-plane"></i></a>
                             ${group.status === 'pending' ? `<button class="approve-btn" onclick="approveUser('${group.ids.join(',')}')"><i class="fas fa-check-circle"></i> অ্যাপ্রুভ</button>` : ''}
-                            <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}', '${group.id}')"><i class="fas fa-trash-alt"></i></button>
+                            <button class="action-btn delete-btn" onclick="deleteGroup('${group.ids.join(',')}', '${group.id.replace(/[^a-zA-Z0-9]/g, '_')}')"><i class="fas fa-trash-alt"></i></button>
                         </div>
                     </div>
                 `;
@@ -2195,7 +2337,9 @@ t.me/earningbyhabib`;
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
+        // Initialize everything
         initSettings();
+        initMonthlyReset();
         
         Promise.all([loadSecondDatabase(), loadData()]).then(() => {
             updateProfitAndReceived();
