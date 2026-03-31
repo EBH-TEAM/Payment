@@ -797,7 +797,7 @@
                             const username = update.message.chat.username;
                             const firstName = update.message.chat.first_name;
                             await registerTelegramUser(chatId, username, firstName);
-                            const WELCOME = `🎉 বটটি চালু করার জন্য ধন্যবাদ! 🎉\n✨ <b>EBH TEAM</b> ✨\n📌 <b>কীভাবে কাজ করবে:</b>\n━━━━━━━━━━━━━━━━━━━━\n1️⃣ ওয়েবসাইটে গিয়ে একাউন্ট সাবমিট করুন\n2️⃣ সাবমিট করার পর এখানেই কনফার্মেশন পাবেন\n3️⃣ অ্যাডমিন অ্যাপ্রুভ করলে পেমেন্ট পাবেন\n\nআমাদের সাথে থাকার জন্য ধন্যবাদ! ❤️`;
+                            const WELCOME = `🎉 বটটি চালু করার জন্য ধন্যবাদ! 🎉\n✨ <b>EBH TEAM</b> ✨\n📌 <b>কীভাবে কাজ করবে:</b>\n━━━━━━━━━━━━━━━━━━━━\n1️⃣ ওয়েবসাইটে গিয়ে একাউন্ট সাবমিট করুন\n2️⃣ সাবমিট করার পর এখানেই কনফার্মেশন পাবেন\n3️⃣ অ্যাডমিন অ্যাপ্রুভ করলে পেমেন্ট পাবেন\n\nআমাদের সাথে থাকার জন্য ধন্যবাদ! ❤️  earningbyhabibhttps://t.me/earningbyhabib`;
                             await sendTelegramMessage(chatId, WELCOME);
                         }
                     }
@@ -817,7 +817,7 @@
         function createConfirmationMessage(typeName, uniqueCount, duplicateCount, paymentMethod, number, timestamp) {
             const timeStr = new Date(timestamp).toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' });
             let typeEmoji = typeName === 'কুকিজ' ? '🍪' : (typeName === '2FA' ? '🔐' : '🔗');
-            let msg = `✅ আপনার সাবমিশন সফল হয়েছে! ✅\n━━━━━━━━━━━━━━━━━━━━\n${typeEmoji} টাইপ: ${typeName}\n📊 মোট: ${uniqueCount + duplicateCount} টি\n✅ সফল: ${uniqueCount} টি\n⚠️ ডুপ্লিকেট: ${duplicateCount} টি\n━━━━━━━━━━━━━━━━━━━━\n💰 পেমেন্ট: ${paymentMethod}\n📞 নাম্বার: ${number}\n⏰ সময়: ${timeStr}\n\nEBH TEAM - Earning By Habib`;
+            let msg = `✅ আপনার সাবমিশন সফল হয়েছে! ✅\n━━━━━━━━━━━━━━━━━━━━\n${typeEmoji} টাইপ: ${typeName}\n📊 মোট: ${uniqueCount + duplicateCount} টি\n✅ সফল: ${uniqueCount} টি\n⚠️ ডুপ্লিকেট: ${duplicateCount} টি\n━━━━━━━━━━━━━━━━━━━━\n💰 পেমেন্ট: ${paymentMethod}\n📞 নাম্বার: ${number}\n⏰ সময়: ${timeStr}\n\nEBH TEAM - Earning By Habib ❤️ https://t.me/earningbyhabib`;
             if (duplicateCount > 0) msg = `⚠️ ${duplicateCount} টি ডুপ্লিকেট বাদ দেওয়া হয়েছে ⚠️\n\n` + msg;
             return msg;
         }
