@@ -1353,7 +1353,7 @@
         const secondApp = initializeApp(secondDatabaseConfig, 'secondary');
         const secondDB = getDatabase(secondApp);
 
-        let allSecondDBUsernames = new Map();
+        let allSecondDBUsernames = new Map(); // Map<encodedUsername, reportType>
         let secondDBLoaded = false;
         let allGroups = [];
         let currentType = 'cookies';
@@ -1372,8 +1372,8 @@
         };
         
         const TELEGRAM_BOT_TOKEN = '8250221796:AAHdKid6RAoIeEnjHhrYdHNGkmc38wfs5d4';
-        let lastUpdateId = 0;
-
+        
+        // রিপোর্ট টাইপের ডিসপ্লে নেম (দ্বিতীয় ডাটাবেজ থেকে আসা টাইপ দেখানোর জন্য)
         const reportTypeDisplayNames = {
             'instagram_cookies': '🍪 IG Cookies',
             'instagram_2fa': '🔐 IG 2FA',
@@ -1444,6 +1444,7 @@
             return encoded;
         }
 
+        // FIX: দ্বিতীয় ডাটাবেজ থেকে ডুপ্লিকেট চেকের জন্য সঠিকভাবে লোড করা
         function checkDuplicatesAndGetType(usernames) {
             if (!secondDBLoaded || !usernames || usernames.length === 0) return { count: 0, types: [] };
             let duplicateCount = 0;
@@ -1453,15 +1454,20 @@
                 if (allSecondDBUsernames.has(encoded)) {
                     duplicateCount++;
                     const type = allSecondDBUsernames.get(encoded);
-                    if (type) foundTypes.add(type);
+                    if (type && reportTypeDisplayNames[type]) {
+                        foundTypes.add(type);
+                    } else if (type) {
+                        foundTypes.add(type);
+                    }
                 }
             });
             return { count: duplicateCount, types: Array.from(foundTypes) };
         }
 
+        // দ্বিতীয় ডাটাবেজ লোড করার ফাংশন (ঠিক করা হয়েছে)
         async function loadSecondDatabase() {
             try {
-                console.log('দ্বিতীয় ডাটাবেস লোড হচ্ছে...');
+                console.log('🔄 দ্বিতীয় ডাটাবেজ লোড হচ্ছে...');
                 const reportsRef = ref(secondDB, 'reports');
                 const snapshot = await get(reportsRef);
                 
@@ -1469,6 +1475,7 @@
                     const reports = snapshot.val();
                     allSecondDBUsernames.clear();
                     
+                    // reports স্ট্রাকচার: reports -> { date: { users: { type: { encodedUsername: true } } } }
                     for (const date in reports) {
                         const dateData = reports[date];
                         if (dateData && dateData.users) {
@@ -1476,6 +1483,7 @@
                                 const typeUsers = dateData.users[type];
                                 if (typeUsers && typeof typeUsers === 'object') {
                                     for (const encodedUsername in typeUsers) {
+                                        // প্রতিটি ইউজারনেমের সাথে তার টাইপ সংরক্ষণ করছি
                                         allSecondDBUsernames.set(encodedUsername, type);
                                     }
                                 }
@@ -1484,15 +1492,19 @@
                     }
                     
                     secondDBLoaded = true;
-                    console.log(`✅ দ্বিতীয় ডাটাবেস থেকে ${allSecondDBUsernames.size} টি ইউজারনেম লোড হয়েছে`);
+                    console.log(`✅ দ্বিতীয় ডাটাবেজ থেকে ${allSecondDBUsernames.size} টি ইউজারনেম লোড হয়েছে`);
                     showToast(`✅ দ্বিতীয় ডাটাবেস কানেক্টেড! ${allSecondDBUsernames.size} টি রিপোর্ট ফাউন্ড`, 'success');
+                    
+                    // ডাটা লোড হয়ে গেলে রিফ্রেশ
+                    if (!isLoading) filterData();
+                    
                 } else {
-                    console.log('দ্বিতীয় ডাটাবেসে কোন ডাটা নেই');
+                    console.log('দ্বিতীয় ডাটাবেজে কোন ডাটা নেই');
                     secondDBLoaded = true;
                     showToast('⚠️ দ্বিতীয় ডাটাবেসে কোন রিপোর্ট নেই', 'warning');
                 }
             } catch (error) {
-                console.error('দ্বিতীয় ডাটাবেস লোড করতে সমস্যা:', error);
+                console.error('দ্বিতীয় ডাটাবেজ লোড করতে সমস্যা:', error);
                 secondDBLoaded = true;
                 showToast('❌ দ্বিতীয় ডাটাবেস কানেক্ট করতে সমস্যা', 'error');
             }
@@ -1695,6 +1707,7 @@
 
                     allGroups = Array.from(groupsMap.values());
 
+                    // প্রতিটি গ্রুপের জন্য ডুপ্লিকেট চেক (দ্বিতীয় ডাটাবেজ ব্যবহার করে)
                     allGroups.forEach(group => {
                         const result = checkDuplicatesAndGetType(group.accounts);
                         group.duplicateCount = result.count;
@@ -2197,8 +2210,11 @@ t.me/earningbyhabib`;
 
         initSettings();
         
-        Promise.all([loadSecondDatabase(), loadData()]).then(() => {
-            updateProfitAndReceived();
+        // প্রথমে ডাটা লোড করি, তারপর দ্বিতীয় ডাটাবেজ লোড করে আপডেট করি
+        loadData();
+        loadSecondDatabase().then(() => {
+            // দ্বিতীয় ডাটাবেজ লোড হওয়ার পর পুনরায় ফিল্টার করি
+            if (!isLoading) filterData();
         });
     </script>
 </body>
