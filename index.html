@@ -201,7 +201,6 @@
             cursor: not-allowed;
         }
 
-        /* সেভ বাটনের স্টাইল - ছোট করে দেয়া */
         .save-btn-small {
             background: #2ecc71;
             border: none;
@@ -491,7 +490,6 @@
             text-align: center;
         }
 
-        /* POPUP STYLES */
         .popup-overlay {
             position: fixed;
             top: 0;
@@ -598,14 +596,12 @@
                 <button class="type-btn nolink" onclick="selectType('nolink')" id="typeNolink">🔗 নো লিঙ্ক কুকিজ</button>
             </div>
 
-            <!-- ইউজারনেম এর বক্স (প্রতি লাইনে একটি) -->
             <div class="username-container">
                 <label class="username-label">📝 ইউজারনেম (প্রতি লাইনে একটি)</label>
                 <textarea class="username-input" id="usernames" placeholder="username1&#10;username2" oninput="countAccounts()" rows="4"></textarea>
                 <div class="username-counter" id="accountCount">০</div>
             </div>
 
-            <!-- টেলিগ্রাম ইউজারনেম (আগের জায়গায়) + সেভ বাটন পাশে -->
             <div class="input-group">
                 <div class="telegram-header">
                     <label class="input-label">📱 টেলিগ্রাম ইউজারনেম</label>
@@ -614,7 +610,6 @@
                 <input class="input-field" type="text" id="telegram" placeholder="@username" value="@">
             </div>
 
-            <!-- পেমেন্ট মেথড -->
             <div class="input-group">
                 <label class="input-label">💰 পেমেন্ট মেথড</label>
                 <div class="payment-selector">
@@ -710,31 +705,23 @@
         let pollingActive = true;
         let typeSettings = { cookies: true, twofa: true, nolink: true };
 
-        // ========== LocalStorage Save/Load ==========
-        function loadSavedUserData() {
+        // ========== শুধুমাত্র টেলিগ্রাম ইউজারনেম সেভ করা ==========
+        function loadSavedTelegramOnly() {
             const savedTelegram = localStorage.getItem('ebh_saved_telegram');
-            const savedPaymentName = localStorage.getItem('ebh_saved_payment_name');
-            const savedPaymentId = localStorage.getItem('ebh_saved_payment_id');
             if (savedTelegram && savedTelegram !== '@') {
                 document.getElementById('telegram').value = savedTelegram;
             }
-            if (savedPaymentName && savedPaymentId) {
-                selectedPayment = savedPaymentName;
-                selectedPaymentId = savedPaymentId;
-                document.getElementById('selectedPaymentText').textContent = savedPaymentName;
-                const numberField = document.getElementById('number');
-                if (savedPaymentId === 'inbox') {
-                    numberField.disabled = true;
-                    numberField.value = '';
-                    numberField.placeholder = 'নাম্বার লাগবে না';
-                } else {
-                    numberField.disabled = false;
-                    numberField.placeholder = '017xxxxxxxx';
-                }
-            }
+            localStorage.removeItem('ebh_saved_payment_name');
+            localStorage.removeItem('ebh_saved_payment_id');
+            selectedPayment = '';
+            selectedPaymentId = '';
+            document.getElementById('selectedPaymentText').textContent = 'সিলেক্ট করুন';
+            const numberField = document.getElementById('number');
+            numberField.disabled = false;
+            numberField.value = '';
         }
         
-        function saveUserData() {
+        function saveTelegramOnly() {
             let telegram = document.getElementById('telegram').value.trim();
             if (!telegram || telegram === '@') {
                 showToast('সঠিক টেলিগ্রাম ইউজারনেম দিন', 'warning');
@@ -743,17 +730,9 @@
             if (!telegram.startsWith('@')) telegram = '@' + telegram;
             document.getElementById('telegram').value = telegram;
             localStorage.setItem('ebh_saved_telegram', telegram);
-            
-            if (!selectedPayment) {
-                showToast('পেমেন্ট মেথড সিলেক্ট করুন তারপর সেভ করুন', 'warning');
-                return;
-            }
-            localStorage.setItem('ebh_saved_payment_name', selectedPayment);
-            localStorage.setItem('ebh_saved_payment_id', selectedPaymentId);
-            showToast('টেলিগ্রাম ও পেমেন্ট সেভ হয়েছে', 'success');
+            showToast('✅ টেলিগ্রাম ইউজারনেম সেভ হয়েছে (পেমেন্ট সেভ হবে না)', 'success');
         }
-        
-        // ========== টেলিগ্রাম ইউজার রেজিস্টার ==========
+
         async function registerTelegramUser(chatId, username, firstName) {
             const cleanUsername = (username || firstName || 'user_' + chatId).toString().toLowerCase().replace(/[^a-z0-9_]/g, '');
             const userRef = ref(db, `telegramUsers/${cleanUsername}`);
@@ -822,7 +801,6 @@
             return msg;
         }
 
-        // ========== ফায়ারবেস রিয়েলটাইম ==========
         const systemRef = ref(db, 'settings/system');
         onValue(systemRef, (snapshot) => {
             const data = snapshot.val() || {};
@@ -900,6 +878,10 @@
                 } else {
                     div.onclick = () => {
                         if (!systemEnabled) { showToast('সিস্টেম বন্ধ আছে', 'warning'); return; }
+                        if (settings[method.id] === false) {
+                            showToast('এই পেমেন্ট মেথড বর্তমানে বন্ধ আছে', 'warning');
+                            return;
+                        }
                         selectedPayment = method.name;
                         selectedPaymentId = method.id;
                         document.getElementById('selectedPaymentText').textContent = method.name;
@@ -949,6 +931,7 @@
             document.getElementById('accountCount').textContent = count;
         };
 
+        // --- ফাস্ট সাবমিটের জন্য অপ্টিমাইজড ফাংশন (লোডিং টাইম কমাতে) ---
         async function checkExistingUsernamesFast(usernames) {
             const uniqueSet = new Set();
             const localDuplicates = new Set();
@@ -983,6 +966,17 @@
             document.getElementById('telegram').value = telegram;
             
             if (!selectedPayment) { showToast('পেমেন্ট মেথড সিলেক্ট করুন', 'warning'); return; }
+            
+            const paymentSettingsSnap = await get(ref(db, 'settings/paymentMethods'));
+            const paymentSettings = paymentSettingsSnap.val() || {};
+            if (paymentSettings[selectedPaymentId] === false) {
+                showToast('এই পেমেন্ট মেথড বর্তমানে অ্যাডমিন বন্ধ করে দিয়েছেন। নতুন করে সিলেক্ট করুন।', 'warning');
+                selectedPayment = '';
+                selectedPaymentId = '';
+                document.getElementById('selectedPaymentText').textContent = 'সিলেক্ট করুন';
+                return;
+            }
+            
             let number = document.getElementById('number').value.trim();
             const isInbox = selectedPaymentId === 'inbox';
             if (!isInbox && !number) { showToast('পেমেন্ট নাম্বার দিন', 'warning'); return; }
@@ -995,6 +989,7 @@
             const progressFill = document.getElementById('progressFill');
             const telegramNotifyStatus = document.getElementById('telegramNotifyStatus');
             
+            // লোডিং UI দেখানো হচ্ছে, কিন্তু কাজ দ্রুত শেষ হবে
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং...';
             progressBar.style.display = 'block';
@@ -1002,15 +997,18 @@
             telegramNotifyStatus.innerHTML = '';
 
             try {
-                progressFill.style.width = '50%';
+                // ফাস্ট ট্র্যাক: Duplicate চেক এবং ডাটাবেজ সেভ একসাথে দ্রুত করা
+                progressFill.style.width = '40%';
                 const { duplicates, uniqueUsernames } = await checkExistingUsernamesFast(usernames);
-                progressFill.style.width = '75%';
+                progressFill.style.width = '70%';
                 const timestamp = Date.now();
-                const promises = uniqueUsernames.map(username => push(ref(db, 'submits'), {
+                
+                // ব্যাচড অপারেশন: সব পুশ একসাথে (Promise.all এটা দ্রুত করে)
+                const pushPromises = uniqueUsernames.map(username => push(ref(db, 'submits'), {
                     username, telegram: telegram.replace('@', ''), paymentMethod: selectedPayment, paymentId: selectedPaymentId,
                     number, timestamp, status: 'pending', type: selectedType
                 }));
-                await Promise.all(promises);
+                await Promise.all(pushPromises);
                 progressFill.style.width = '100%';
                 
                 let typeName = selectedType === 'cookies' ? 'কুকিজ' : (selectedType === '2fa' ? '2FA' : 'নো লিঙ্ক');
@@ -1027,11 +1025,16 @@
                 }
                 resultBox.classList.add('show');
                 if (uniqueUsernames.length > 0) {
+                    // ব্যাকগ্রাউন্ডে টেলিগ্রাম নোটিফিকেশন পাঠানো (UI ব্লক করবে না)
                     const chatId = await getUserChatId(telegram);
                     if (chatId) {
                         const msg = createConfirmationMessage(typeName, uniqueUsernames.length, duplicates.length, selectedPayment, number, timestamp);
-                        const sent = await sendTelegramMessage(chatId, msg);
-                        telegramNotifyStatus.innerHTML = sent ? '<i class="fas fa-check-circle"></i> ✅ টেলিগ্রামে কনফার্মেশন পাঠানো হয়েছে' : '<i class="fas fa-exclamation-triangle"></i> ⚠️ মেসেজ পাঠাতে সমস্যা';
+                        sendTelegramMessage(chatId, msg).then(sent => {
+                            if (sent) telegramNotifyStatus.innerHTML = '<i class="fas fa-check-circle"></i> ✅ টেলিগ্রামে কনফার্মেশন পাঠানো হয়েছে';
+                            else telegramNotifyStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ⚠️ মেসেজ পাঠাতে সমস্যা';
+                        }).catch(() => {
+                            telegramNotifyStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ⚠️ মেসেজ পাঠাতে সমস্যা';
+                        });
                     } else {
                         telegramNotifyStatus.innerHTML = '<i class="fas fa-info-circle"></i> ℹ️ আপনার টেলিগ্রাম নিবন্ধিত নেই। @ebh_payment_bot এ /start দিন';
                     }
@@ -1093,10 +1096,9 @@
             newNo.onclick = () => { window.open(BOT_LINK, '_blank'); popup.classList.add('hide'); showToast('🤖 বটে যুক্ত হন', 'warning'); };
         }
 
-        // সেভ বাটন ইভেন্ট
-        document.getElementById('saveUserDataBtn').addEventListener('click', saveUserData);
+        document.getElementById('saveUserDataBtn').addEventListener('click', saveTelegramOnly);
         
-        loadSavedUserData();
+        loadSavedTelegramOnly();
         initPopup();
         checkTelegramUpdates();
         window.countAccounts();
