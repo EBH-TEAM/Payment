@@ -416,6 +416,138 @@
             flex: 1;
         }
 
+        .history-btn-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .history-toggle-btn {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            border: none;
+            padding: 14px 25px;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 0 #1f5a7a;
+            transition: 0.1s;
+        }
+        .history-toggle-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #1f5a7a;
+        }
+        .back-btn {
+            background: #2d3349;
+            border: 1px solid #ffd700;
+            padding: 10px 20px;
+            border-radius: 40px;
+            color: #ffd700;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-view {
+            display: none;
+        }
+        .history-view.show {
+            display: block;
+        }
+        .submit-view {
+            display: block;
+        }
+        .submit-view.hide {
+            display: none;
+        }
+
+        .history-card {
+            background: rgba(20, 25, 40, 0.95);
+            border-radius: 24px;
+            padding: 16px;
+        }
+        .history-title {
+            color: #ffd700;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .history-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .history-item {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffd700;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .history-type {
+            font-weight: bold;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: white;
+        }
+        .history-type.cookies { background: #ff4757; }
+        .history-type.twofa { background: #4834d4; }
+        .history-type.nolink { background: #00b894; }
+        .history-status {
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            color: white;
+        }
+        .history-status.pending { background: #ffa502; color: #000; }
+        .history-status.approved { background: #26de81; color: #000; }
+        .history-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            margin: 8px 0;
+            flex-wrap: wrap;
+        }
+        .history-stats span {
+            background: rgba(0,0,0,0.3);
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: white;
+        }
+        .history-rate {
+            color: #ffd700;
+            font-size: 13px;
+        }
+        .history-amount {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .history-time {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        .empty-history {
+            text-align: center;
+            padding: 30px;
+            color: #aaa;
+        }
+
         .rules-card {
             background: rgba(20, 25, 40, 0.95);
             border-radius: 24px;
@@ -590,58 +722,81 @@
                 <span id="maintenanceMessageText">সিস্টেম বন্ধ আছে</span>
             </div>
 
-            <div class="type-row">
-                <button class="type-btn cookies" onclick="selectType('cookies')" id="typeCookies">🍪 কুকিজ</button>
-                <button class="type-btn twofa" onclick="selectType('2fa')" id="type2fa">🔐 2FA</button>
-                <button class="type-btn nolink" onclick="selectType('nolink')" id="typeNolink">🔗 নো লিঙ্ক কুকিজ</button>
-            </div>
-
-            <div class="username-container">
-                <label class="username-label">📝 ইউজারনেম (প্রতি লাইনে একটি)</label>
-                <textarea class="username-input" id="usernames" placeholder="username1&#10;username2" oninput="countAccounts()" rows="4"></textarea>
-                <div class="username-counter" id="accountCount">০</div>
-            </div>
-
-            <div class="input-group">
-                <div class="telegram-header">
-                    <label class="input-label">📱 টেলিগ্রাম ইউজারনেম</label>
-                    <button class="save-btn-small" id="saveUserDataBtn"><i class="fas fa-save"></i> সেভ</button>
+            <!-- সাবমিট ভিউ -->
+            <div id="submitView" class="submit-view">
+                <div class="type-row">
+                    <button class="type-btn cookies" onclick="selectType('cookies')" id="typeCookies">🍪 কুকিজ</button>
+                    <button class="type-btn twofa" onclick="selectType('2fa')" id="type2fa">🔐 2FA</button>
+                    <button class="type-btn nolink" onclick="selectType('nolink')" id="typeNolink">🔗 নো লিঙ্ক কুকিজ</button>
                 </div>
-                <input class="input-field" type="text" id="telegram" placeholder="@username" value="@">
-            </div>
 
-            <div class="input-group">
-                <label class="input-label">💰 পেমেন্ট মেথড</label>
-                <div class="payment-selector">
-                    <div class="payment-selected" id="paymentSelected" onclick="togglePaymentDropdown()">
-                        <span id="selectedPaymentText">সিলেক্ট করুন</span>
-                        <span>▼</span>
+                <div class="username-container">
+                    <label class="username-label">📝 ইউজারনেম (প্রতি লাইনে একটি)</label>
+                    <textarea class="username-input" id="usernames" placeholder="username1&#10;username2" oninput="countAccounts()" rows="4"></textarea>
+                    <div class="username-counter" id="accountCount">০</div>
+                </div>
+
+                <div class="input-group">
+                    <div class="telegram-header">
+                        <label class="input-label">📱 টেলিগ্রাম ইউজারনেম</label>
+                        <button class="save-btn-small" id="saveUserDataBtn"><i class="fas fa-save"></i> সেভ</button>
                     </div>
-                    <div class="payment-dropdown" id="paymentDropdown"></div>
+                    <input class="input-field" type="text" id="telegram" placeholder="@username" value="@">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">💰 পেমেন্ট মেথড</label>
+                    <div class="payment-selector">
+                        <div class="payment-selected" id="paymentSelected" onclick="togglePaymentDropdown()">
+                            <span id="selectedPaymentText">সিলেক্ট করুন</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="payment-dropdown" id="paymentDropdown"></div>
+                    </div>
+                </div>
+
+                <div class="input-group" id="numberGroup">
+                    <label class="input-label">📞 পেমেন্ট নম্বর</label>
+                    <input class="input-field" type="text" id="number" placeholder="017xxxxxxxx">
+                </div>
+
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <button class="submit-btn" onclick="submitData()" id="submitBtn">
+                    <i class="fas fa-paper-plane" style="margin-right: 8px;"></i>
+                    সাবমিট করুন
+                </button>
+
+                <div class="result-box" id="resultBox">
+                    <div id="resultMessage"></div>
+                    <div class="receipt-details" id="receiptDetails"></div>
+                    <div id="telegramNotifyStatus" class="telegram-notify"></div>
+                    <button class="receipt-btn" onclick="downloadPNG()" id="receiptBtn">
+                        <i class="fas fa-image"></i>
+                        PNG রিসিট ডাউনলোড করুন
+                    </button>
                 </div>
             </div>
 
-            <div class="input-group" id="numberGroup">
-                <label class="input-label">📞 পেমেন্ট নম্বর</label>
-                <input class="input-field" type="text" id="number" placeholder="017xxxxxxxx">
+            <!-- হিস্টরি ভিউ -->
+            <div id="historyView" class="history-view">
+                <div class="history-card">
+                    <button class="back-btn" onclick="showSubmitView()"><i class="fas fa-arrow-left"></i> সাবমিট প্যানেলে ফিরুন</button>
+                    <div class="history-title">
+                        <i class="fas fa-clock"></i> আমার সাবমিট হিস্টোরি
+                    </div>
+                    <div id="historyList" class="history-list">
+                        <div class="empty-history">লোড হচ্ছে...</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="progress-bar" id="progressBar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-
-            <button class="submit-btn" onclick="submitData()" id="submitBtn">
-                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i>
-                সাবমিট করুন
-            </button>
-
-            <div class="result-box" id="resultBox">
-                <div id="resultMessage"></div>
-                <div class="receipt-details" id="receiptDetails"></div>
-                <div id="telegramNotifyStatus" class="telegram-notify"></div>
-                <button class="receipt-btn" onclick="downloadPNG()" id="receiptBtn">
-                    <i class="fas fa-image"></i>
-                    PNG রিসিট ডাউনলোড করুন
+            <!-- নিচে হিস্টরি বাটন (সাবমিট ভিউতে থাকবে) -->
+            <div id="historyBtnContainer" class="history-btn-container">
+                <button class="history-toggle-btn" onclick="showHistoryView()">
+                    <i class="fas fa-history"></i> 📜 আমার হিস্টোরি
                 </button>
             </div>
         </div>
@@ -679,6 +834,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, push, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+        // প্রথম ডাটাবেজ কনফিগ
         const firebaseConfig = {
             apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
             authDomain: "saprahik-kaj.firebaseapp.com",
@@ -688,9 +844,17 @@
             messagingSenderId: "336661054558",
             appId: "1:336661054558:web:1beb394b660c9d6cf520cf"
         };
+        
+        // দ্বিতীয় ডাটাবেজ কনফিগ (ডুপ্লিকেট রিপোর্টের জন্য)
+        const secondDatabaseConfig = {
+            databaseURL: "https://free-lancher-24-default-rtdb.firebaseio.com"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        
+        const secondApp = initializeApp(secondDatabaseConfig, 'secondary');
+        const secondDB = getDatabase(secondApp);
 
         const TELEGRAM_BOT_TOKEN = '8250221796:AAHdKid6RAoIeEnjHhrYdHNGkmc38wfs5d4';
         const BOT_LINK = 'https://t.me/ebh_payment_bot';
@@ -704,15 +868,215 @@
         let lastUpdateId = 0;
         let pollingActive = true;
         let typeSettings = { cookies: true, twofa: true, nolink: true };
+        let currentUserTelegram = '';
+        let userRatesCache = {};
+        let duplicateReportsMap = new Map(); // দ্বিতীয় ডাটাবেজ থেকে রিপোর্ট ক্যাশ
+        
+        // দ্বিতীয় ডাটাবেজ থেকে রিপোর্ট লোড করা
+        async function loadDuplicateReports() {
+            try {
+                const reportsRef = ref(secondDB, 'reports');
+                const snapshot = await get(reportsRef);
+                if (snapshot.exists()) {
+                    const reports = snapshot.val();
+                    duplicateReportsMap.clear();
+                    for (const date in reports) {
+                        const dateData = reports[date];
+                        if (dateData && dateData.users) {
+                            for (const type in dateData.users) {
+                                const typeUsers = dateData.users[type];
+                                if (typeUsers && typeof typeUsers === 'object') {
+                                    for (const encodedUsername in typeUsers) {
+                                        duplicateReportsMap.set(encodedUsername, type);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    console.log(`ডুপ্লিকেট রিপোর্ট লোড: ${duplicateReportsMap.size} টি`);
+                }
+            } catch (error) {
+                console.error('ডুপ্লিকেট রিপোর্ট লোডে সমস্যা:', error);
+            }
+        }
+        
+        // ইউজারনেম এনকোড (দ্বিতীয় ডাটাবেজের মতো)
+        function encodeUsername(username) {
+            if (!username) return '';
+            let encoded = '';
+            for (let i = 0; i < username.length; i++) {
+                const char = username[i];
+                if (char === '.') encoded += '_x2E_';
+                else if (char === '#') encoded += '_x23_';
+                else if (char === '$') encoded += '_x24_';
+                else if (char === '[') encoded += '_x5B_';
+                else if (char === ']') encoded += '_x5D_';
+                else if (char === '/') encoded += '_x2F_';
+                else if (char === '\\') encoded += '_x5C_';
+                else encoded += char;
+            }
+            return encoded;
+        }
+        
+        // ইউজারনেম ডুপ্লিকেট কিনা চেক করা
+        function isUsernameDuplicate(username) {
+            const encoded = encodeUsername(username);
+            return duplicateReportsMap.has(encoded);
+        }
+        
+        // ইউজারনেম লিস্ট থেকে ডুপ্লিকেট কাউন্ট বের করা
+        function countDuplicatesInList(usernames) {
+            if (!usernames || usernames.length === 0) return 0;
+            let count = 0;
+            usernames.forEach(username => {
+                if (isUsernameDuplicate(username)) count++;
+            });
+            return count;
+        }
 
-        // ========== শুধুমাত্র টেলিগ্রাম ইউজারনেম সেভ করা ==========
+        // রেট লোড করা
+        async function loadUserRates() {
+            const ratesSnapshot = await get(ref(db, 'userRates'));
+            userRatesCache = ratesSnapshot.val() || {};
+        }
+        
+        // ইউজারের রেট পাওয়া
+        function getUserRate(telegram, type) {
+            const DEFAULT_RATES = { 'cookies': 3.50, '2fa': 2.00, 'nolink': 3.00 };
+            const cleanTelegram = telegram.replace('@', '').toLowerCase().trim();
+            if (userRatesCache[cleanTelegram] && userRatesCache[cleanTelegram][type]) {
+                return userRatesCache[cleanTelegram][type];
+            }
+            return DEFAULT_RATES[type];
+        }
+
+        // ইউজারের নিজের সাবমিট করা ডাটা ফেচ করা (দ্বিতীয় ডাটাবেজ থেকে ডুপ্লিকেট চেক সহ)
+        async function loadUserHistory() {
+            const telegramInput = document.getElementById('telegram').value.trim();
+            let telegram = telegramInput;
+            if (!telegram || telegram === '@') {
+                const saved = localStorage.getItem('ebh_saved_telegram');
+                if (saved && saved !== '@') telegram = saved;
+                else {
+                    document.getElementById('historyList').innerHTML = '<div class="empty-history">🔍 টেলিগ্রাম ইউজারনেম দিন</div>';
+                    return;
+                }
+            }
+            if (!telegram.startsWith('@')) telegram = '@' + telegram;
+            const cleanTelegram = telegram.replace('@', '').toLowerCase().trim();
+            currentUserTelegram = cleanTelegram;
+            
+            await Promise.all([loadUserRates(), loadDuplicateReports()]);
+            
+            try {
+                const submitsRef = ref(db, 'submits');
+                const snapshot = await get(submitsRef);
+                if (!snapshot.exists()) {
+                    document.getElementById('historyList').innerHTML = '<div class="empty-history">📭 কোন সাবমিট নেই</div>';
+                    return;
+                }
+                
+                const allData = snapshot.val();
+                const userSubmits = [];
+                
+                for (const [id, item] of Object.entries(allData)) {
+                    if (item.telegram && item.telegram.toLowerCase() === cleanTelegram) {
+                        userSubmits.push({ id, ...item });
+                    }
+                }
+                
+                if (userSubmits.length === 0) {
+                    document.getElementById('historyList').innerHTML = '<div class="empty-history">📭 আপনার কোন সাবমিট নেই</div>';
+                    return;
+                }
+                
+                // টাইমস্ট্যাম্প অনুযায়ী সাজানো (নতুন প্রথমে)
+                userSubmits.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                
+                // গ্রুপিং: একই টাইমস্ট্যাম্প ও টাইপের একাধিক আইডি একসাথে
+                const grouped = {};
+                for (const sub of userSubmits) {
+                    const key = `${sub.type}_${sub.timestamp}_${sub.paymentMethod}`;
+                    if (!grouped[key]) {
+                        grouped[key] = {
+                            type: sub.type,
+                            timestamp: sub.timestamp,
+                            paymentMethod: sub.paymentMethod,
+                            number: sub.number,
+                            status: sub.status,
+                            approvedAt: sub.approvedAt,
+                            usernames: [],
+                            ids: []
+                        };
+                    }
+                    if (sub.username) grouped[key].usernames.push(sub.username);
+                    grouped[key].ids.push(sub.id);
+                    if (sub.status === 'approved') grouped[key].status = 'approved';
+                }
+                
+                let historyHtml = '';
+                for (const group of Object.values(grouped)) {
+                    const date = new Date(group.timestamp || Date.now());
+                    const timeString = date.toLocaleString('bn-BD');
+                    const typeName = group.type === 'cookies' ? '🍪 কুকিজ' : (group.type === '2fa' ? '🔐 2FA' : '🔗 নো লিঙ্ক');
+                    const typeClass = group.type === 'cookies' ? 'cookies' : (group.type === '2fa' ? 'twofa' : 'nolink');
+                    const statusText = group.status === 'pending' ? '⏳ পেন্ডিং' : '✅ অ্যাপ্রুভড';
+                    const statusClass = group.status === 'pending' ? 'pending' : 'approved';
+                    
+                    // রেট পাওয়া
+                    const rate = getUserRate(telegram, group.type);
+                    const totalUsernames = group.usernames.length;
+                    
+                    // দ্বিতীয় ডাটাবেজ থেকে ডুপ্লিকেট কাউন্ট বের করা
+                    const okCount = countDuplicatesInList(group.usernames);
+                    const totalMoney = okCount * rate;
+                    
+                    historyHtml += `
+                        <div class="history-item">
+                            <div class="history-header">
+                                <span class="history-type ${typeClass}">${typeName}</span>
+                                <span class="history-status ${statusClass}">${statusText}</span>
+                            </div>
+                            <div class="history-stats">
+                                <span><i class="fas fa-id-card"></i> মোট: ${totalUsernames} টি</span>
+                                <span><i class="fas fa-check-circle"></i> ওকে আইডি: ${okCount} টি</span>
+                                <span><i class="fas fa-credit-card"></i> ${group.paymentMethod || 'N/A'}</span>
+                            </div>
+                            <div class="history-stats">
+                                <span class="history-rate"><i class="fas fa-tag"></i> রেট: ${rate.toFixed(2)} টাকা/আইডি</span>
+                                <span><i class="fas fa-phone"></i> ${group.number || 'N/A'}</span>
+                            </div>
+                            <div class="history-amount">💰 মোট টাকা: ${totalMoney.toFixed(2)} টাকা</div>
+                            <div class="history-time">⏰ ${timeString}</div>
+                        </div>
+                    `;
+                }
+                document.getElementById('historyList').innerHTML = historyHtml;
+            } catch (error) {
+                console.error(error);
+                document.getElementById('historyList').innerHTML = '<div class="empty-history">❌ লোড করতে সমস্যা</div>';
+            }
+        }
+
+        // ভিউ সুইচ
+        window.showHistoryView = function() {
+            document.getElementById('submitView').classList.add('hide');
+            document.getElementById('historyView').classList.add('show');
+            document.getElementById('historyBtnContainer').style.display = 'none';
+            loadUserHistory();
+        };
+        
+        window.showSubmitView = function() {
+            document.getElementById('submitView').classList.remove('hide');
+            document.getElementById('historyView').classList.remove('show');
+            document.getElementById('historyBtnContainer').style.display = 'block';
+        };
+
         function loadSavedTelegramOnly() {
             const savedTelegram = localStorage.getItem('ebh_saved_telegram');
             if (savedTelegram && savedTelegram !== '@') {
                 document.getElementById('telegram').value = savedTelegram;
             }
-            localStorage.removeItem('ebh_saved_payment_name');
-            localStorage.removeItem('ebh_saved_payment_id');
             selectedPayment = '';
             selectedPaymentId = '';
             document.getElementById('selectedPaymentText').textContent = 'সিলেক্ট করুন';
@@ -730,7 +1094,7 @@
             if (!telegram.startsWith('@')) telegram = '@' + telegram;
             document.getElementById('telegram').value = telegram;
             localStorage.setItem('ebh_saved_telegram', telegram);
-            showToast('✅ টেলিগ্রাম ইউজারনেম সেভ হয়েছে (পেমেন্ট সেভ হবে না)', 'success');
+            showToast('✅ টেলিগ্রাম ইউজারনেম সেভ হয়েছে', 'success');
         }
 
         async function registerTelegramUser(chatId, username, firstName) {
@@ -793,10 +1157,10 @@
             return snapshot.exists() ? snapshot.val() : null;
         }
 
-        function createConfirmationMessage(typeName, uniqueCount, duplicateCount, paymentMethod, number, timestamp) {
+        function createConfirmationMessage(typeName, uniqueCount, duplicateCount, paymentMethod, number, timestamp, rate) {
             const timeStr = new Date(timestamp).toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' });
             let typeEmoji = typeName === 'কুকিজ' ? '🍪' : (typeName === '2FA' ? '🔐' : '🔗');
-            let msg = `✅ আপনার সাবমিশন সফল হয়েছে! ✅\n━━━━━━━━━━━━━━━━━━━━\n${typeEmoji} টাইপ: ${typeName}\n📊 মোট: ${uniqueCount + duplicateCount} টি\n✅ সফল: ${uniqueCount} টি\n⚠️ ডুপ্লিকেট: ${duplicateCount} টি\n━━━━━━━━━━━━━━━━━━━━\n💰 পেমেন্ট: ${paymentMethod}\n📞 নাম্বার: ${number}\n⏰ সময়: ${timeStr}\n\nEBH TEAM - Earning By Habib ❤️ https://t.me/earningbyhabib`;
+            let msg = `✅ আপনার সাবমিশন সফল হয়েছে! ✅\n━━━━━━━━━━━━━━━━━━━━\n${typeEmoji} টাইপ: ${typeName}\n📊 মোট: ${uniqueCount + duplicateCount} টি\n✅ সফল: ${uniqueCount} টি\n⚠️ ডুপ্লিকেট: ${duplicateCount} টি\n💰 রেট: ${rate.toFixed(2)} টাকা/আইডি\n━━━━━━━━━━━━━━━━━━━━\n💰 পেমেন্ট: ${paymentMethod}\n📞 নাম্বার: ${number}\n⏰ সময়: ${timeStr}\n\nEBH TEAM - Earning By Habib ❤️ https://t.me/earningbyhabib`;
             if (duplicateCount > 0) msg = `⚠️ ${duplicateCount} টি ডুপ্লিকেট বাদ দেওয়া হয়েছে ⚠️\n\n` + msg;
             return msg;
         }
@@ -830,7 +1194,7 @@
             const submitBtn = document.getElementById('submitBtn');
             const typeBtns = document.querySelectorAll('.type-btn');
             const paymentSelectedDiv = document.getElementById('paymentSelected');
-            const inputs = document.querySelectorAll('input, textarea');
+            const inputs = document.querySelectorAll('#submitView input, #submitView textarea');
             if (!systemEnabled) {
                 notice.classList.add('show');
                 noticeText.textContent = '⛔ ' + maintenanceMessage;
@@ -931,7 +1295,6 @@
             document.getElementById('accountCount').textContent = count;
         };
 
-        // --- ফাস্ট সাবমিটের জন্য অপ্টিমাইজড ফাংশন (লোডিং টাইম কমাতে) ---
         async function checkExistingUsernamesFast(usernames) {
             const uniqueSet = new Set();
             const localDuplicates = new Set();
@@ -989,7 +1352,6 @@
             const progressFill = document.getElementById('progressFill');
             const telegramNotifyStatus = document.getElementById('telegramNotifyStatus');
             
-            // লোডিং UI দেখানো হচ্ছে, কিন্তু কাজ দ্রুত শেষ হবে
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং...';
             progressBar.style.display = 'block';
@@ -997,22 +1359,25 @@
             telegramNotifyStatus.innerHTML = '';
 
             try {
-                // ফাস্ট ট্র্যাক: Duplicate চেক এবং ডাটাবেজ সেভ একসাথে দ্রুত করা
+                await loadUserRates();
+                await loadDuplicateReports(); // ডুপ্লিকেট রিপোর্ট লোড
+                const rate = getUserRate(telegram, selectedType);
+                
                 progressFill.style.width = '40%';
                 const { duplicates, uniqueUsernames } = await checkExistingUsernamesFast(usernames);
                 progressFill.style.width = '70%';
                 const timestamp = Date.now();
+                const cleanTelegram = telegram.replace('@', '');
                 
-                // ব্যাচড অপারেশন: সব পুশ একসাথে (Promise.all এটা দ্রুত করে)
                 const pushPromises = uniqueUsernames.map(username => push(ref(db, 'submits'), {
-                    username, telegram: telegram.replace('@', ''), paymentMethod: selectedPayment, paymentId: selectedPaymentId,
+                    username, telegram: cleanTelegram, paymentMethod: selectedPayment, paymentId: selectedPaymentId,
                     number, timestamp, status: 'pending', type: selectedType
                 }));
                 await Promise.all(pushPromises);
                 progressFill.style.width = '100%';
                 
                 let typeName = selectedType === 'cookies' ? 'কুকিজ' : (selectedType === '2fa' ? '2FA' : 'নো লিঙ্ক');
-                lastSubmission = { telegram, typeName, uniqueCount: uniqueUsernames.length, duplicateCount: duplicates.length, paymentMethod: selectedPayment, paymentId: selectedPaymentId, number, timestamp, usernames: uniqueUsernames };
+                lastSubmission = { telegram: cleanTelegram, typeName, uniqueCount: uniqueUsernames.length, duplicateCount: duplicates.length, paymentMethod: selectedPayment, paymentId: selectedPaymentId, number, timestamp, usernames: uniqueUsernames, rate };
                 const resultBox = document.getElementById('resultBox');
                 const resultMessage = document.getElementById('resultMessage');
                 const receiptDetails = document.getElementById('receiptDetails');
@@ -1020,15 +1385,14 @@
                     resultMessage.innerHTML = '<span class="duplicate-text">⚠️ সব ইউজারনেম ডুপ্লিকেট!</span>';
                     receiptDetails.innerHTML = '';
                 } else {
-                    resultMessage.innerHTML = `<span class="success-text">✅ ${uniqueUsernames.length} টি ${typeName} সেভ হয়েছে</span>${duplicates.length > 0 ? `<br><span class="duplicate-text">⚠️ ${duplicates.length} টি ডুপ্লিকেট বাদ দেওয়া হয়েছে</span>` : ''}`;
-                    receiptDetails.innerHTML = `<div><span class="label">👤 টেলিগ্রাম:</span> <span class="value">${telegram}</span></div><div><span class="label">📊 টাইপ:</span> <span class="value">${typeName}</span></div><div><span class="label">✅ সফল:</span> <span class="value">${uniqueUsernames.length} টি</span></div>${duplicates.length > 0 ? `<div><span class="label">⚠️ ডুপ্লিকেট:</span> <span class="value">${duplicates.length} টি</span></div>` : ''}<div><span class="label">💰 পেমেন্ট:</span> <span class="value">${selectedPayment}</span></div><div><span class="label">📞 নাম্বার:</span> <span class="value">${number}</span></div><div><span class="label">⏰ সময়:</span> <span class="value">${new Date().toLocaleString('bn-BD')}</span></div>`;
+                    resultMessage.innerHTML = `<span class="success-text">✅ ${uniqueUsernames.length} টি ${typeName} সেভ হয়েছে (রেট: ${rate.toFixed(2)} টাকা/আইডি)</span>${duplicates.length > 0 ? `<br><span class="duplicate-text">⚠️ ${duplicates.length} টি ডুপ্লিকেট বাদ দেওয়া হয়েছে</span>` : ''}`;
+                    receiptDetails.innerHTML = `<div><span class="label">👤 টেলিগ্রাম:</span> <span class="value">${telegram}</span></div><div><span class="label">📊 টাইপ:</span> <span class="value">${typeName}</span></div><div><span class="label">✅ সফল:</span> <span class="value">${uniqueUsernames.length} টি</span></div>${duplicates.length > 0 ? `<div><span class="label">⚠️ ডুপ্লিকেট:</span> <span class="value">${duplicates.length} টি</span></div>` : ''}<div><span class="label">💰 রেট:</span> <span class="value">${rate.toFixed(2)} টাকা/আইডি</span></div><div><span class="label">💰 পেমেন্ট:</span> <span class="value">${selectedPayment}</span></div><div><span class="label">📞 নাম্বার:</span> <span class="value">${number}</span></div><div><span class="label">⏰ সময়:</span> <span class="value">${new Date().toLocaleString('bn-BD')}</span></div>`;
                 }
                 resultBox.classList.add('show');
                 if (uniqueUsernames.length > 0) {
-                    // ব্যাকগ্রাউন্ডে টেলিগ্রাম নোটিফিকেশন পাঠানো (UI ব্লক করবে না)
                     const chatId = await getUserChatId(telegram);
                     if (chatId) {
-                        const msg = createConfirmationMessage(typeName, uniqueUsernames.length, duplicates.length, selectedPayment, number, timestamp);
+                        const msg = createConfirmationMessage(typeName, uniqueUsernames.length, duplicates.length, selectedPayment, number, timestamp, rate);
                         sendTelegramMessage(chatId, msg).then(sent => {
                             if (sent) telegramNotifyStatus.innerHTML = '<i class="fas fa-check-circle"></i> ✅ টেলিগ্রামে কনফার্মেশন পাঠানো হয়েছে';
                             else telegramNotifyStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ⚠️ মেসেজ পাঠাতে সমস্যা';
@@ -1065,7 +1429,7 @@
                 let usernamesHTML = '';
                 lastSubmission.usernames.slice(0, 15).forEach(u => { usernamesHTML += `<div style="color: #ccc; font-size: 12px;">• ${u}</div>`; });
                 if (lastSubmission.usernames.length > 15) usernamesHTML += `<div style="color: #ffd700;">... এবং আরও ${lastSubmission.usernames.length - 15} টি</div>`;
-                canvasDiv.innerHTML = `<div style="font-family: Arial; background:#0a0f1e; color:white; padding:25px;"><div style="text-align:center;"><div style="font-size:36px; color:#ffd700;">EBH TEAM</div><div style="height:2px; background:#ffd700; margin:15px 0;"></div></div><div><div><span style="color:#ffd700;">টেলিগ্রাম:</span> ${lastSubmission.telegram}</div><div><span style="color:#ffd700;">টাইপ:</span> ${lastSubmission.typeName}</div><div><span style="color:#ffd700;">সফল:</span> ${lastSubmission.uniqueCount} টি</div>${lastSubmission.duplicateCount>0?`<div><span style="color:#ffd700;">ডুপ্লিকেট:</span> ${lastSubmission.duplicateCount} টি</div>`:''}<div><span style="color:#ffd700;">পেমেন্ট:</span> ${lastSubmission.paymentMethod}</div><div><span style="color:#ffd700;">নাম্বার:</span> ${numberDisplay}</div><div><span style="color:#ffd700;">সময়:</span> ${timeStr}</div></div><div style="height:2px; background:#ffd700; margin:15px 0;"></div><div><div style="color:#ffd700;">ইউজারনেম সমূহ:</div>${usernamesHTML}</div><div style="text-align:center; margin-top:20px;">EBH TEAM</div></div>`;
+                canvasDiv.innerHTML = `<div style="font-family: Arial; background:#0a0f1e; color:white; padding:25px;"><div style="text-align:center;"><div style="font-size:36px; color:#ffd700;">EBH TEAM</div><div style="height:2px; background:#ffd700; margin:15px 0;"></div></div><div><div><span style="color:#ffd700;">টেলিগ্রাম:</span> ${lastSubmission.telegram}</div><div><span style="color:#ffd700;">টাইপ:</span> ${lastSubmission.typeName}</div><div><span style="color:#ffd700;">সফল:</span> ${lastSubmission.uniqueCount} টি</div>${lastSubmission.duplicateCount>0?`<div><span style="color:#ffd700;">ডুপ্লিকেট:</span> ${lastSubmission.duplicateCount} টি</div>`:''}<div><span style="color:#ffd700;">রেট:</span> ${lastSubmission.rate.toFixed(2)} টাকা/আইডি</div><div><span style="color:#ffd700;">পেমেন্ট:</span> ${lastSubmission.paymentMethod}</div><div><span style="color:#ffd700;">নাম্বার:</span> ${numberDisplay}</div><div><span style="color:#ffd700;">সময়:</span> ${timeStr}</div></div><div style="height:2px; background:#ffd700; margin:15px 0;"></div><div><div style="color:#ffd700;">ইউজারনেম সমূহ:</div>${usernamesHTML}</div><div style="text-align:center; margin-top:20px;">EBH TEAM</div></div>`;
                 html2canvas(canvasDiv, { scale: 2, backgroundColor: '#0a0f1e' }).then(canvas => {
                     const link = document.createElement('a');
                     link.download = `EBH_Receipt_${Date.now()}.png`;
@@ -1102,6 +1466,23 @@
         initPopup();
         checkTelegramUpdates();
         window.countAccounts();
+        
+        // রিয়েল টাইমে হিস্টরি আপডেট (যখন ভিউ ওপেন থাকে)
+        const submitsRef = ref(db, 'submits');
+        onValue(submitsRef, () => {
+            if (document.getElementById('historyView').classList.contains('show')) {
+                loadUserHistory();
+            }
+        });
+        
+        // ডুপ্লিকেট রিপোর্ট রিয়েল টাইমে আপডেট
+        const reportsRef = ref(secondDB, 'reports');
+        onValue(reportsRef, () => {
+            loadDuplicateReports();
+            if (document.getElementById('historyView').classList.contains('show')) {
+                loadUserHistory();
+            }
+        });
     </script>
 </body>
 </html>
