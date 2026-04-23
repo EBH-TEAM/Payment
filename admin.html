@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>EBH Team - অ্যাডমিন প্যানেল ⚡</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
@@ -17,7 +17,7 @@
         body {
             min-height: 100vh;
             background: linear-gradient(145deg, #1a1e2b 0%, #2d3349 100%);
-            padding: 20px;
+            padding: 12px;
         }
 
         .container {
@@ -25,75 +25,59 @@
             margin: 0 auto;
         }
 
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.9);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
-        }
-        
-        .loading-overlay.hide {
-            display: none;
-        }
-        
-        .loader {
+        /* কার্ড লোডিং - শুধু ইউজার কার্ড এরিয়াতে */
+        .card-loading {
             text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.6);
+            font-size: 16px;
+            grid-column: 1 / -1;
         }
-        
-        .loader-spinner {
-            width: 50px;
-            height: 50px;
+
+        .card-loader {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
             border: 3px solid rgba(255,215,0,0.3);
             border-top: 3px solid #ffd700;
             border-radius: 50%;
             animation: spin 0.6s linear infinite;
-            margin: 0 auto 15px;
+            margin-right: 10px;
+            vertical-align: middle;
         }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-        
-        .loader-text {
-            color: #ffd700;
-            font-size: 14px;
-            font-weight: bold;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             background: #2d3349;
-            padding: 20px 25px;
-            border-radius: 50px;
+            padding: 15px 20px;
+            border-radius: 40px;
             box-shadow: 15px 15px 30px rgba(0,0,0,0.5), inset 2px 2px 5px rgba(255,255,255,0.1), inset -3px -3px 8px rgba(0,0,0,0.5);
             border: 1px solid rgba(255,215,0,0.2);
             flex-wrap: wrap;
+            gap: 12px;
         }
 
         .logo h1 {
-            font-size: 36px;
+            font-size: 28px;
             font-weight: 900;
             font-family: 'Orbitron', sans-serif;
             background: linear-gradient(145deg, #ffd700, #ffa500, #ff8c00);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 5px 15px rgba(255,215,0,0.3), 2px 2px 0 #00000030;
+            text-shadow: 0 5px 15px rgba(255,215,0,0.3);
         }
 
         .stats-row {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
             flex-wrap: wrap;
             justify-content: flex-end;
@@ -101,24 +85,23 @@
 
         .stat-box {
             background: rgba(255,215,0,0.1);
-            padding: 8px 20px;
+            padding: 6px 15px;
             border-radius: 40px;
             border: 1px solid #ffd700;
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .stat-box span {
             color: #ffd700;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
         }
 
         .stat-box label {
             color: #fff;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .refresh-buttons {
@@ -130,26 +113,22 @@
             background: linear-gradient(145deg, #ffd700, #ffa500);
             color: #1a1e2b;
             border: none;
-            padding: 8px 20px;
+            padding: 6px 16px;
             border-radius: 40px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
-            box-shadow: 5px 5px 10px rgba(0,0,0,0.4), inset -2px -2px 5px rgba(0,0,0,0.2), inset 2px 2px 5px rgba(255,255,255,0.3);
+            font-size: 12px;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
             transition: 0.2s;
-            height: 48px;
-            min-width: 100px;
+            min-height: 40px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .refresh-btn.small {
             background: linear-gradient(145deg, #3498db, #2980b9);
             color: white;
-            min-width: 80px;
-            padding: 8px 15px;
         }
 
         .refresh-btn:active {
@@ -158,9 +137,9 @@
 
         .money-stats {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             background: rgba(255,215,0,0.15);
-            padding: 8px 25px;
+            padding: 10px 20px;
             border-radius: 40px;
             border: 1px solid #ffd700;
             font-weight: bold;
@@ -169,34 +148,57 @@
             flex-wrap: wrap;
         }
 
-        .money-pending {
-            color: #ffa502;
-            font-size: 18px;
+        .money-pending, .money-approved {
+            font-size: 14px;
         }
 
-        .money-approved {
-            color: #26de81;
-            font-size: 18px;
-        }
+        .money-pending { color: #ffa502; }
+        .money-approved { color: #26de81; }
 
         .money-pending strong, .money-approved strong {
             color: #ffd700;
-            font-size: 22px;
+            font-size: 18px;
             margin-left: 5px;
+        }
+
+        /* নতুন ওকে আইডি বক্স */
+        .okid-stats {
+            display: flex;
+            gap: 12px;
+            background: rgba(76, 175, 80, 0.15);
+            padding: 10px 20px;
+            border-radius: 40px;
+            border: 1px solid #4CAF50;
+            font-weight: bold;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .okid-box {
+            font-size: 14px;
+            color: #4CAF50;
+        }
+        .okid-box strong {
+            color: #ffd700;
+            font-size: 22px;
+            margin-left: 8px;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 10px;
+            border-radius: 30px;
         }
 
         .finance-row {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
         .finance-box {
             flex: 1;
-            min-width: 200px;
+            min-width: 160px;
             background: linear-gradient(145deg, #2d3349, #1a1e2b);
-            padding: 15px 20px;
+            padding: 12px 15px;
             border-radius: 30px;
             display: flex;
             align-items: center;
@@ -204,45 +206,112 @@
             box-shadow: 10px 10px 20px rgba(0,0,0,0.4);
         }
 
-        .finance-box.received {
-            border: 2px solid #ffd700;
-        }
-
-        .finance-box.profit {
-            border: 2px solid #4CAF50;
-        }
+        .finance-box.received { border: 2px solid #ffd700; }
+        .finance-box.profit { border: 2px solid #4CAF50; }
 
         .finance-box .label {
-            font-size: 14px;
+            font-size: 12px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
-        .finance-box.received .label {
-            color: #ffd700;
-        }
-
-        .finance-box.profit .label {
-            color: #4CAF50;
-        }
+        .finance-box.received .label { color: #ffd700; }
+        .finance-box.profit .label { color: #4CAF50; }
 
         .finance-box .amount {
             color: white;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
         }
 
         .filter-indicator {
             background: rgba(255,215,0,0.1);
-            padding: 5px 15px;
+            padding: 5px 12px;
             border-radius: 30px;
             border: 1px solid #ffd700;
             color: #ffd700;
-            font-size: 14px;
+            font-size: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        /* মোবাইল ফ্রেন্ডলি টাইপ বাটন - 2 কলাম লেআউট */
+        .type-tabs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .type-tab {
+            padding: 10px 8px;
+            border-radius: 40px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .type-tab.type-1 { background: linear-gradient(145deg, #ff6b6b, #ff4757); }
+        .type-tab.type-2 { background: linear-gradient(145deg, #4834d4, #686de0); }
+        .type-tab.type-3 { background: linear-gradient(145deg, #20bf6b, #0fb9b1); }
+        .type-tab.type-4 { background: linear-gradient(145deg, #f39c12, #e67e22); }
+        .type-tab.type-5 { background: linear-gradient(145deg, #9b59b6, #8e44ad); }
+        .type-tab.type-6 { background: linear-gradient(145deg, #1abc9c, #16a085); }
+        .type-tab.type-7 { background: linear-gradient(145deg, #e74c3c, #c0392b); }
+        .type-tab.type-8 { background: linear-gradient(145deg, #2c3e50, #34495e); }
+
+        .type-tab:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .type-tab.active { transform: scale(1.02); box-shadow: 0 0 0 3px #ffd700; }
+
+        /* টাইপ স্ট্যাট বক্স - 2 কলাম */
+        .type-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .type-stat-box {
+            background: #2d3349;
+            border-radius: 20px;
+            padding: 10px 8px;
+            border: 1px solid rgba(255,215,0,0.2);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .type-stat-box:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,215,0,0.2); }
+
+        .type-stat-box .stat-value {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .type-stat-box.type-1 .stat-value { color: #ff6b6b; }
+        .type-stat-box.type-2 .stat-value { color: #686de0; }
+        .type-stat-box.type-3 .stat-value { color: #20bf6b; }
+        .type-stat-box.type-4 .stat-value { color: #f39c12; }
+        .type-stat-box.type-5 .stat-value { color: #9b59b6; }
+        .type-stat-box.type-6 .stat-value { color: #1abc9c; }
+        .type-stat-box.type-7 .stat-value { color: #e74c3c; }
+        .type-stat-box.type-8 .stat-value { color: #2c3e50; }
+
+        .type-stat-box .stat-label {
+            color: #fff;
+            font-size: 10px;
+            margin-top: 5px;
+            word-break: break-word;
         }
 
         .main-tabs {
@@ -253,139 +322,29 @@
 
         .main-tab {
             flex: 1;
-            padding: 15px 20px;
+            padding: 12px 10px;
             border-radius: 40px;
             cursor: pointer;
             text-align: center;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 14px;
             transition: all 0.3s ease;
             border: none;
             box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
         }
 
-        .main-tab.pending {
-            background: linear-gradient(145deg, #ffa502, #ff7f50);
-            color: white;
-        }
+        .main-tab.pending { background: linear-gradient(145deg, #ffa502, #ff7f50); color: white; }
+        .main-tab.approved { background: linear-gradient(145deg, #26de81, #20bf6b); color: white; }
 
-        .main-tab.approved {
-            background: linear-gradient(145deg, #26de81, #20bf6b);
-            color: white;
-        }
-
-        .main-tab:hover {
-            transform: translateY(-3px);
-            filter: brightness(1.1);
-        }
-
-        .main-tab.active {
-            transform: scale(1.02);
-            box-shadow: 0 0 0 3px #ffd700;
-        }
+        .main-tab:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .main-tab.active { transform: scale(1.02); box-shadow: 0 0 0 3px #ffd700; }
 
         .main-tab .badge {
             background: rgba(255,255,255,0.2);
-            padding: 2px 10px;
+            padding: 2px 8px;
             border-radius: 20px;
-            margin-left: 10px;
-            font-size: 14px;
-        }
-
-        .type-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .type-tab {
-            flex: 1;
-            padding: 15px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            text-align: center;
-            font-weight: bold;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            border: none;
-            box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
-        }
-
-        .type-tab.cookies {
-            background: linear-gradient(145deg, #ff6b6b, #ff4757);
-            color: white;
-        }
-
-        .type-tab.twofa {
-            background: linear-gradient(145deg, #4834d4, #686de0);
-            color: white;
-        }
-
-        .type-tab.nolink {
-            background: linear-gradient(145deg, #00b894, #00a884);
-            color: white;
-        }
-
-        .type-tab:hover {
-            transform: translateY(-3px);
-            filter: brightness(1.1);
-        }
-
-        .type-tab.active {
-            transform: scale(1.02);
-            box-shadow: 0 0 0 3px #ffd700;
-        }
-
-        .type-stats {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .type-stat-box {
-            flex: 1;
-            background: #2d3349;
-            border-radius: 30px;
-            padding: 15px;
-            border: 1px solid rgba(255,215,0,0.2);
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .type-stat-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255,215,0,0.2);
-        }
-
-        .type-stat-box.cookies .stat-value {
-            color: #ff6b6b;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .type-stat-box.twofa .stat-value {
-            color: #686de0;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .type-stat-box.nolink .stat-value {
-            color: #00b894;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .type-stat-box.duplicate .stat-value {
-            color: #4CAF50;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .type-stat-box .stat-label {
-            color: #fff;
-            font-size: 14px;
+            margin-left: 8px;
+            font-size: 12px;
         }
 
         .action-bar {
@@ -399,36 +358,37 @@
             background: linear-gradient(145deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 15px 25px;
+            padding: 12px 20px;
             border-radius: 40px;
             cursor: pointer;
             font-weight: bold;
             flex: 1;
-            min-width: 200px;
+            min-width: 160px;
+            font-size: 14px;
             box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
         }
 
         .search-box {
             flex: 2;
-            min-width: 300px;
+            min-width: 200px;
         }
 
         .search-box input {
             width: 100%;
-            padding: 15px 25px;
+            padding: 12px 20px;
             background: #3a4055;
             border: none;
             border-radius: 40px;
             color: #fff;
-            font-size: 16px;
+            font-size: 14px;
             box-shadow: inset 5px 5px 10px rgba(0,0,0,0.5);
         }
 
         .settings-section {
             background: #2d3349;
-            border-radius: 40px;
-            padding: 20px;
-            margin-bottom: 25px;
+            border-radius: 30px;
+            padding: 15px;
+            margin-bottom: 20px;
             border: 1px solid rgba(255,215,0,0.2);
         }
 
@@ -437,49 +397,40 @@
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            padding: 10px;
+            padding: 8px;
         }
 
         .settings-header h3 {
             color: #ffd700;
-            font-size: 18px;
+            font-size: 16px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .settings-header .arrow {
             color: #ffd700;
-            font-size: 20px;
+            font-size: 18px;
             transition: transform 0.3s ease;
         }
 
         .settings-content {
             display: none;
-            padding-top: 20px;
+            padding-top: 15px;
         }
 
-        .settings-content.show {
-            display: block;
-        }
+        .settings-content.show { display: block; }
 
-        .payment-toggles {
+        .payment-toggles, .type-toggles {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
             margin-bottom: 15px;
-        }
-
-        .type-toggles {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
         }
 
         .toggle-item {
             background: #3a4055;
-            padding: 12px 15px;
+            padding: 10px 12px;
             border-radius: 30px;
             display: flex;
             align-items: center;
@@ -489,29 +440,27 @@
 
         .toggle-item label {
             color: #fff;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .toggle-item input[type="checkbox"] {
-            width: 44px;
-            height: 22px;
+            width: 40px;
+            height: 20px;
             appearance: none;
             background: rgba(255,255,255,0.2);
-            border-radius: 22px;
+            border-radius: 20px;
             position: relative;
             cursor: pointer;
             transition: 0.3s;
         }
 
-        .toggle-item input[type="checkbox"]:checked {
-            background: #ffd700;
-        }
+        .toggle-item input[type="checkbox"]:checked { background: #ffd700; }
 
         .toggle-item input[type="checkbox"]::before {
             content: '';
             position: absolute;
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             background: white;
             border-radius: 50%;
             top: 2px;
@@ -519,161 +468,142 @@
             transition: 0.3s;
         }
 
-        .toggle-item input[type="checkbox"]:checked::before {
-            left: 24px;
-        }
+        .toggle-item input[type="checkbox"]:checked::before { left: 22px; }
 
         .save-settings-btn {
             background: linear-gradient(145deg, #ffd700, #ffa500);
             color: #1a1e2b;
             border: none;
-            padding: 12px 25px;
+            padding: 10px 20px;
             border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
             width: 100%;
-            font-size: 16px;
+            font-size: 14px;
             margin-top: 10px;
         }
 
         .system-control {
             background: rgba(255,215,0,0.05);
-            border-radius: 30px;
-            padding: 20px;
+            border-radius: 25px;
+            padding: 15px;
             margin-top: 10px;
         }
 
         .system-toggle {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
         }
 
         .system-toggle button {
-            padding: 12px 25px;
+            padding: 10px 20px;
             border: none;
             border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
             box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
         }
 
-        .btn-enable {
-            background: linear-gradient(145deg, #4CAF50, #45a049);
-            color: white;
-        }
+        .btn-enable { background: linear-gradient(145deg, #4CAF50, #45a049); color: white; }
+        .btn-disable { background: linear-gradient(145deg, #f44336, #d32f2f); color: white; }
 
-        .btn-disable {
-            background: linear-gradient(145deg, #f44336, #d32f2f);
-            color: white;
-        }
-
-        .system-message {
-            flex: 1;
-            min-width: 300px;
-        }
-
+        .system-message { flex: 1; min-width: 200px; }
         .system-message input {
             width: 100%;
-            padding: 12px 20px;
+            padding: 10px 15px;
             background: #3a4055;
             border: none;
             border-radius: 30px;
             color: #fff;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .current-status {
             display: inline-block;
-            padding: 5px 15px;
+            padding: 4px 12px;
             border-radius: 30px;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
-            margin-left: 10px;
+            margin-left: 8px;
         }
 
-        .status-on {
-            background: rgba(76,175,80,0.2);
-            color: #4CAF50;
-            border: 1px solid #4CAF50;
-        }
-
-        .status-off {
-            background: rgba(244,67,54,0.2);
-            color: #f44336;
-            border: 1px solid #f44336;
-        }
+        .status-on { background: rgba(76,175,80,0.2); color: #4CAF50; border: 1px solid #4CAF50; }
+        .status-off { background: rgba(244,67,54,0.2); color: #f44336; border: 1px solid #f44336; }
 
         .accounting-section {
-            margin-top: 20px;
+            margin-top: 15px;
             background: rgba(255,215,0,0.05);
-            border-radius: 30px;
-            padding: 20px;
+            border-radius: 25px;
+            padding: 15px;
         }
 
         .add-income-form {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .add-income-form input {
             flex: 1;
-            min-width: 150px;
-            padding: 12px 20px;
+            min-width: 120px;
+            padding: 10px 15px;
             background: #3a4055;
             border: none;
             border-radius: 30px;
             color: #fff;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .add-income-form button {
             background: linear-gradient(145deg, #4CAF50, #45a049);
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 10px 20px;
             border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
             white-space: nowrap;
+            font-size: 12px;
         }
 
         .date-filter {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
             flex-wrap: wrap;
-            margin-bottom: 20px;
-            padding: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
             background: rgba(255,255,255,0.02);
-            border-radius: 30px;
+            border-radius: 25px;
         }
 
         .date-filter input {
-            padding: 10px 15px;
+            padding: 8px 12px;
             background: #3a4055;
             border: none;
             border-radius: 20px;
             color: #fff;
+            font-size: 12px;
         }
 
         .date-filter button {
             background: linear-gradient(145deg, #3498db, #2980b9);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 20px;
             cursor: pointer;
+            font-size: 12px;
         }
 
         .income-history {
-            margin-top: 20px;
-            max-height: 300px;
+            margin-top: 15px;
+            max-height: 250px;
             overflow-y: auto;
         }
 
@@ -681,397 +611,274 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 15px;
+            padding: 10px 12px;
             background: rgba(255,255,255,0.02);
             border-radius: 20px;
             margin-bottom: 8px;
             border-left: 4px solid #ffd700;
         }
 
-        .income-item .date {
-            color: #ffd700;
-            font-size: 12px;
-        }
+        .income-item .date { color: #ffd700; font-size: 10px; }
+        .income-item .amount { color: white; font-weight: bold; font-size: 14px; }
+        .income-item .note { color: #888; font-size: 10px; }
 
-        .income-item .amount {
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .income-item .note {
-            color: #888;
-            font-size: 12px;
-        }
-
-        .income-actions {
-            display: flex;
-            gap: 5px;
-        }
+        .income-actions { display: flex; gap: 5px; }
 
         .income-actions button {
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             border-radius: 10px;
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
         }
 
-        .edit-income {
-            background: #3498db;
-            color: white;
-        }
+        .edit-income { background: #3498db; color: white; }
+        .delete-income { background: #f44336; color: white; }
 
-        .delete-income {
-            background: #f44336;
-            color: white;
-        }
-
-        .delete-old-btn {
+        .delete-old-btn, .danger-btn {
             background: linear-gradient(145deg, #f44336, #d32f2f);
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 12px 20px;
             border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
             width: 100%;
-            margin-top: 15px;
-        }
-
-        .danger-zone {
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(244,67,54,0.1);
-            border-radius: 30px;
-            border: 1px solid #f44336;
-        }
-
-        .danger-btn {
-            background: linear-gradient(145deg, #f44336, #d32f2f);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            width: 100%;
+            margin-top: 12px;
         }
 
         .users-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 15px;
             margin-top: 20px;
         }
 
         .user-card {
             background: #2d3349;
-            border-radius: 40px;
-            padding: 20px;
+            border-radius: 30px;
+            padding: 15px;
             border: 1px solid rgba(255,215,0,0.2);
-            box-shadow: 10px 10px 20px rgba(0,0,0,0.4), inset 2px 2px 5px rgba(255,255,255,0.1), inset -3px -3px 8px rgba(0,0,0,0.5);
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.4);
             transition: all 0.3s ease;
         }
 
-        .user-card.deleting {
-            opacity: 0.5;
-            transform: scale(0.95);
-            pointer-events: none;
-        }
+        .user-card.deleting { opacity: 0.5; transform: scale(0.95); pointer-events: none; }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
             border-bottom: 1px solid rgba(255,215,0,0.3);
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .phone-number {
             background: linear-gradient(145deg, #ffd700, #ffa500);
             color: #1a1e2b;
-            padding: 8px 15px;
+            padding: 5px 12px;
             border-radius: 30px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .type-badge {
-            padding: 6px 15px;
+            padding: 4px 12px;
             border-radius: 30px;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: bold;
-        }
-
-        .type-badge.cookies {
-            background: #ff6b6b;
             color: white;
         }
 
-        .type-badge.twofa {
-            background: #686de0;
-            color: white;
-        }
-
-        .type-badge.nolink {
-            background: #00b894;
-            color: white;
-        }
+        .type-badge.type-1 { background: #ff6b6b; }
+        .type-badge.type-2 { background: #686de0; }
+        .type-badge.type-3 { background: #20bf6b; }
+        .type-badge.type-4 { background: #f39c12; }
+        .type-badge.type-5 { background: #9b59b6; }
+        .type-badge.type-6 { background: #1abc9c; }
+        .type-badge.type-7 { background: #e74c3c; }
+        .type-badge.type-8 { background: #2c3e50; }
 
         .status-badge {
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: bold;
         }
 
-        .status-badge.pending {
-            background: #ffa502;
-            color: white;
-        }
-
-        .status-badge.approved {
-            background: #26de81;
-            color: white;
-        }
+        .status-badge.pending { background: #ffa502; color: white; }
+        .status-badge.approved { background: #26de81; color: white; }
 
         .info-row {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 8px;
-            padding: 6px 12px;
+            gap: 10px;
+            margin-bottom: 6px;
+            padding: 5px 10px;
             background: rgba(255,255,255,0.02);
             border-radius: 20px;
             color: #fff;
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);
+            font-size: 12px;
         }
 
         .payment-badge {
             background: rgba(255,215,0,0.1);
             color: #ffd700;
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 10px;
             border: 1px solid #ffd700;
         }
 
         .stats-row-compact {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            padding: 8px 12px;
+            gap: 6px;
+            padding: 8px 10px;
             background: rgba(255,255,255,0.02);
             border-radius: 20px;
-            margin: 5px 0 8px 0;
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);
+            margin: 5px 0;
         }
 
         .stats-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
-        .total-accounts {
-            color: #ffd700;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .total-accounts strong {
-            font-size: 18px;
-            color: #fff;
-            background: rgba(255,215,0,0.2);
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-left: 5px;
-        }
+        .total-accounts { color: #ffd700; font-size: 12px; font-weight: 600; }
+        .total-accounts strong { font-size: 18px; background: rgba(255,215,0,0.2); padding: 2px 8px; border-radius: 12px; margin-left: 5px; color: white; }
 
         .duplicate-badge {
             background: rgba(76, 175, 80, 0.2);
             color: #4CAF50;
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 30px;
-            font-size: 14px;
+            font-size: 11px;
             font-weight: 600;
             border: 1px solid #4CAF50;
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
         }
-
         .duplicate-badge strong {
-            font-size: 18px;
-            background: rgba(76, 175, 80, 0.3);
-            padding: 2px 8px;
-            border-radius: 12px;
+            color: white;
+            font-size: 16px;
             margin-left: 5px;
-            color: #fff;
+            background: rgba(0,0,0,0.2);
+            padding: 0px 6px;
+            border-radius: 20px;
         }
 
         .rate-section {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 12px;
-            padding-top: 8px;
+            gap: 8px;
+            padding-top: 6px;
             border-top: 1px solid rgba(255,215,0,0.2);
-            flex-wrap: nowrap;
-            width: 100%;
+            flex-wrap: wrap;
         }
 
         .rate-select-small {
-            width: 80px;
+            width: 75px;
             background: #3a4055;
             border: 1px solid #ffd700;
             border-radius: 20px;
-            padding: 5px 4px;
+            padding: 4px 4px;
             color: #ffd700;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11px;
             outline: none;
             cursor: pointer;
             text-align: center;
-            flex-shrink: 0;
         }
 
         .ok-type-middle {
             flex: 1;
             display: flex;
-            gap: 6px;
+            gap: 4px;
             justify-content: center;
-            align-items: center;
-            min-width: 0;
             flex-wrap: wrap;
         }
 
         .ok-badge {
             background: rgba(76, 175, 80, 0.2);
             color: #4CAF50;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 30px;
-            font-size: 11px;
+            font-size: 9px;
             font-weight: 600;
             border: 1px solid #4CAF50;
-            white-space: nowrap;
         }
 
         .amount-display {
             background: linear-gradient(145deg, #ffd700, #ffa500);
             color: #1a1e2b;
-            padding: 5px 15px;
+            padding: 4px 12px;
             border-radius: 20px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
             white-space: nowrap;
-            flex-shrink: 0;
         }
 
-        .timestamp {
-            color: rgba(255,255,255,0.6);
-            font-size: 11px;
-            margin-top: 5px;
-            text-align: right;
-        }
-
-        .expiry-info {
-            color: #ffa502;
-            font-size: 11px;
-            margin-top: 2px;
-            text-align: right;
-        }
+        .timestamp { color: rgba(255,255,255,0.5); font-size: 10px; margin-top: 5px; text-align: right; }
+        .expiry-info { color: #ffa502; font-size: 10px; margin-top: 2px; text-align: right; }
 
         .action-buttons {
             display: flex;
-            gap: 6px;
-            margin-top: 12px;
+            gap: 5px;
+            margin-top: 10px;
             flex-wrap: wrap;
         }
 
         .action-btn {
-            width: 38px;
-            height: 38px;
+            width: 34px;
+            height: 34px;
             border-radius: 12px;
             border: none;
             cursor: pointer;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-decoration: none;
-            font-size: 18px;
+            font-size: 16px;
             box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
         }
 
-        .action-btn.phone-btn {
-            background: linear-gradient(145deg, #00b894, #00a884);
-            color: white;
-            border: 1px solid #00d4a0;
-        }
-
-        .action-btn.phone-btn:hover {
-            background: linear-gradient(145deg, #00a884, #009970);
-            transform: scale(1.1);
-            box-shadow: 0 0 15px #00b894;
-        }
-
-        .action-btn.telegram-btn {
-            background: linear-gradient(145deg, #0088cc, #0077b5);
-            color: white;
-            border: 1px solid #00a0e0;
-        }
-
-        .action-btn.telegram-btn:hover {
-            background: linear-gradient(145deg, #0077b5, #006699);
-            transform: scale(1.1);
-            box-shadow: 0 0 15px #0088cc;
-        }
+        .action-btn.phone-btn { background: linear-gradient(145deg, #00b894, #00a884); color: white; }
+        .action-btn.telegram-btn { background: linear-gradient(145deg, #0088cc, #0077b5); color: white; }
 
         .copy-usernames-btn {
             flex: 2;
-            padding: 8px;
+            padding: 6px 10px;
             border-radius: 12px;
             border: none;
             background: linear-gradient(145deg, #667eea, #764ba2);
             color: white;
             cursor: pointer;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11px;
             transition: all 0.3s ease;
-            white-space: nowrap;
             box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
-        }
-
-        .copy-usernames-btn:hover {
-            background: linear-gradient(145deg, #5a67d8, #6b46a0);
-            transform: scale(1.02);
         }
 
         .approve-btn {
             background: linear-gradient(145deg, #26de81, #20bf6b);
             color: white;
             flex: 1;
-            padding: 8px;
+            padding: 6px 10px;
             border-radius: 12px;
             border: none;
             cursor: pointer;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11px;
             box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
-            transition: 0.2s;
-        }
-
-        .approve-btn:hover {
-            filter: brightness(1.1);
-            transform: scale(1.02);
         }
 
         .delete-btn {
@@ -1081,90 +888,52 @@
             box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
         }
 
-        .delete-btn:hover {
-            background: linear-gradient(145deg, #d32f2f, #b71c1c);
-            transform: scale(1.1);
-        }
-
         .toast {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 18px 30px;
+            left: 20px;
+            padding: 14px 20px;
             background: #2d3349;
             border-radius: 30px;
             color: white;
-            transform: translateX(450px);
+            transform: translateY(-100px);
             transition: 0.3s;
             z-index: 9999;
-            border-left: 8px solid;
+            border-left: 6px solid;
             box-shadow: 10px 10px 30px rgba(0,0,0,0.4);
+            text-align: center;
+            font-size: 13px;
         }
 
-        .toast.show {
-            transform: translateX(0);
-        }
-
+        .toast.show { transform: translateY(0); }
         .toast.success { border-left-color: #4CAF50; }
         .toast.error { border-left-color: #f44336; }
         .toast.warning { border-left-color: #ffd700; }
 
         .empty-state {
             text-align: center;
-            padding: 60px;
-            color: rgba(255,255,255,0.6);
-            font-size: 18px;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
             grid-column: 1 / -1;
         }
 
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .stats-row {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .action-bar {
-                flex-direction: column;
-            }
-            
-            .system-toggle {
-                flex-direction: column;
-            }
-            
-            .system-message {
-                width: 100%;
-            }
-            
-            .rate-section {
-                flex-wrap: wrap;
-                justify-content: space-between;
-            }
-            
-            .ok-type-middle {
-                order: 1;
-                width: 100%;
-                justify-content: center;
-                margin: 5px 0;
-            }
-            .rate-select-small { order: 0; }
-            .amount-display { order: 2; }
+        /* মোবাইল রেসপনসিভ */
+        @media (max-width: 550px) {
+            .users-grid { grid-template-columns: 1fr; }
+            .payment-toggles, .type-toggles { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 400px) {
+            .finance-row { flex-direction: column; }
+            .main-tabs { flex-direction: column; }
+            .card-header { flex-direction: column; align-items: flex-start; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loader">
-            <div class="loader-spinner"></div>
-            <div class="loader-text">ডাটা লোড হচ্ছে... ⚡</div>
-        </div>
-    </div>
-
     <div class="container">
         <div class="header">
             <div class="logo"><h1>EBH TEAM ⚡</h1></div>
@@ -1181,6 +950,11 @@
         <div class="money-stats">
             <span class="money-pending">⏳ পেন্ডিং টাকা (<span id="pendingDays">০</span> দিন): <strong id="totalPendingMoney">০.০০</strong> টাকা</span>
             <span class="money-approved">✅ অ্যাপ্রুভড টাকা (<span id="approvedDays">০</span> দিন): <strong id="totalApprovedMoney">০.০০</strong> টাকা</span>
+        </div>
+
+        <!-- নতুন ওকে আইডি বক্স -->
+        <div class="okid-stats">
+            <span class="okid-box">✅ মোট ওকে আইডি (বর্তমান টাইপ): <strong id="totalOkIdCount">0</strong></span>
         </div>
 
         <div class="finance-row">
@@ -1203,21 +977,32 @@
             <button class="main-tab approved" onclick="switchMainTab('approved')" id="tabApproved">✅ অ্যাপ্রুভড <span class="badge" id="approvedCount">0</span></button>
         </div>
 
+        <!-- ৮টি টাইপের বাটন - মোবাইলে ২ কলাম -->
         <div class="type-tabs">
-            <button class="type-tab cookies active" onclick="switchType('cookies')" id="tabCookies">🍪 কুকিজ একাউন্ট</button>
-            <button class="type-tab twofa" onclick="switchType('2fa')" id="tab2fa">🔐 2FA একাউন্ট</button>
-            <button class="type-tab nolink" onclick="switchType('nolink')" id="tabNolink">🔗 নো লিঙ্ক</button>
+            <button class="type-tab type-1 active" onclick="switchType('insta_cookies')" id="tabInstaCookies">🍪 Insta Cookies</button>
+            <button class="type-tab type-2" onclick="switchType('insta_2fa')" id="tabInsta2fa">🔐 Insta 2FA</button>
+            <button class="type-tab type-3" onclick="switchType('fb_02fnd_2fa')" id="tabFb02fnd2fa">🔐 FB 0.2 FND 2FA</button>
+            <button class="type-tab type-4" onclick="switchType('fb_02fnd_cookies')" id="tabFb02fndCookies">🍪 FB 0.2 FND Cookies</button>
+            <button class="type-tab type-5" onclick="switchType('fb_hotmail_30fnd_2fa')" id="tabFbHotmail2fa">🔐 FB Hotmail 30FND 2FA</button>
+            <button class="type-tab type-6" onclick="switchType('fb_hotmail_30fnd_cookies')" id="tabFbHotmailCookies">🍪 FB Hotmail 30FND Cookies</button>
+            <button class="type-tab type-7" onclick="switchType('fb_pc_1000x')" id="tabFbPc1000x">💻 FB PC 1000×</button>
+            <button class="type-tab type-8" onclick="switchType('fb_pc_61555657')" id="tabFbPc6155">💻 FB PC 61/55/56/57</button>
         </div>
 
+        <!-- ৮টি টাইপের স্ট্যাট বক্স - ২ কলাম -->
         <div class="type-stats">
-            <div class="type-stat-box cookies" onclick="switchType('cookies')"><div class="stat-value" id="cookiesCount">0</div><div class="stat-label">🍪 কুকিজ একাউন্ট</div></div>
-            <div class="type-stat-box twofa" onclick="switchType('2fa')"><div class="stat-value" id="twofaCount">0</div><div class="stat-label">🔐 2FA একাউন্ট</div></div>
-            <div class="type-stat-box nolink" onclick="switchType('nolink')"><div class="stat-value" id="nolinkCount">0</div><div class="stat-label">🔗 নো লিঙ্ক একাউন্ট</div></div>
-            <div class="type-stat-box duplicate"><div class="stat-value" id="totalDuplicates">0</div><div class="stat-label" id="duplicateLabel">✅ পেন্ডিং ওকে আইডি</div></div>
+            <div class="type-stat-box type-1" onclick="switchType('insta_cookies')"><div class="stat-value" id="instaCookiesCount">0</div><div class="stat-label">🍪 Insta Cookies</div></div>
+            <div class="type-stat-box type-2" onclick="switchType('insta_2fa')"><div class="stat-value" id="insta2faCount">0</div><div class="stat-label">🔐 Insta 2FA</div></div>
+            <div class="type-stat-box type-3" onclick="switchType('fb_02fnd_2fa')"><div class="stat-value" id="fb02fnd2faCount">0</div><div class="stat-label">🔐 FB 0.2 FND 2FA</div></div>
+            <div class="type-stat-box type-4" onclick="switchType('fb_02fnd_cookies')"><div class="stat-value" id="fb02fndCookiesCount">0</div><div class="stat-label">🍪 FB 0.2 FND Cookies</div></div>
+            <div class="type-stat-box type-5" onclick="switchType('fb_hotmail_30fnd_2fa')"><div class="stat-value" id="fbHotmail2faCount">0</div><div class="stat-label">🔐 FB Hotmail 30FND 2FA</div></div>
+            <div class="type-stat-box type-6" onclick="switchType('fb_hotmail_30fnd_cookies')"><div class="stat-value" id="fbHotmailCookiesCount">0</div><div class="stat-label">🍪 FB Hotmail 30FND Cookies</div></div>
+            <div class="type-stat-box type-7" onclick="switchType('fb_pc_1000x')"><div class="stat-value" id="fbPc1000xCount">0</div><div class="stat-label">💻 FB PC 1000×</div></div>
+            <div class="type-stat-box type-8" onclick="switchType('fb_pc_61555657')"><div class="stat-value" id="fbPc6155Count">0</div><div class="stat-label">💻 FB PC 61/55/56/57</div></div>
         </div>
 
         <div class="action-bar">
-            <button class="copy-all-btn" onclick="copyAllUsernames()"><i class="fas fa-copy" style="margin-right: 8px;"></i>সব একাউন্ট কপি</button>
+            <button class="copy-all-btn" onclick="copyAllUsernames()"><i class="fas fa-copy"></i> সব একাউন্ট কপি</button>
             <div class="search-box"><input type="text" id="searchInput" placeholder="🔍 ফোন বা টেলিগ্রাম সার্চ..." onkeyup="filterData()"></div>
         </div>
 
@@ -1247,7 +1032,7 @@
             </div>
             <div class="settings-content" id="systemSettings">
                 <div class="system-control">
-                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
                         <span style="color: #ffd700;">বর্তমান স্ট্যাটাস:</span>
                         <span id="systemStatus" class="current-status status-on">চালু</span>
                     </div>
@@ -1260,40 +1045,44 @@
                         </div>
                     </div>
                     
-                    <div style="margin: 20px 0; border-top: 1px solid rgba(255,215,0,0.2);"></div>
+                    <div style="margin: 15px 0; border-top: 1px solid rgba(255,215,0,0.2);"></div>
                     
-                    <h4 style="color: #ffd700; margin-bottom: 15px;"><i class="fas fa-toggle-on"></i> একাউন্ট টাইপ সেটিংস</h4>
+                    <h4 style="color: #ffd700; margin-bottom: 12px; font-size: 14px;"><i class="fas fa-toggle-on"></i> একাউন্ট টাইপ সেটিংস</h4>
                     <div class="type-toggles">
-                        <div class="toggle-item"><label>🍪 কুকিজ একাউন্ট</label><input type="checkbox" id="toggleCookies" checked></div>
-                        <div class="toggle-item"><label>🔐 2FA একাউন্ট</label><input type="checkbox" id="toggle2fa" checked></div>
-                        <div class="toggle-item"><label>🔗 নো লিঙ্ক একাউন্ট</label><input type="checkbox" id="toggleNolink" checked></div>
+                        <div class="toggle-item"><label>🍪 Insta Cookies</label><input type="checkbox" id="toggleInstaCookies" checked></div>
+                        <div class="toggle-item"><label>🔐 Insta 2FA</label><input type="checkbox" id="toggleInsta2fa" checked></div>
+                        <div class="toggle-item"><label>🔐 FB 0.2 FND 2FA</label><input type="checkbox" id="toggleFb02fnd2fa" checked></div>
+                        <div class="toggle-item"><label>🍪 FB 0.2 FND Cookies</label><input type="checkbox" id="toggleFb02fndCookies" checked></div>
+                        <div class="toggle-item"><label>🔐 FB Hotmail 30FND 2FA</label><input type="checkbox" id="toggleFbHotmail2fa" checked></div>
+                        <div class="toggle-item"><label>🍪 FB Hotmail 30FND Cookies</label><input type="checkbox" id="toggleFbHotmailCookies" checked></div>
+                        <div class="toggle-item"><label>💻 FB PC 1000×</label><input type="checkbox" id="toggleFbPc1000x" checked></div>
+                        <div class="toggle-item"><label>💻 FB PC 61/55/56/57</label><input type="checkbox" id="toggleFbPc6155" checked></div>
                     </div>
-                    <button class="save-settings-btn" onclick="saveTypeSettings()">💾 একাউন্ট টাইপ সেটিংস সেভ করুন</button>
+                    <button class="save-settings-btn" onclick="saveTypeSettings()">💾 টাইপ সেটিংস সেভ করুন</button>
                     
-                    <div style="margin: 20px 0; border-top: 1px solid rgba(255,215,0,0.2);"></div>
+                    <div style="margin: 15px 0; border-top: 1px solid rgba(255,215,0,0.2);"></div>
                     
-                    <button class="save-settings-btn" onclick="updateSystemStatus()" style="background: linear-gradient(145deg, #3498db, #2980b9); color: white;">📢 সিস্টেম স্ট্যাটাস আপডেট</button>
+                    <button class="save-settings-btn" onclick="updateSystemStatus()" style="background: linear-gradient(145deg, #3498db, #2980b9); color: white;">📢 স্ট্যাটাস আপডেট</button>
                 </div>
 
                 <div class="accounting-section">
-                    <h3 style="color: #ffd700; margin-bottom: 15px;">💰 ইনকাম ম্যানেজমেন্ট</h3>
+                    <h3 style="color: #ffd700; margin-bottom: 12px; font-size: 14px;">💰 ইনকাম ম্যানেজমেন্ট</h3>
                     
                     <div class="add-income-form">
                         <input type="number" id="incomeAmount" placeholder="টাকার পরিমাণ" step="0.01">
-                        <input type="text" id="incomeNote" placeholder="নোট (যেমন: বিকাশ পেমেন্ট)">
+                        <input type="text" id="incomeNote" placeholder="নোট">
                         <input type="date" id="incomeDate" value="">
                         <input type="hidden" id="editingIncomeId" value="">
-                        <button onclick="addOrUpdateIncome()" id="incomeBtn"><i class="fas fa-plus-circle"></i> ইনকাম অ্যাড</button>
+                        <button onclick="addOrUpdateIncome()" id="incomeBtn"><i class="fas fa-plus-circle"></i> অ্যাড</button>
                     </div>
 
                     <div class="date-filter">
-                        <input type="date" id="filterDate" placeholder="তারিখ সিলেক্ট করুন">
-                        <button onclick="applyDateFilter()" id="applyFilterBtn"><i class="fas fa-filter"></i> ফিল্টার</button>
+                        <input type="date" id="filterDate">
+                        <button onclick="applyDateFilter()"><i class="fas fa-filter"></i> ফিল্টার</button>
                         <button onclick="clearFilter()" style="background: #ffa502;">সব ডাটা</button>
                     </div>
 
-                    <div class="income-history" id="incomeHistory">
-                    </div>
+                    <div class="income-history" id="incomeHistory"></div>
                 </div>
 
                 <div class="danger-zone">
@@ -1303,7 +1092,11 @@
             </div>
         </div>
 
-        <div id="usersGrid" class="users-grid"><div class="empty-state">ডাটা লোড হচ্ছে... ⚡</div></div>
+        <div id="usersGrid" class="users-grid">
+            <div class="card-loading">
+                <span class="card-loader"></span> ডাটা লোড হচ্ছে...
+            </div>
+        </div>
     </div>
     <div id="toast" class="toast"></div>
 
@@ -1311,7 +1104,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, remove, update, set, get, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // ==================== ফায়ারবেস কনফিগারেশন ====================
+        // ফায়ারবেস কনফিগারেশন
         const firebaseConfig = {
             apiKey: "AIzaSyCHqx6dAHeGFdtvY8682b_iQkdnk2ie0ug",
             authDomain: "saprahik-kaj.firebaseapp.com",
@@ -1333,10 +1126,22 @@
         const secondApp = initializeApp(secondDatabaseConfig, 'secondary');
         const secondDB = getDatabase(secondApp);
 
-        // ==================== ডুপ্লিকেট চেকার ক্লাস (সম্পূর্ণ আলাদা ফাংশন) ====================
+        // টাইপ কনস্ট্যান্ট
+        const TYPE_DISPLAY_NAMES = {
+            'insta_cookies': '🍪 Insta Cookies',
+            'insta_2fa': '🔐 Insta 2FA',
+            'fb_02fnd_2fa': '🔐 FB 0.2 FND 2FA',
+            'fb_02fnd_cookies': '🍪 FB 0.2 FND Cookies',
+            'fb_hotmail_30fnd_2fa': '🔐 FB Hotmail 30FND 2FA',
+            'fb_hotmail_30fnd_cookies': '🍪 FB Hotmail 30FND Cookies',
+            'fb_pc_1000x': '💻 FB PC 1000×',
+            'fb_pc_61555657': '💻 FB PC 61/55/56/57'
+        };
+
+        // ডুপ্লিকেট চেকার ক্লাস
         class DuplicateChecker {
             constructor() {
-                this.allUsernames = new Map(); // username -> reportType
+                this.allUsernames = new Map();
                 this.isLoaded = false;
                 this.loadingPromise = null;
                 this.secondDB = secondDB;
@@ -1362,21 +1167,17 @@
             async loadData() {
                 if (this.isLoaded) return true;
                 if (this.loadingPromise) return this.loadingPromise;
-
                 this.loadingPromise = this._loadInternal();
                 return this.loadingPromise;
             }
 
             async _loadInternal() {
                 try {
-                    console.log('🔄 ডুপ্লিকেট চেকার: দ্বিতীয় ডাটাবেজ লোড হচ্ছে...');
                     const reportsRef = ref(this.secondDB, 'reports');
                     const snapshot = await get(reportsRef);
-                    
                     if (snapshot.exists()) {
                         const reports = snapshot.val();
                         this.allUsernames.clear();
-                        
                         for (const date in reports) {
                             const dateData = reports[date];
                             if (dateData && dateData.users) {
@@ -1390,44 +1191,17 @@
                                 }
                             }
                         }
-                        
                         this.isLoaded = true;
-                        console.log(`✅ ডুপ্লিকেট চেকার: ${this.allUsernames.size} টি ইউজারনেম লোড হয়েছে`);
-                        showToast(`✅ দ্বিতীয় ডাটাবেস কানেক্টেড! ${this.allUsernames.size} টি রিপোর্ট ফাউন্ড`, 'success');
                         return true;
                     } else {
-                        console.log('ডুপ্লিকেট চেকার: ডাটাবেজ খালি');
                         this.isLoaded = true;
-                        showToast('⚠️ দ্বিতীয় ডাটাবেসে কোন রিপোর্ট নেই', 'warning');
                         return true;
                     }
                 } catch (error) {
-                    console.error('ডুপ্লিকেট চেকার: ডাটা লোড করতে সমস্যা:', error);
+                    console.error('ডুপ্লিকেট চেকার:', error);
                     this.isLoaded = true;
-                    showToast('❌ দ্বিতীয় ডাটাবেস কানেক্ট করতে সমস্যা', 'error');
                     return false;
                 }
-            }
-
-            isDuplicate(username) {
-                if (!this.isLoaded) return false;
-                const encoded = this.encodeUsername(username);
-                return this.allUsernames.has(encoded);
-            }
-
-            getDuplicateType(username) {
-                if (!this.isLoaded) return null;
-                const encoded = this.encodeUsername(username);
-                return this.allUsernames.get(encoded) || null;
-            }
-
-            countDuplicates(usernames) {
-                if (!this.isLoaded || !usernames || usernames.length === 0) return 0;
-                let count = 0;
-                usernames.forEach(username => {
-                    if (this.isDuplicate(username)) count++;
-                });
-                return count;
             }
 
             getDuplicateDetails(usernames) {
@@ -1435,9 +1209,10 @@
                 let count = 0;
                 const typesSet = new Set();
                 usernames.forEach(username => {
-                    if (this.isDuplicate(username)) {
+                    const encoded = this.encodeUsername(username);
+                    if (this.allUsernames.has(encoded)) {
                         count++;
-                        const type = this.getDuplicateType(username);
+                        const type = this.allUsernames.get(encoded);
                         if (type) typesSet.add(type);
                     }
                 });
@@ -1449,19 +1224,11 @@
                 this.loadingPromise = null;
                 return await this.loadData();
             }
-
-            getStatus() {
-                return {
-                    isLoaded: this.isLoaded,
-                    totalUsernames: this.allUsernames.size
-                };
-            }
         }
 
-        // ==================== গ্লোবাল ভেরিয়েবল ====================
         const duplicateChecker = new DuplicateChecker();
         let allGroups = [];
-        let currentType = 'cookies';
+        let currentType = 'insta_cookies';
         let currentMainTab = 'pending';
         let searchTerm = '';
         let currentFilterDate = null;
@@ -1471,9 +1238,10 @@
         const incomeRef = ref(db, 'income');
 
         const DEFAULT_RATES = {
-            'cookies': 3.50,
-            '2fa': 2.00,
-            'nolink': 3.00
+            'insta_cookies': 2.00, 'insta_2fa': 2.00,
+            'fb_02fnd_2fa': 2.00, 'fb_02fnd_cookies': 2.00,
+            'fb_hotmail_30fnd_2fa': 2.00, 'fb_hotmail_30fnd_cookies': 2.00,
+            'fb_pc_1000x': 2.00, 'fb_pc_61555657': 2.00
         };
         
         const TELEGRAM_BOT_TOKEN = '8250221796:AAHdKid6RAoIeEnjHhrYdHNGkmc38wfs5d4';
@@ -1481,17 +1249,9 @@
         const reportTypeDisplayNames = {
             'instagram_cookies': '🍪 IG Cookies',
             'instagram_2fa': '🔐 IG 2FA',
-            'cookies_no_link': '🔗 No Link',
             'facebook_cookies': '🍪 FB Cookies',
             'facebook_2fa': '🔐 FB 2FA'
         };
-
-        // ==================== হেল্পার ফাংশন ====================
-        function hideLoading() {
-            const overlay = document.getElementById('loadingOverlay');
-            if (overlay) overlay.classList.add('hide');
-            isLoading = false;
-        }
 
         function initSettings() {
             const paymentContent = document.getElementById('paymentSettings');
@@ -1504,14 +1264,10 @@
             if (systemArrow) systemArrow.style.transform = 'rotate(0deg)';
         }
 
-        function generateRateOptions(type) {
+        function generateRateOptions() {
             const options = [];
-            if (type === '2fa') {
-                for (let rate = 2.00; rate <= 3.00; rate += 0.10) options.push(rate.toFixed(2));
-            } else if (type === 'nolink') {
-                for (let rate = 3.00; rate <= 4.00; rate += 0.10) options.push(rate.toFixed(2));
-            } else {
-                for (let rate = 3.50; rate <= 4.50; rate += 0.10) options.push(rate.toFixed(2));
+            for (let rate = 2.00; rate <= 20.00; rate += 0.05) {
+                options.push(rate.toFixed(2));
             }
             return options;
         }
@@ -1522,12 +1278,12 @@
         }
 
         function getUserRate(userRates, telegram, type) {
-            if (!telegram || telegram === 'unknown') return DEFAULT_RATES[type];
+            if (!telegram || telegram === 'unknown') return DEFAULT_RATES[type] || 2.00;
             const formattedTelegram = formatTelegramUsername(telegram);
             if (userRates && userRates[formattedTelegram] && userRates[formattedTelegram][type] !== undefined) {
                 return userRates[formattedTelegram][type];
             }
-            return DEFAULT_RATES[type];
+            return DEFAULT_RATES[type] || 2.00;
         }
 
         function isDateInRange(timestamp) {
@@ -1551,13 +1307,19 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // ==================== ডুপ্লিকেট চেক ফাংশন (মেইন ফাংশন) ====================
         async function checkDuplicatesAndGetType(usernames) {
             await duplicateChecker.loadData();
             return duplicateChecker.getDuplicateDetails(usernames);
         }
 
-        // ==================== ডাটা লোড ফাংশন ====================
+        function updateTotalOkId() {
+            let filtered = allGroups.filter(group => group.type === currentType && group.status === currentMainTab);
+            if (currentFilterDate) filtered = filtered.filter(g => isDateInRange(g.approvedAt || g.timestamp));
+            if (searchTerm) filtered = filtered.filter(g => g.telegram?.toLowerCase().includes(searchTerm) || g.number?.toLowerCase().includes(searchTerm));
+            let totalOk = filtered.reduce((sum, g) => sum + (g.duplicateCount || 0), 0);
+            document.getElementById('totalOkIdCount').innerText = totalOk;
+        }
+
         function loadData() {
             const submitsRef = ref(db, 'submits');
             
@@ -1566,8 +1328,14 @@
                 const ratesSnapshot = await get(userRatesRef);
                 const userRates = ratesSnapshot.val() || {};
                 
-                let totalPendingCookies = 0, totalPending2fa = 0, totalPendingNolink = 0;
-                let totalApprovedCookies = 0, totalApproved2fa = 0, totalApprovedNolink = 0;
+                let typeCounts = {
+                    insta_cookies: 0, insta_2fa: 0,
+                    fb_02fnd_2fa: 0, fb_02fnd_cookies: 0,
+                    fb_hotmail_30fnd_2fa: 0, fb_hotmail_30fnd_cookies: 0,
+                    fb_pc_1000x: 0, fb_pc_61555657: 0
+                };
+                let typeApprovedCounts = { ...typeCounts };
+                
                 let totalPendingMoneyCalc = 0;
                 let totalApprovedMoneyCalc = 0;
                 let oldestPendingTimestamp = Infinity;
@@ -1577,19 +1345,16 @@
                 if (data) {
                     Object.keys(data).forEach(key => {
                         const item = { id: key, ...data[key] };
-                        const type = item.type || 'cookies';
+                        let type = item.type || 'insta_cookies';
+                        if (type === 'cookies') type = 'insta_cookies';
+                        if (type === '2fa') type = 'insta_2fa';
+                        
                         const status = item.status || 'pending';
                         const telegram = item.telegram || 'N/A';
 
-                        if (type === 'cookies') {
-                            if (status === 'pending') totalPendingCookies++;
-                            else totalApprovedCookies++;
-                        } else if (type === '2fa') {
-                            if (status === 'pending') totalPending2fa++;
-                            else totalApproved2fa++;
-                        } else if (type === 'nolink') {
-                            if (status === 'pending') totalPendingNolink++;
-                            else totalApprovedNolink++;
+                        if (typeCounts[type] !== undefined) {
+                            if (status === 'pending') typeCounts[type]++;
+                            else typeApprovedCounts[type]++;
                         }
 
                         const groupKey = `${telegram}_${type}_${status}`;
@@ -1617,7 +1382,6 @@
 
                     allGroups = Array.from(groupsMap.values());
 
-                    // ডুপ্লিকেট চেক করুন (একসাথে সব গ্রুপের জন্য)
                     for (const group of allGroups) {
                         const result = await checkDuplicatesAndGetType(group.accounts);
                         group.duplicateCount = result.count;
@@ -1643,45 +1407,56 @@
                 let pendingDays = oldestPendingTimestamp !== Infinity ? Math.ceil((now - oldestPendingTimestamp) / oneDay) : 0;
                 let approvedDays = oldestApprovedTimestamp !== Infinity ? Math.ceil((now - oldestApprovedTimestamp) / oneDay) : 0;
 
-                document.getElementById('pendingCount').textContent = totalPendingCookies + totalPending2fa + totalPendingNolink;
-                document.getElementById('approvedCount').textContent = totalApprovedCookies + totalApproved2fa + totalApprovedNolink;
+                const totalPending = Object.values(typeCounts).reduce((a,b) => a + b, 0);
+                const totalApproved = Object.values(typeApprovedCounts).reduce((a,b) => a + b, 0);
+                
+                document.getElementById('pendingCount').textContent = totalPending;
+                document.getElementById('approvedCount').textContent = totalApproved;
                 document.getElementById('totalPendingMoney').textContent = totalPendingMoneyCalc.toFixed(2);
                 document.getElementById('totalApprovedMoney').textContent = totalApprovedMoneyCalc.toFixed(2);
                 document.getElementById('pendingDays').textContent = pendingDays;
                 document.getElementById('approvedDays').textContent = approvedDays;
                 
-                updateCountersByCurrentView(totalPendingCookies, totalPending2fa, totalPendingNolink, totalApprovedCookies, totalApproved2fa, totalApprovedNolink);
+                updateTypeCounters(typeCounts, typeApprovedCounts);
                 
                 filterData();
                 updateProfitAndReceived();
                 
-                if (isLoading) hideLoading();
+                if (isLoading) {
+                    isLoading = false;
+                    const grid = document.getElementById('usersGrid');
+                    if (grid && grid.innerHTML.includes('card-loading')) {
+                        filterData();
+                    }
+                }
                 
             }, (error) => {
                 console.error('ডাটা লোড করতে সমস্যা:', error);
-                if (isLoading) hideLoading();
+                if (isLoading) {
+                    isLoading = false;
+                    document.getElementById('usersGrid').innerHTML = '<div class="empty-state">ডাটা লোড করতে সমস্যা! পেজ রিফ্রেশ করুন</div>';
+                }
                 showToast('ডাটা লোড করতে সমস্যা!', 'error');
             });
         }
 
-        function updateCountersByCurrentView(pendingCookies, pending2fa, pendingNolink, approvedCookies, approved2fa, approvedNolink) {
-            const cookiesEl = document.getElementById('cookiesCount');
-            const twofaEl = document.getElementById('twofaCount');
-            const nolinkEl = document.getElementById('nolinkCount');
+        function updateTypeCounters(pendingCounts, approvedCounts) {
+            const isPending = currentMainTab === 'pending';
+            const counts = isPending ? pendingCounts : approvedCounts;
             
-            if (currentMainTab === 'pending') {
-                if (cookiesEl) cookiesEl.textContent = pendingCookies;
-                if (twofaEl) twofaEl.textContent = pending2fa;
-                if (nolinkEl) nolinkEl.textContent = pendingNolink;
-            } else {
-                if (cookiesEl) cookiesEl.textContent = approvedCookies;
-                if (twofaEl) twofaEl.textContent = approved2fa;
-                if (nolinkEl) nolinkEl.textContent = approvedNolink;
-            }
+            document.getElementById('instaCookiesCount').textContent = counts.insta_cookies || 0;
+            document.getElementById('insta2faCount').textContent = counts.insta_2fa || 0;
+            document.getElementById('fb02fnd2faCount').textContent = counts.fb_02fnd_2fa || 0;
+            document.getElementById('fb02fndCookiesCount').textContent = counts.fb_02fnd_cookies || 0;
+            document.getElementById('fbHotmail2faCount').textContent = counts.fb_hotmail_30fnd_2fa || 0;
+            document.getElementById('fbHotmailCookiesCount').textContent = counts.fb_hotmail_30fnd_cookies || 0;
+            document.getElementById('fbPc1000xCount').textContent = counts.fb_pc_1000x || 0;
+            document.getElementById('fbPc6155Count').textContent = counts.fb_pc_61555657 || 0;
         }
 
-        // ==================== ফিল্টারিং এবং ডিসপ্লে ফাংশন ====================
         window.filterData = function() {
+            if (isLoading && !allGroups.length) return;
+            
             if (!allGroups.length) {
                 document.getElementById('usersGrid').innerHTML = '<div class="empty-state">📭 কোন ডাটা নেই</div>';
                 return;
@@ -1701,12 +1476,13 @@
             }
             displayGroups(filtered);
             updateProfitAndReceived();
+            updateTotalOkId();
         };
 
         async function displayGroups(groups) {
             const container = document.getElementById('usersGrid');
             if (groups.length === 0) {
-                container.innerHTML = `<div class="empty-state">📭 কোন ${currentMainTab === 'pending' ? 'পেন্ডিং' : 'অ্যাপ্রুভড'} ${currentType === 'cookies' ? 'কুকিজ' : currentType === '2fa' ? '2FA' : 'নো লিঙ্ক'} একাউন্ট নেই</div>`;
+                container.innerHTML = `<div class="empty-state">📭 কোন ${currentMainTab === 'pending' ? 'পেন্ডিং' : 'অ্যাপ্রুভড'} ${TYPE_DISPLAY_NAMES[currentType]} একাউন্ট নেই</div>`;
                 return;
             }
 
@@ -1716,11 +1492,9 @@
             
             let groupsHtml = '';
             let totalAccountsCount = 0;
-            let totalDuplicatesCount = 0;
             
             for (const group of groups) {
                 totalAccountsCount += group.accounts.length;
-                totalDuplicatesCount += group.duplicateCount || 0;
                 
                 const date = new Date(group.timestamp || Date.now());
                 const timeString = date.toLocaleString('bn-BD');
@@ -1730,8 +1504,16 @@
                 const savedRate = rate.toFixed(2);
                 const totalAmount = (group.duplicateCount || 0) * rate;
                 
-                let typeClass = group.type === 'cookies' ? 'cookies' : group.type === '2fa' ? 'twofa' : 'nolink';
-                let typeDisplay = group.type === 'cookies' ? '🍪 কুকিজ' : group.type === '2fa' ? '🔐 2FA' : '🔗 নো লিঙ্ক';
+                const typeName = TYPE_DISPLAY_NAMES[group.type] || group.type;
+                let typeClass = '';
+                if (group.type === 'insta_cookies') typeClass = 'type-1';
+                else if (group.type === 'insta_2fa') typeClass = 'type-2';
+                else if (group.type === 'fb_02fnd_2fa') typeClass = 'type-3';
+                else if (group.type === 'fb_02fnd_cookies') typeClass = 'type-4';
+                else if (group.type === 'fb_hotmail_30fnd_2fa') typeClass = 'type-5';
+                else if (group.type === 'fb_hotmail_30fnd_cookies') typeClass = 'type-6';
+                else if (group.type === 'fb_pc_1000x') typeClass = 'type-7';
+                else if (group.type === 'fb_pc_61555657') typeClass = 'type-8';
                 
                 let okTypeBadgesHtml = '';
                 if (group.duplicateCount > 0 && group.duplicateTypes && group.duplicateTypes.length > 0) {
@@ -1752,8 +1534,8 @@
                     <div class="user-card" id="card-${group.id}">
                         <div class="card-header">
                             <span class="phone-number">📞 ${group.number}</span>
-                            <div style="display: flex; gap: 5px;">
-                                <span class="type-badge ${typeClass}">${typeDisplay}</span>
+                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                <span class="type-badge ${typeClass}">${typeName}</span>
                                 <span class="status-badge ${group.status}">${group.status === 'pending' ? '⏳ পেন্ডিং' : '✅ অ্যাপ্রুভড'}</span>
                             </div>
                         </div>
@@ -1766,7 +1548,7 @@
                             </div>
                             <div class="rate-section">
                                 <select class="rate-select-small" onchange="saveUserRate('${group.telegram}', this.value, '${group.type}')">
-                                    ${generateRateOptions(group.type).map(rateOpt => `<option value="${rateOpt}" ${rateOpt === savedRate ? 'selected' : ''}>${rateOpt}</option>`).join('')}
+                                    ${generateRateOptions().map(rateOpt => `<option value="${rateOpt}" ${rateOpt === savedRate ? 'selected' : ''}>${rateOpt}</option>`).join('')}
                                 </select>
                                 <div class="ok-type-middle">${okTypeBadgesHtml}</div>
                                 <span class="amount-display" id="amount-${group.id}">${totalAmount.toFixed(2)} টাকা</span>
@@ -1788,10 +1570,9 @@
             container.innerHTML = groupsHtml;
             document.getElementById('totalUsers').textContent = groups.length;
             document.getElementById('totalAccounts').textContent = totalAccountsCount;
-            document.getElementById('totalDuplicates').textContent = totalDuplicatesCount;
         }
 
-        // ==================== গ্লোবাল ফাংশন (window এ এক্সপোজ) ====================
+        // গ্লোবাল ফাংশন
         window.saveUserRate = function(telegram, value, type) {
             const formattedTelegram = formatTelegramUsername(telegram);
             if (formattedTelegram === 'unknown') {
@@ -1800,7 +1581,7 @@
             }
             const updates = {};
             updates[`userRates/${formattedTelegram}/${type}`] = parseFloat(value);
-            update(ref(db), updates).then(() => showToast(`@${formattedTelegram} (${type}) এর রেট ${value} টাকা সেট হয়েছে`, 'success')).catch(() => showToast('রেট সেভ করতে সমস্যা', 'error'));
+            update(ref(db), updates).then(() => showToast(`@${formattedTelegram} (${TYPE_DISPLAY_NAMES[type]}) এর রেট ${value} টাকা সেট হয়েছে`, 'success')).catch(() => showToast('রেট সেভ করতে সমস্যা', 'error'));
         };
 
         window.toggleSettings = function(type) {
@@ -1817,16 +1598,22 @@
             document.getElementById('tabPending').classList.remove('active');
             document.getElementById('tabApproved').classList.remove('active');
             document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
-            document.getElementById('duplicateLabel').innerText = tab === 'pending' ? '✅ পেন্ডিং ওকে আইডি' : '✅ অ্যাপ্রুভড ওকে আইডি';
             filterData();
         };
 
         window.switchType = function(type) {
             currentType = type;
-            document.getElementById('tabCookies').classList.remove('active');
-            document.getElementById('tab2fa').classList.remove('active');
-            document.getElementById('tabNolink').classList.remove('active');
-            document.getElementById('tab' + (type === 'cookies' ? 'Cookies' : type === '2fa' ? '2fa' : 'Nolink')).classList.add('active');
+            document.querySelectorAll('.type-tab').forEach(btn => btn.classList.remove('active'));
+            
+            if (type === 'insta_cookies') document.getElementById('tabInstaCookies').classList.add('active');
+            else if (type === 'insta_2fa') document.getElementById('tabInsta2fa').classList.add('active');
+            else if (type === 'fb_02fnd_2fa') document.getElementById('tabFb02fnd2fa').classList.add('active');
+            else if (type === 'fb_02fnd_cookies') document.getElementById('tabFb02fndCookies').classList.add('active');
+            else if (type === 'fb_hotmail_30fnd_2fa') document.getElementById('tabFbHotmail2fa').classList.add('active');
+            else if (type === 'fb_hotmail_30fnd_cookies') document.getElementById('tabFbHotmailCookies').classList.add('active');
+            else if (type === 'fb_pc_1000x') document.getElementById('tabFbPc1000x').classList.add('active');
+            else if (type === 'fb_pc_61555657') document.getElementById('tabFbPc6155').classList.add('active');
+            
             filterData();
         };
 
@@ -1844,34 +1631,38 @@
 
         const typeSettingsRef = ref(db, 'settings/typeSettings');
         onValue(typeSettingsRef, (snapshot) => {
-            const settings = snapshot.val() || { cookies: true, twofa: true, nolink: true };
-            const toggleCookies = document.getElementById('toggleCookies');
-            const toggle2fa = document.getElementById('toggle2fa');
-            const toggleNolink = document.getElementById('toggleNolink');
-            if (toggleCookies) toggleCookies.checked = settings.cookies !== false;
-            if (toggle2fa) toggle2fa.checked = settings.twofa !== false;
-            if (toggleNolink) toggleNolink.checked = settings.nolink !== false;
-        });
-
-        const paymentSettingsRef = ref(db, 'settings/paymentMethods');
-        onValue(paymentSettingsRef, (snapshot) => {
             const settings = snapshot.val() || {};
-            const toggles = ['toggleBkash', 'toggleNagad', 'toggleBkashNagad', 'toggleRocket', 'toggleMobileRecharge', 'toggleBinance', 'toggleInbox'];
-            toggles.forEach(id => {
+            const toggles = {
+                toggleInstaCookies: settings.insta_cookies !== false,
+                toggleInsta2fa: settings.insta_2fa !== false,
+                toggleFb02fnd2fa: settings.fb_02fnd_2fa !== false,
+                toggleFb02fndCookies: settings.fb_02fnd_cookies !== false,
+                toggleFbHotmail2fa: settings.fb_hotmail_30fnd_2fa !== false,
+                toggleFbHotmailCookies: settings.fb_hotmail_30fnd_cookies !== false,
+                toggleFbPc1000x: settings.fb_pc_1000x !== false,
+                toggleFbPc6155: settings.fb_pc_61555657 !== false
+            };
+            for (const [id, value] of Object.entries(toggles)) {
                 const el = document.getElementById(id);
-                if (el) el.checked = settings[id.replace('toggle', '').toLowerCase()] !== false;
-            });
+                if (el) el.checked = value;
+            }
         });
 
         window.saveTypeSettings = function() {
             const settings = {
-                cookies: document.getElementById('toggleCookies').checked,
-                twofa: document.getElementById('toggle2fa').checked,
-                nolink: document.getElementById('toggleNolink').checked
+                insta_cookies: document.getElementById('toggleInstaCookies').checked,
+                insta_2fa: document.getElementById('toggleInsta2fa').checked,
+                fb_02fnd_2fa: document.getElementById('toggleFb02fnd2fa').checked,
+                fb_02fnd_cookies: document.getElementById('toggleFb02fndCookies').checked,
+                fb_hotmail_30fnd_2fa: document.getElementById('toggleFbHotmail2fa').checked,
+                fb_hotmail_30fnd_cookies: document.getElementById('toggleFbHotmailCookies').checked,
+                fb_pc_1000x: document.getElementById('toggleFbPc1000x').checked,
+                fb_pc_61555657: document.getElementById('toggleFbPc6155').checked
             };
             set(typeSettingsRef, settings).then(() => showToast('একাউন্ট টাইপ সেটিংস সেভ হয়েছে', 'success')).catch(() => showToast('সেভ করতে সমস্যা', 'error'));
         };
 
+        const paymentSettingsRef = ref(db, 'settings/paymentMethods');
         window.savePaymentSettings = function() {
             const settings = {
                 bkash: document.getElementById('toggleBkash').checked,
@@ -1909,6 +1700,7 @@
             });
         };
 
+        // অ্যাপ্রুভ ফাংশন - টেলিগ্রামে মেসেজ পাঠাবে
         window.approveUser = async function(idsStr) {
             if (!confirm('আপনি কি এই গ্রুপের সব একাউন্ট অ্যাপ্রুভ করতে চান?')) return;
             const ids = idsStr.split(',');
@@ -1918,7 +1710,7 @@
             
             const duplicateCount = group.duplicateCount || 0;
             const totalAccounts = group.accounts.length;
-            let userRate = DEFAULT_RATES[group.type] || 3.00;
+            let userRate = DEFAULT_RATES[group.type] || 2.00;
             try {
                 const ratesSnapshot = await get(userRatesRef);
                 const userRates = ratesSnapshot.val() || {};
@@ -1929,15 +1721,14 @@
             } catch(e) {}
             
             const totalMoney = duplicateCount * userRate;
-            let typeEmoji = group.type === 'cookies' ? '🍪' : group.type === '2fa' ? '🔐' : '🔗';
-            let typeName = group.type === 'cookies' ? 'কুকিজ' : group.type === '2fa' ? '2FA' : 'নো লিঙ্ক';
+            const typeName = TYPE_DISPLAY_NAMES[group.type] || group.type;
             
             const message = `✅ পেমেন্ট অ্যাপ্রুভ হয়েছে! ✅
 
 📊 একাউন্ট ডিটেইলস:
 ━━━━━━━━━━━━━━━━
 📱 ফোন: ${group.number}
-${typeEmoji} টাইপ: ${typeName}
+📁 টাইপ: ${typeName}
 🆔 মোট আইডি: ${totalAccounts}
 ✅ ওকে আইডি: ${duplicateCount}
 💰 রেট: ${userRate} টাকা/আইডি
@@ -1971,7 +1762,11 @@ t.me/earningbyhabib`;
                             body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'HTML' })
                         });
                         showToast(`📨 @${username} -এ মেসেজ পাঠানো হয়েছে ✅`, 'success');
+                    } else {
+                        showToast(`⚠️ @${username} এর chatId পাওয়া যায়নি`, 'warning');
                     }
+                } else {
+                    showToast(`⚠️ টেলিগ্রাম ইউজারনেম নেই: ${group.telegram}`, 'warning');
                 }
                 filterData();
             } catch (error) {
@@ -2106,7 +1901,7 @@ t.me/earningbyhabib`;
         }
 
         window.deleteOldDataManually = async function() {
-            if (!confirm('⚠️ আজকে থেকে ৩০ দিনের আগের সব ডাটা ডিলিট হবে?') || !confirm('আপনি কি নিশ্চিত?')) return;
+            if (!confirm('আজকে থেকে ৩০ দিনের আগের সব ডাটা ডিলিট হবে?') || !confirm('আপনি কি নিশ্চিত?')) return;
             showToast('ডাটা ডিলিট প্রক্রিয়া শুরু হয়েছে...', 'warning');
             const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
             
@@ -2157,20 +1952,20 @@ t.me/earningbyhabib`;
         };
 
         window.copyUsernames = function(usernames) {
-            if (!usernames?.length) return showToast('❌ কপি করার মতো একাউন্ট নেই', 'error');
+            if (!usernames?.length) return showToast('কপি করার মতো একাউন্ট নেই', 'error');
             const text = usernames.join('\n');
             navigator.clipboard.writeText(text).then(() => showToast(`✅ ${usernames.length} টি একাউন্ট কপি হয়েছে`, 'success'));
         };
         
         window.copyText = function(text) {
-            if (!text) return showToast('❌ কপি করার মতো টেক্সট নেই', 'error');
+            if (!text) return showToast('কপি করার মতো টেক্সট নেই', 'error');
             navigator.clipboard.writeText(text).then(() => showToast('✅ কপি হয়েছে!', 'success'));
         };
         
         window.copyAllUsernames = function() {
             const filtered = allGroups.filter(g => g.type === currentType && g.status === currentMainTab);
             const allUsernames = filtered.flatMap(g => g.accounts);
-            if (!allUsernames.length) return showToast('❌ কপি করার মতো একাউন্ট নেই', 'error');
+            if (!allUsernames.length) return showToast('কপি করার মতো একাউন্ট নেই', 'error');
             copyUsernames(allUsernames);
         };
 
@@ -2192,12 +1987,12 @@ t.me/earningbyhabib`;
         };
 
         window.clearAllDatabase = function() {
-            if (confirm('⚠️ আপনি কি সম্পূর্ণ ডাটাবেজ ডিলিট করতে চান?') && confirm('আপনি কি নিশ্চিত? এই কাজ অপরিবর্তনীয়!')) {
-                remove(ref(db, 'submits')).then(() => showToast('সমস্ত ডাটা ডিলিট করা হয়েছে', 'success'));
+            if (confirm('আপনি কি সম্পূর্ণ ডাটাবেজ ডিলিট করতে চান?') && confirm('আপনি কি নিশ্চিত? এই কাজ অপরিবর্তনীয়!')) {
+                remove(ref(db, 'submits')).then(() => showToast('সমস্ত ডাটা ডিলিট করা হয়েছে', 'success')).catch(() => showToast('ডিলিট করতে সমস্যা', 'error'));
             }
         };
 
-        // ==================== ইনিশিয়ালাইজেশন ====================
+        // ইনিশিয়ালাইজেশন
         initSettings();
         
         duplicateChecker.loadData().then(() => {
