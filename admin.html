@@ -25,7 +25,7 @@
             margin: 0 auto;
         }
 
-        /* কার্ড লোডিং - শুধু ইউজার কার্ড এরিয়াতে */
+        /* কার্ড লোডিং */
         .card-loading {
             text-align: center;
             padding: 60px 20px;
@@ -51,6 +51,7 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* হেডার - মোবাইলে সেন্টার, ডেস্কটপে সাইড বাই সাইড */
         .header {
             display: flex;
             justify-content: space-between;
@@ -63,6 +64,10 @@
             border: 1px solid rgba(255,215,0,0.2);
             flex-wrap: wrap;
             gap: 12px;
+        }
+
+        .logo {
+            flex-shrink: 0;
         }
 
         .logo h1 {
@@ -133,6 +138,20 @@
 
         .refresh-btn:active {
             transform: scale(0.95);
+        }
+
+        /* মোবাইল রেসপনসিভ হেডার */
+        @media (max-width: 650px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .logo {
+                margin-bottom: 10px;
+            }
+            .stats-row {
+                justify-content: center;
+            }
         }
 
         .money-stats {
@@ -237,7 +256,7 @@
             gap: 8px;
         }
 
-        /* মোবাইল ফ্রেন্ডলি টাইপ বাটন - 2 কলাম লেআউট */
+        /* মোবাইল ফ্রেন্ডলি টাইপ বাটন - 2 কলাম */
         .type-tabs {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -669,6 +688,7 @@
 
         .user-card.deleting { opacity: 0.5; transform: scale(0.95); pointer-events: none; }
 
+        /* কার্ড হেডার - ফোন নাম্বার বামে, টাইপ ও স্ট্যাটাস ডানে */
         .card-header {
             display: flex;
             justify-content: space-between;
@@ -687,6 +707,14 @@
             border-radius: 30px;
             font-weight: bold;
             font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .right-badges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         .type-badge {
@@ -695,6 +723,7 @@
             font-size: 10px;
             font-weight: bold;
             color: white;
+            white-space: nowrap;
         }
 
         .type-badge.type-1 { background: #ff6b6b; }
@@ -711,6 +740,7 @@
             border-radius: 20px;
             font-size: 10px;
             font-weight: bold;
+            white-space: nowrap;
         }
 
         .status-badge.pending { background: #ffa502; color: white; }
@@ -923,12 +953,28 @@
         @media (max-width: 550px) {
             .users-grid { grid-template-columns: 1fr; }
             .payment-toggles, .type-toggles { grid-template-columns: 1fr; }
+            .card-header {
+                flex-direction: row;
+                align-items: center;
+            }
+            .right-badges {
+                justify-content: flex-end;
+            }
         }
 
         @media (max-width: 400px) {
             .finance-row { flex-direction: column; }
             .main-tabs { flex-direction: column; }
-            .card-header { flex-direction: column; align-items: flex-start; }
+            .card-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .right-badges {
+                justify-content: center;
+            }
+            .phone-number {
+                text-align: center;
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -1534,7 +1580,7 @@
                     <div class="user-card" id="card-${group.id}">
                         <div class="card-header">
                             <span class="phone-number">📞 ${group.number}</span>
-                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                            <div class="right-badges">
                                 <span class="type-badge ${typeClass}">${typeName}</span>
                                 <span class="status-badge ${group.status}">${group.status === 'pending' ? '⏳ পেন্ডিং' : '✅ অ্যাপ্রুভড'}</span>
                             </div>
