@@ -51,7 +51,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* হেডার - মোবাইলে সেন্টার, ডেস্কটপে সাইড বাই সাইড */
+        /* হেডার */
         .header {
             display: flex;
             justify-content: space-between;
@@ -140,7 +140,6 @@
             transform: scale(0.95);
         }
 
-        /* মোবাইল রেসপনসিভ হেডার */
         @media (max-width: 650px) {
             .header {
                 flex-direction: column;
@@ -180,7 +179,6 @@
             margin-left: 5px;
         }
 
-        /* নতুন ওকে আইডি বক্স */
         .okid-stats {
             display: flex;
             gap: 12px;
@@ -193,10 +191,12 @@
             justify-content: center;
             flex-wrap: wrap;
         }
+
         .okid-box {
             font-size: 14px;
             color: #4CAF50;
         }
+
         .okid-box strong {
             color: #ffd700;
             font-size: 22px;
@@ -256,7 +256,7 @@
             gap: 8px;
         }
 
-        /* মোবাইল ফ্রেন্ডলি টাইপ বাটন - 2 কলাম */
+        /* 8টি টাইপের বাটন - 2 কলাম */
         .type-tabs {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -275,9 +275,6 @@
             border: none;
             box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
             color: white;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .type-tab.type-1 { background: linear-gradient(145deg, #ff6b6b, #ff4757); }
@@ -670,6 +667,7 @@
             margin-top: 12px;
         }
 
+        /* ইউজার কার্ড - মোবাইল রেসপনসিভ: বামে ফোন নাম্বার, ডানে টাইপ+স্ট্যাটাস */
         .users-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -688,7 +686,7 @@
 
         .user-card.deleting { opacity: 0.5; transform: scale(0.95); pointer-events: none; }
 
-        /* কার্ড হেডার - ফোন নাম্বার বামে, টাইপ ও স্ট্যাটাস ডানে */
+        /* কার্ড হেডার - মোবাইলে কলাম না করে রো বজায় রাখা */
         .card-header {
             display: flex;
             justify-content: space-between;
@@ -697,33 +695,34 @@
             padding-bottom: 8px;
             border-bottom: 1px solid rgba(255,215,0,0.3);
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 10px;
         }
 
         .phone-number {
             background: linear-gradient(145deg, #ffd700, #ffa500);
             color: #1a1e2b;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 30px;
             font-weight: bold;
             font-size: 12px;
-            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .right-badges {
             display: flex;
-            gap: 5px;
+            gap: 8px;
             flex-wrap: wrap;
             justify-content: flex-end;
         }
 
         .type-badge {
-            padding: 4px 12px;
+            padding: 6px 14px;
             border-radius: 30px;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: bold;
             color: white;
-            white-space: nowrap;
         }
 
         .type-badge.type-1 { background: #ff6b6b; }
@@ -736,11 +735,10 @@
         .type-badge.type-8 { background: #2c3e50; }
 
         .status-badge {
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 10px;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 11px;
             font-weight: bold;
-            white-space: nowrap;
         }
 
         .status-badge.pending { background: #ffa502; color: white; }
@@ -791,7 +789,7 @@
         .duplicate-badge {
             background: rgba(76, 175, 80, 0.2);
             color: #4CAF50;
-            padding: 3px 10px;
+            padding: 3px 12px;
             border-radius: 30px;
             font-size: 11px;
             font-weight: 600;
@@ -833,7 +831,7 @@
         .ok-type-middle {
             flex: 1;
             display: flex;
-            gap: 4px;
+            gap: 5px;
             justify-content: center;
             flex-wrap: wrap;
         }
@@ -841,9 +839,9 @@
         .ok-badge {
             background: rgba(76, 175, 80, 0.2);
             color: #4CAF50;
-            padding: 3px 8px;
+            padding: 3px 10px;
             border-radius: 30px;
-            font-size: 9px;
+            font-size: 10px;
             font-weight: 600;
             border: 1px solid #4CAF50;
         }
@@ -863,21 +861,21 @@
 
         .action-buttons {
             display: flex;
-            gap: 5px;
+            gap: 6px;
             margin-top: 10px;
             flex-wrap: wrap;
         }
 
         .action-btn {
-            width: 34px;
-            height: 34px;
+            width: 36px;
+            height: 36px;
             border-radius: 12px;
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 14px;
             box-shadow: 5px 5px 10px rgba(0,0,0,0.4);
         }
 
@@ -886,7 +884,7 @@
 
         .copy-usernames-btn {
             flex: 2;
-            padding: 6px 10px;
+            padding: 6px 12px;
             border-radius: 12px;
             border: none;
             background: linear-gradient(145deg, #667eea, #764ba2);
@@ -902,7 +900,7 @@
             background: linear-gradient(145deg, #26de81, #20bf6b);
             color: white;
             flex: 1;
-            padding: 6px 10px;
+            padding: 6px 12px;
             border-radius: 12px;
             border: none;
             cursor: pointer;
@@ -949,31 +947,53 @@
             grid-column: 1 / -1;
         }
 
-        /* মোবাইল রেসপনসিভ */
+        /* মোবাইল রেসপনসিভ - কার্ড হেডার ঠিক রাখা */
         @media (max-width: 550px) {
             .users-grid { grid-template-columns: 1fr; }
             .payment-toggles, .type-toggles { grid-template-columns: 1fr; }
+            
             .card-header {
-                flex-direction: row;
-                align-items: center;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
             }
+            
             .right-badges {
-                justify-content: flex-end;
+                justify-content: flex-end !important;
+            }
+            
+            .phone-number {
+                font-size: 11px;
+                padding: 5px 12px;
+            }
+            
+            .type-badge, .status-badge {
+                padding: 5px 10px;
+                font-size: 10px;
             }
         }
 
         @media (max-width: 400px) {
             .finance-row { flex-direction: column; }
             .main-tabs { flex-direction: column; }
+            
             .card-header {
-                flex-direction: column;
-                align-items: stretch;
+                flex-direction: row !important;
+                justify-content: space-between !important;
             }
+            
             .right-badges {
-                justify-content: center;
+                justify-content: flex-end !important;
             }
+            
             .phone-number {
-                text-align: center;
+                font-size: 10px;
+                padding: 4px 10px;
+            }
+            
+            .type-badge, .status-badge {
+                padding: 4px 8px;
+                font-size: 9px;
             }
         }
     </style>
@@ -998,7 +1018,6 @@
             <span class="money-approved">✅ অ্যাপ্রুভড টাকা (<span id="approvedDays">০</span> দিন): <strong id="totalApprovedMoney">০.০০</strong> টাকা</span>
         </div>
 
-        <!-- নতুন ওকে আইডি বক্স -->
         <div class="okid-stats">
             <span class="okid-box">✅ মোট ওকে আইডি (বর্তমান টাইপ): <strong id="totalOkIdCount">0</strong></span>
         </div>
@@ -1023,7 +1042,7 @@
             <button class="main-tab approved" onclick="switchMainTab('approved')" id="tabApproved">✅ অ্যাপ্রুভড <span class="badge" id="approvedCount">0</span></button>
         </div>
 
-        <!-- ৮টি টাইপের বাটন - মোবাইলে ২ কলাম -->
+        <!-- 8টি টাইপের বাটন -->
         <div class="type-tabs">
             <button class="type-tab type-1 active" onclick="switchType('insta_cookies')" id="tabInstaCookies">🍪 Insta Cookies</button>
             <button class="type-tab type-2" onclick="switchType('insta_2fa')" id="tabInsta2fa">🔐 Insta 2FA</button>
@@ -1035,7 +1054,7 @@
             <button class="type-tab type-8" onclick="switchType('fb_pc_61555657')" id="tabFbPc6155">💻 FB PC 61/55/56/57</button>
         </div>
 
-        <!-- ৮টি টাইপের স্ট্যাট বক্স - ২ কলাম -->
+        <!-- 8টি টাইপ স্ট্যাট বক্স -->
         <div class="type-stats">
             <div class="type-stat-box type-1" onclick="switchType('insta_cookies')"><div class="stat-value" id="instaCookiesCount">0</div><div class="stat-label">🍪 Insta Cookies</div></div>
             <div class="type-stat-box type-2" onclick="switchType('insta_2fa')"><div class="stat-value" id="insta2faCount">0</div><div class="stat-label">🔐 Insta 2FA</div></div>
@@ -1097,8 +1116,8 @@
                     <div class="type-toggles">
                         <div class="toggle-item"><label>🍪 Insta Cookies</label><input type="checkbox" id="toggleInstaCookies" checked></div>
                         <div class="toggle-item"><label>🔐 Insta 2FA</label><input type="checkbox" id="toggleInsta2fa" checked></div>
-                        <div class="toggle-item"><label>🔐 FB 0.2 FND 2FA</label><input type="checkbox" id="toggleFb02fnd2fa" checked></div>
-                        <div class="toggle-item"><label>🍪 FB 0.2 FND Cookies</label><input type="checkbox" id="toggleFb02fndCookies" checked></div>
+                        <div class="toggle-item"><label>🔐 FB 0 FND 2FA</label><input type="checkbox" id="toggleFb02fnd2fa" checked></div>
+                        <div class="toggle-item"><label>🍪 FB 0 FND Cookies</label><input type="checkbox" id="toggleFb02fndCookies" checked></div>
                         <div class="toggle-item"><label>🔐 FB Hotmail 30FND 2FA</label><input type="checkbox" id="toggleFbHotmail2fa" checked></div>
                         <div class="toggle-item"><label>🍪 FB Hotmail 30FND Cookies</label><input type="checkbox" id="toggleFbHotmailCookies" checked></div>
                         <div class="toggle-item"><label>💻 FB PC 1000×</label><input type="checkbox" id="toggleFbPc1000x" checked></div>
@@ -1172,19 +1191,26 @@
         const secondApp = initializeApp(secondDatabaseConfig, 'secondary');
         const secondDB = getDatabase(secondApp);
 
-        // টাইপ কনস্ট্যান্ট
+        // টাইপ ডিসপ্লে নেমস (সঠিক নাম - প্রতিটি অপশনের জন্য আলাদা)
         const TYPE_DISPLAY_NAMES = {
+            // দ্বিতীয় ডাটাবেজের কী গুলো
+            'instagram_cookies': '🍪 IG Cookies',
+            'instagram_2fa': '🔐 IG 2FA',
+            'facebook_cookies': '🍪 FB 0 FND Cookies',
+            'facebook_2fa': '🔐 FB 0 FND 2FA',
+            'fb_02fnd_2fa': '🔐 FB 0 FND 2FA',
+            'fb_02fnd_cookies': '🍪 FB 0 FND Cookies',
+            'fb_hotmail_30fnd_2fa': '🔐 FB Hotmail 30FND 2FA',
+            'fb_hotmail_30fnd_cookies': '🍪 FB Hotmail 0 FND 2FA',
+            'fb_pc_1000x': '💻 FB PC 1000×',
+            'fb_pc_61555657': '💻 FB PC 61/55/56/57',
             'insta_cookies': '🍪 Insta Cookies',
             'insta_2fa': '🔐 Insta 2FA',
-            'fb_02fnd_2fa': '🔐 FB 0.2 FND 2FA',
-            'fb_02fnd_cookies': '🍪 FB 0.2 FND Cookies',
-            'fb_hotmail_30fnd_2fa': '🔐 FB Hotmail 30FND 2FA',
-            'fb_hotmail_30fnd_cookies': '🍪 FB Hotmail 30FND Cookies',
-            'fb_pc_1000x': '💻 FB PC 1000×',
-            'fb_pc_61555657': '💻 FB PC 61/55/56/57'
+            // কুকিজ নো লিংক (যদি থাকে)
+            'cookies_no_link': '🍪 কুকিজ No Link'
         };
 
-        // ডুপ্লিকেট চেকার ক্লাস
+        // ডুপ্লিকেট চেকার ক্লাস (সঠিক অপশন নাম সহ)
         class DuplicateChecker {
             constructor() {
                 this.allUsernames = new Map();
@@ -1231,7 +1257,9 @@
                                     const typeUsers = dateData.users[type];
                                     if (typeUsers && typeof typeUsers === 'object') {
                                         for (const encodedUsername in typeUsers) {
-                                            this.allUsernames.set(encodedUsername, type);
+                                            // সঠিক টাইপ নাম সংরক্ষণ
+                                            let displayType = TYPE_DISPLAY_NAMES[type] || type;
+                                            this.allUsernames.set(encodedUsername, displayType);
                                         }
                                     }
                                 }
@@ -1252,17 +1280,20 @@
 
             getDuplicateDetails(usernames) {
                 if (!this.isLoaded || !usernames || usernames.length === 0) return { count: 0, types: [] };
+                const typeCounts = new Map();
                 let count = 0;
-                const typesSet = new Set();
                 usernames.forEach(username => {
                     const encoded = this.encodeUsername(username);
                     if (this.allUsernames.has(encoded)) {
                         count++;
-                        const type = this.allUsernames.get(encoded);
-                        if (type) typesSet.add(type);
+                        const displayName = this.allUsernames.get(encoded);
+                        if (displayName) {
+                            typeCounts.set(displayName, (typeCounts.get(displayName) || 0) + 1);
+                        }
                     }
                 });
-                return { count: count, types: Array.from(typesSet) };
+                const types = Array.from(typeCounts.keys());
+                return { count: count, types: types };
             }
 
             async reload() {
@@ -1291,13 +1322,6 @@
         };
         
         const TELEGRAM_BOT_TOKEN = '8250221796:AAHdKid6RAoIeEnjHhrYdHNGkmc38wfs5d4';
-        
-        const reportTypeDisplayNames = {
-            'instagram_cookies': '🍪 IG Cookies',
-            'instagram_2fa': '🔐 IG 2FA',
-            'facebook_cookies': '🍪 FB Cookies',
-            'facebook_2fa': '🔐 FB 2FA'
-        };
 
         function initSettings() {
             const paymentContent = document.getElementById('paymentSettings');
@@ -1528,7 +1552,7 @@
         async function displayGroups(groups) {
             const container = document.getElementById('usersGrid');
             if (groups.length === 0) {
-                container.innerHTML = `<div class="empty-state">📭 কোন ${currentMainTab === 'pending' ? 'পেন্ডিং' : 'অ্যাপ্রুভড'} ${TYPE_DISPLAY_NAMES[currentType]} একাউন্ট নেই</div>`;
+                container.innerHTML = `<div class="empty-state">📭 কোন ${currentMainTab === 'pending' ? 'পেন্ডিং' : 'অ্যাপ্রুভড'} ${TYPE_DISPLAY_NAMES[currentType] || currentType} একাউন্ট নেই</div>`;
                 return;
             }
 
@@ -1563,8 +1587,7 @@
                 
                 let okTypeBadgesHtml = '';
                 if (group.duplicateCount > 0 && group.duplicateTypes && group.duplicateTypes.length > 0) {
-                    group.duplicateTypes.forEach(type => {
-                        const displayName = reportTypeDisplayNames[type] || type;
+                    group.duplicateTypes.forEach(displayName => {
                         okTypeBadgesHtml += `<span class="ok-badge">✅ ${displayName}</span>`;
                     });
                 }
@@ -1611,7 +1634,7 @@
                         </div>
                     </div>
                 `;
-            };
+            }
             
             container.innerHTML = groupsHtml;
             document.getElementById('totalUsers').textContent = groups.length;
@@ -1746,7 +1769,6 @@
             });
         };
 
-        // অ্যাপ্রুভ ফাংশন - টেলিগ্রামে মেসেজ পাঠাবে
         window.approveUser = async function(idsStr) {
             if (!confirm('আপনি কি এই গ্রুপের সব একাউন্ট অ্যাপ্রুভ করতে চান?')) return;
             const ids = idsStr.split(',');
